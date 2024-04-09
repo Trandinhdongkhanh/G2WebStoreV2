@@ -1,9 +1,16 @@
 package com.hcmute.g2webstorev2.controller;
 
+import com.hcmute.g2webstorev2.dto.request.ProductRequest;
+import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.service.ProductService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -12,4 +19,47 @@ import java.util.List;
 public class ProductController {
     @Autowired
     private ProductService productService;
+
+    @GetMapping
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+        return ResponseEntity.ok(productService.getAllProducts());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProduct(
+            @PathVariable("id")
+            @NotNull(message = "Product ID cannot be null")
+            @Min(value = 1, message = "Product ID must be greater than 0") Integer id) {
+        return ResponseEntity.ok(productService.getProduct(id));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
+    public ResponseEntity<ProductResponse> addProduct(@Valid @RequestBody ProductRequest body) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(productService.addProduct(body));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable("id")
+            @NotNull(message = "Product ID cannot be null")
+            @Min(value = 1, message = "Product ID must be greater than 0") Integer id,
+            @Valid @RequestBody ProductRequest body) {
+        productService.updateProduct(body, id);
+        return ResponseEntity.ok("Product with ID = " + id + " updated successfully");
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
+    public ResponseEntity<?> delProduct(
+            @PathVariable("id")
+            @NotNull(message = "Product ID cannot be null")
+            @Min(value = 1, message = "Product ID must be greater than 0") Integer id
+    ) {
+        productService.delProduct(id);
+        return ResponseEntity.ok("Product with ID = " + id + " updated successfully");
+    }
 }

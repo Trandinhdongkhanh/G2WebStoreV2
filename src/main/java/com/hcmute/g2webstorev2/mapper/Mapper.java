@@ -1,13 +1,7 @@
 package com.hcmute.g2webstorev2.mapper;
 
-import com.hcmute.g2webstorev2.dto.response.AdminResponse;
-import com.hcmute.g2webstorev2.dto.response.CategoryResponse;
-import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
-import com.hcmute.g2webstorev2.dto.response.SellerResponse;
-import com.hcmute.g2webstorev2.entity.Admin;
-import com.hcmute.g2webstorev2.entity.Category;
-import com.hcmute.g2webstorev2.entity.Customer;
-import com.hcmute.g2webstorev2.entity.Seller;
+import com.hcmute.g2webstorev2.dto.response.*;
+import com.hcmute.g2webstorev2.entity.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -54,6 +48,28 @@ public class Mapper {
                 .adminId(admin.getAdminId())
                 .email(admin.getEmail())
                 .role(admin.getRole())
+                .build();
+    }
+
+    public static ProductResponse toProductResponse(Product product) {
+        return ProductResponse.builder()
+                .productId(product.getProductId())
+                .name(product.getName())
+                .images(product.getImages())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .specialPrice(product.getSpecialPrice())
+                .stockQuantity(product.getStockQuantity())
+                .shop(toShopResponse(product.getShop()))
+                .category(toCategoryResponse(product.getCategory()))
+                .build();
+    }
+
+    private static ShopResponse toShopResponse(Shop shop) {
+        return ShopResponse.builder()
+                .shopId(shop.getShopId())
+                .name(shop.getName())
+                .image(shop.getImage())
                 .build();
     }
 }

@@ -45,7 +45,6 @@ public class CategoryServiceImpl implements CategoryService {
         }
         category.setParentCategory(parentCategory);
         category.setName(body.getName());
-        categoryRepo.save(category);
     }
 
     @Override
