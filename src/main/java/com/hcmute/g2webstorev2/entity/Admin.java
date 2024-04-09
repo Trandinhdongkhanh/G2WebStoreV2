@@ -29,14 +29,14 @@ public class Admin implements UserDetails {
     private boolean isAccountNonExpired = true;
     private boolean isAccountNonLocked = true;
     private boolean isCredentialsNonExpired = true;
-    private boolean isEnabled;
+    private boolean isEnabled = true;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(role.getAppRole().name()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getAppRole().name()));
         role.permissions.forEach(permission ->
                 authorities.add(new SimpleGrantedAuthority(permission.getAppPermission().name())));
         return authorities;

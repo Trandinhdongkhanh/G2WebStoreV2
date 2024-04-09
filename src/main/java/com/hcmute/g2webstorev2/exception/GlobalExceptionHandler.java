@@ -3,11 +3,13 @@ package com.hcmute.g2webstorev2.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.naming.AuthenticationException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
@@ -24,6 +26,17 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         e.printStackTrace();
         return ResponseEntity.internalServerError().body(err);
+    }
+    @ExceptionHandler(AccountStatusException.class)
+    public ResponseEntity<ErrorRes> handleAuthenticationException(AccountStatusException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.UNAUTHORIZED)
+                .code(HttpStatus.UNAUTHORIZED.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err);
     }
     @ExceptionHandler(ResourceNotUniqueException.class)
     public ResponseEntity<ErrorRes> handleResourceNotUniqueException(ResourceNotUniqueException e){

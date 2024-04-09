@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
@@ -14,13 +15,20 @@ import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.repository.SellerRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
 import com.hcmute.g2webstorev2.service.SellerService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.SELLER_FULL_ACCESS;
 
@@ -70,15 +78,46 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     public AuthResponse authenticate(AuthRequest body) {
-        authManager.authenticate(
+        Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         ":" + body.getEmail(),
                         body.getPassword()
                 )
         );
-        Seller seller = sellerRepo.findByEmail(body.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Email '" + body.getEmail() + "' not existed"));
+        Seller seller = (Seller) authentication.getPrincipal();
         String accessToken = jwtService.generateAccessToken(seller);
-        return new AuthResponse(accessToken, null);
+        String refreshToken = jwtService.generateRefreshToken(seller);
+        return new AuthResponse(accessToken, refreshToken);
+    }
+
+    @Override
+    public void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return;
+        }
+
+        String refreshToken = authHeader.substring(7);
+        if (!jwtService.isTokenValid(refreshToken)) return;
+
+        String email = jwtService.extractEmail(refreshToken);
+
+        if (email != null) {
+            Seller seller = sellerRepo.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Email '" + email + "' not existed"));
+            String accessToken = jwtService.generateAccessToken(seller);
+
+            AuthResponse authResponse = AuthResponse.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+
+            new ObjectMapper().writeValue(res.getOutputStream(), authResponse);
+        }
+    }
+
+    @Override
+    public SellerResponse getInfo() {
+        return null;
     }
 }

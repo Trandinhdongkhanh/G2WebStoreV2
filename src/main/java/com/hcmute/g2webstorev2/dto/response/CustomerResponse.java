@@ -24,6 +24,7 @@ public class CustomerResponse {
     private String avatar;
     private float point;
     private LocalDate dob;
+    @JsonProperty("is_email_verified")
     private boolean isEmailVerified;;
     private Role role;
 }

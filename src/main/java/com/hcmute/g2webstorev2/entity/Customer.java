@@ -40,14 +40,16 @@ public class Customer implements UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(role.getAppRole().name()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getAppRole().name()));
         role.permissions.forEach(permission ->
                 authorities.add(new SimpleGrantedAuthority(permission.getAppPermission().name())));
         return authorities;
     }
+
     @Override
     public String getPassword() {
         return password;

@@ -26,34 +26,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = getAccessTokenFromHeader(request);
-        if (accessToken == null) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
-        if (jwtService.isTokenValid(accessToken)) {
-            String role = jwtService.extractRole(accessToken);
-            String email = jwtService.extractEmail(accessToken);
+
+        String accessToken = authHeader.substring(7);
+        if (!jwtService.isTokenValid(accessToken)) return;
+
+        String email = jwtService.extractEmail(accessToken);
+        String role = jwtService.extractRole(accessToken);
+
+        if (email != null && role != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(role + ":" + email);
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
                     userDetails.getAuthorities()
             );
-
             authToken.setDetails(
                     new WebAuthenticationDetailsSource().buildDetails(request)
             );
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
         filterChain.doFilter(request, response);
-    }
-
-    private String getAccessTokenFromHeader(HttpServletRequest req) {
-        String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
-        return null;
     }
 }

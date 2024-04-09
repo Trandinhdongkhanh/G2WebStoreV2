@@ -19,6 +19,7 @@ public class SellerResponse {
     @JsonProperty("full_name")
     private String fullName;
     private String avatar;
+    @JsonProperty("is_email_verified")
     private boolean isEmailVerified;
     private Role role;
     private Shop shop;

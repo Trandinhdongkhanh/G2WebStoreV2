@@ -19,8 +19,15 @@ public class Product {
     @Column(name = "product_id")
     private Integer productId;
     private String name;
+    private String images;
     private String description;
     private Integer price;
     private Integer specialPrice;
     private Integer stockQuantity;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "shop_id")
+    private Shop shop;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    private Category category;
 }
