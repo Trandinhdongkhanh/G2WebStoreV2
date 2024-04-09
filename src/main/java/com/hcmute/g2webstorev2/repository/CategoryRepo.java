@@ -6,14 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface CategoryRepo extends JpaRepository<Category, Integer> {
     boolean existsByName(String name);
-
-    @Query("select c from Category c where c.parentCategory.categoryId = :parentId")
-    Optional<Category> findByParentCategory(Integer parentId);
 
 //    @Query(value = "with recursive cte(category_id, name, parent_id) as ( " +
 //            "select category_id, name, parent_id " +

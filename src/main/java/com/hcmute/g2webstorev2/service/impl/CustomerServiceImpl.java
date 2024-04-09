@@ -7,6 +7,7 @@ import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Role;
+import com.hcmute.g2webstorev2.entity.Seller;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
@@ -111,6 +112,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse getInfo() {
-        return null;
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (customer == null) throw new UsernameNotFoundException("Please login");
+
+        return Mapper.toCustomerResponse(customer);
     }
 }
