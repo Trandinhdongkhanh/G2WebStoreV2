@@ -22,5 +22,5 @@ public class Address {
     private String district;
     private Integer districtId;
     private String ward;
-    private String address;
+    private String street;
 }

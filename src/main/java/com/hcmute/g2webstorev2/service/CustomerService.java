@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.service;
 
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
+import com.hcmute.g2webstorev2.dto.request.CustomerProfileUpdateRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,4 +18,6 @@ public interface CustomerService {
     AuthResponse refreshToken(String refreshToken);
 
     CustomerResponse getInfo();
+
+    CustomerResponse updateProfile(CustomerProfileUpdateRequest body);
 }

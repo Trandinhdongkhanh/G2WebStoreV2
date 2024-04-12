@@ -3,7 +3,6 @@ package com.hcmute.g2webstorev2.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -12,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "prodcut")
+@Table(name = "product")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,4 +29,9 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     private Category category;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "shop_cate_id")
+    private ShopCategory shopCategory;
+    @ManyToMany(mappedBy = "products")
+    private List<Voucher> vouchers;
 }

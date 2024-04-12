@@ -1,14 +1,12 @@
 package com.hcmute.g2webstorev2.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
+import com.hcmute.g2webstorev2.dto.request.CustomerProfileUpdateRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
-import com.hcmute.g2webstorev2.entity.Admin;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Role;
-import com.hcmute.g2webstorev2.entity.Seller;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
@@ -16,12 +14,8 @@ import com.hcmute.g2webstorev2.repository.CustomerRepo;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.service.CustomerService;
 import com.hcmute.g2webstorev2.service.TokenService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.*;
 
@@ -123,5 +116,22 @@ public class CustomerServiceImpl implements CustomerService {
         if (customer == null) throw new UsernameNotFoundException("Please login");
 
         return Mapper.toCustomerResponse(customer);
+    }
+
+    @Override
+    @Transactional
+    public CustomerResponse updateProfile(CustomerProfileUpdateRequest body) {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        customer.setAvatar(body.getAvatar());
+        customer.setDob(body.getDob());
+        customer.setEmail(body.getEmail());
+        customer.setFullName(body.getFullName());
+        customer.setPassword(body.getPassword());
+        customer.setPhoneNo(body.getPhoneNo());
+
+        CustomerResponse res = Mapper.toCustomerResponse(customerRepo.save(customer));
+        log.info("Update customer with ID = " + customer.getCustomerId() + " successfully");
+        return res;
     }
 }
