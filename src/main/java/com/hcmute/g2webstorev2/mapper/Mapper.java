@@ -3,9 +3,6 @@ package com.hcmute.g2webstorev2.mapper;
 import com.hcmute.g2webstorev2.dto.response.*;
 import com.hcmute.g2webstorev2.entity.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Mapper {
     public static CustomerResponse toCustomerResponse(Customer customer) {
@@ -78,6 +75,23 @@ public class Mapper {
                 .shopId(shopCategory.getShop().getShopId())
                 .childCategories(shopCategory.getChildCategories())
                 .name(shopCategory.getName())
+                .build();
+    }
+
+    public static VoucherResponse toVoucherResponse(Voucher voucher) {
+        return VoucherResponse.builder()
+                .id(voucher.getId())
+                .name(voucher.getName())
+                .startDate(voucher.getStartDate())
+                .endDate(voucher.getEndDate())
+                .discountType(voucher.getDiscountType())
+                .voucherType(voucher.getVoucherType())
+                .minSpend(voucher.getMinSpend())
+                .reducePrice(voucher.getReducePrice())
+                .reducePercent(voucher.getReducePercent())
+                .quantity(voucher.getQuantity())
+                .maxUsePerCus(voucher.getMaxUsePerCus())
+                .shopId(voucher.getShop().getShopId())
                 .build();
     }
 }
