@@ -5,21 +5,22 @@ import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
-import com.hcmute.g2webstorev2.entity.Role;
-import com.hcmute.g2webstorev2.entity.Seller;
-import com.hcmute.g2webstorev2.entity.Shop;
+import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.repository.SellerRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
+import com.hcmute.g2webstorev2.repository.TokenRepo;
 import com.hcmute.g2webstorev2.service.SellerService;
+import com.hcmute.g2webstorev2.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.SELLER_FULL_ACCESS;
+import static com.hcmute.g2webstorev2.enums.TokenType.BEARER;
 
 
 @Service
@@ -49,6 +51,9 @@ public class SellerServiceImpl implements SellerService {
     private AuthenticationManager authManager;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private TokenService tokenService;
 
     @Override
     @Transactional
@@ -78,6 +83,7 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
+    @Transactional
     public AuthResponse authenticate(AuthRequest body) {
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -88,18 +94,17 @@ public class SellerServiceImpl implements SellerService {
         Seller seller = (Seller) authentication.getPrincipal();
         String accessToken = jwtService.generateAccessToken(seller);
         String refreshToken = jwtService.generateRefreshToken(seller);
+
+        tokenService.revokeAllUserTokens(seller);
+        tokenService.saveUserToken(seller, accessToken);
+
         return new AuthResponse(accessToken, refreshToken);
     }
 
     @Override
-    public void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
-        }
-
-        String refreshToken = authHeader.substring(7);
-        if (!jwtService.isTokenValid(refreshToken)) return;
+    @Transactional
+    public AuthResponse refreshToken(String refreshToken) {
+        if (!jwtService.isTokenValid(refreshToken)) return null;
 
         String email = jwtService.extractEmail(refreshToken);
 
@@ -108,13 +113,15 @@ public class SellerServiceImpl implements SellerService {
                     .orElseThrow(() -> new UsernameNotFoundException("Email '" + email + "' not existed"));
             String accessToken = jwtService.generateAccessToken(seller);
 
-            AuthResponse authResponse = AuthResponse.builder()
+            tokenService.revokeAllUserTokens(seller);
+            tokenService.saveUserToken(seller, accessToken);
+
+            return AuthResponse.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .build();
-
-            new ObjectMapper().writeValue(res.getOutputStream(), authResponse);
         }
+        return null;
     }
 
     @Override

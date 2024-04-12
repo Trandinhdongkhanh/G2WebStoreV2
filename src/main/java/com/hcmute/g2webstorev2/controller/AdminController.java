@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
+import com.hcmute.g2webstorev2.dto.request.RefreshTokenRequest;
 import com.hcmute.g2webstorev2.dto.response.AdminResponse;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.service.AdminService;
@@ -43,7 +44,7 @@ public class AdminController {
     }
 
     @PostMapping("/refresh-token")
-    public void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        adminService.refreshToken(req, res);
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest body) {
+        return ResponseEntity.ok(adminService.refreshToken(body.getRefreshToken()));
     }
 }

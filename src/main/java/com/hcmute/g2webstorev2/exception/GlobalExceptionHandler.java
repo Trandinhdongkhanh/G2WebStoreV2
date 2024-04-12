@@ -1,15 +1,16 @@
 package com.hcmute.g2webstorev2.exception;
 
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.naming.AuthenticationException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
@@ -27,8 +28,30 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseEntity.internalServerError().body(err);
     }
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ErrorRes> handleJwtException(JwtException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.UNAUTHORIZED)
+                .code(HttpStatus.UNAUTHORIZED.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err);
+    }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorRes> handleAccessDeniedException(AccessDeniedException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.UNAUTHORIZED)
+                .code(HttpStatus.UNAUTHORIZED.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err);
+    }
     @ExceptionHandler(AccountStatusException.class)
-    public ResponseEntity<ErrorRes> handleAuthenticationException(AccountStatusException e){
+    public ResponseEntity<ErrorRes> handleAccountStatusException(AccountStatusException e){
         ErrorRes err = ErrorRes.builder()
                 .status(HttpStatus.UNAUTHORIZED)
                 .code(HttpStatus.UNAUTHORIZED.value())

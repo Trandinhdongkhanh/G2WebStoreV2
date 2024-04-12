@@ -51,7 +51,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void delCategory(Integer id) {
         Category category = categoryRepo.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Category with ID = " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category with ID = " + id + " not found"));
+
+        if (category.getParentCategory() != null) {
+            category.getParentCategory().getChildCategories().remove(category);
+            category.setParentCategory(null);
+        }
 
         categoryRepo.delete(category);
 

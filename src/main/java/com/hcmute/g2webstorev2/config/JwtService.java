@@ -3,10 +3,12 @@ package com.hcmute.g2webstorev2.config;
 import com.hcmute.g2webstorev2.entity.Admin;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Seller;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Service
+@Slf4j
 public class JwtService {
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
@@ -143,12 +146,6 @@ public class JwtService {
                 .getBody()
                 .getExpiration();
     }
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        String email = extractEmail(token);
-        return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
     public boolean isTokenValid(String token) {
         try {
             Jwts.parserBuilder()
@@ -156,8 +153,9 @@ public class JwtService {
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (JwtException e) {
+            log.error(e.getMessage());
+            throw e;
         }
     }
 

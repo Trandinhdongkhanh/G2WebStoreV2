@@ -14,7 +14,7 @@ public interface SellerService {
 
     AuthResponse authenticate(AuthRequest body);
 
-    void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException;
+    AuthResponse refreshToken (String refreshToken);
 
     SellerResponse getInfo();
 }

@@ -13,11 +13,13 @@ import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.AdminRepo;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.service.AdminService;
+import com.hcmute.g2webstorev2.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,6 +46,9 @@ public class AdminServiceImpl implements AdminService {
     private AuthenticationManager authManager;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private TokenService tokenService;
+
     @Override
     @Transactional
     public AdminResponse register(AuthRequest body) {
@@ -74,18 +79,18 @@ public class AdminServiceImpl implements AdminService {
         Admin admin = (Admin) authentication.getPrincipal();
         String accessToken = jwtService.generateAccessToken(admin);
         String refreshToken = jwtService.generateRefreshToken(admin);
+
+        tokenService.revokeAllUserTokens(admin);
+        tokenService.saveUserToken(admin, accessToken);
+
+
         return new AuthResponse(accessToken, refreshToken);
     }
 
     @Override
-    public void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
-        }
-
-        String refreshToken = authHeader.substring(7);
-        if (!jwtService.isTokenValid(refreshToken)) return;
+    @Transactional
+    public AuthResponse refreshToken(String refreshToken) {
+        if (!jwtService.isTokenValid(refreshToken)) return null;
 
         String email = jwtService.extractEmail(refreshToken);
 
@@ -94,13 +99,15 @@ public class AdminServiceImpl implements AdminService {
                     .orElseThrow(() -> new UsernameNotFoundException("Email '" + email + "' not existed"));
             String accessToken = jwtService.generateAccessToken(admin);
 
-            AuthResponse authResponse = AuthResponse.builder()
+            tokenService.revokeAllUserTokens(admin);
+            tokenService.saveUserToken(admin, accessToken);
+
+            return AuthResponse.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .build();
-
-            new ObjectMapper().writeValue(res.getOutputStream(), authResponse);
         }
+        return null;
     }
 
     @Override

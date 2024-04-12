@@ -6,7 +6,6 @@ import com.hcmute.g2webstorev2.service.CategoryService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +35,7 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') and hasAuthority('UPDATE_CATEGORY')")
-    public ResponseEntity<?> updateCategory(
+    public ResponseEntity<String> updateCategory(
             @Valid @RequestBody CategoryRequest body,
             @PathVariable("id")
             @NotNull(message = "Category ID cannot be null")
@@ -56,7 +55,7 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') and hasAuthority('DELETE_CATEGORY')")
-    public ResponseEntity<?> delCategory(
+    public ResponseEntity<String> delCategory(
             @PathVariable("id")
             @NotNull(message = "Category ID cannot be null")
             @Min(value = 1, message = "Category ID must be greater than 0") Integer id

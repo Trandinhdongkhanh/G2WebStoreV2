@@ -13,7 +13,8 @@ public interface CustomerService {
     CustomerResponse register(AuthRequest body);
 
     AuthResponse authenticate(AuthRequest body);
-    void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException;
+
+    AuthResponse refreshToken(String refreshToken);
 
     CustomerResponse getInfo();
 }

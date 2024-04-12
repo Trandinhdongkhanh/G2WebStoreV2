@@ -5,6 +5,7 @@ import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
+import com.hcmute.g2webstorev2.entity.Admin;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Role;
 import com.hcmute.g2webstorev2.entity.Seller;
@@ -14,11 +15,13 @@ import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CustomerRepo;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.service.CustomerService;
+import com.hcmute.g2webstorev2.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,6 +48,8 @@ public class CustomerServiceImpl implements CustomerService {
     private JwtService jwtService;
     @Autowired
     private RoleRepo roleRepo;
+    @Autowired
+    private TokenService tokenService;
 
     @Override
     @Transactional
@@ -81,18 +86,17 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = (Customer) authentication.getPrincipal();
         String accessToken = jwtService.generateAccessToken(customer);
         String refreshToken = jwtService.generateRefreshToken(customer);
+
+        tokenService.revokeAllUserTokens(customer);
+        tokenService.saveUserToken(customer, accessToken);
+
         return new AuthResponse(accessToken, refreshToken);
     }
 
     @Override
-    public void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
-        }
-
-        String refreshToken = authHeader.substring(7);
-        if (!jwtService.isTokenValid(refreshToken)) return;
+    @Transactional
+    public AuthResponse refreshToken(String refreshToken) {
+        if (!jwtService.isTokenValid(refreshToken)) return null;
 
         String email = jwtService.extractEmail(refreshToken);
 
@@ -101,13 +105,15 @@ public class CustomerServiceImpl implements CustomerService {
                     .orElseThrow(() -> new UsernameNotFoundException("Email '" + email + "' not existed"));
             String accessToken = jwtService.generateAccessToken(customer);
 
-            AuthResponse authResponse = AuthResponse.builder()
+            tokenService.revokeAllUserTokens(customer);
+            tokenService.saveUserToken(customer, accessToken);
+
+            return AuthResponse.builder()
                     .accessToken(accessToken)
                     .refreshToken(refreshToken)
                     .build();
-
-            new ObjectMapper().writeValue(res.getOutputStream(), authResponse);
         }
+        return null;
     }
 
     @Override

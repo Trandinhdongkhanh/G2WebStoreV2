@@ -26,7 +26,6 @@ public class SecurityConfig {
             "/api/v1/*/me",
             "/api/v1/*/login",
             "/api/v1/*/register",
-            "/api/v1/*/refresh-token",
     };
     @Autowired
     private JwtAuthEntryPoint jwtAuthEntryPoint;
@@ -62,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/*/refresh-token").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthEntryPoint))
