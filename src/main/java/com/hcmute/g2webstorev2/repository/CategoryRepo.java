@@ -23,6 +23,7 @@ public interface CategoryRepo extends JpaRepository<Category, Integer> {
 //            "select * from cte", nativeQuery = true)
 //    List<Category> findAllByParentCategory(Integer parentId);
 
-    @Query("select c from Category c where c.parentCategory.categoryId is null")
-    List<Category> findAllByParentCategory();
+    @Query("select c from Category c " +
+            "where c.parentCategory.categoryId is null")
+    List<Category> findAllCategories();
 }

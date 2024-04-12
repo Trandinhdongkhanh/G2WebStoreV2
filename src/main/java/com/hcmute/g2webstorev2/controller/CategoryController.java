@@ -20,11 +20,6 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping
-    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
-    }
-
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') and hasAuthority('CREATE_CATEGORY')")
     public ResponseEntity<CategoryResponse> addCategory(@Valid @RequestBody CategoryRequest body) {
@@ -32,7 +27,6 @@ public class CategoryController {
                 .status(HttpStatus.CREATED)
                 .body(categoryService.addCategory(body));
     }
-
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') and hasAuthority('UPDATE_CATEGORY')")
     public ResponseEntity<String> updateCategory(
@@ -43,7 +37,6 @@ public class CategoryController {
         categoryService.updateCategory(body, id);
         return ResponseEntity.ok("Category with ID = " + id + " updated successfully");
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponse> getCategory(
             @PathVariable("id")
@@ -51,6 +44,10 @@ public class CategoryController {
             @Min(value = 1, message = "Category ID must be greater than 0") Integer id
     ) {
         return ResponseEntity.ok(categoryService.getCategory(id));
+    }
+    @GetMapping
+    public ResponseEntity<List<CategoryResponse>> getAllCategories(){
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
     @DeleteMapping("/{id}")

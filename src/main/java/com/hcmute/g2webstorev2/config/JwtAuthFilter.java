@@ -49,7 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
 
-        //Check if the acess token existed in the database
+        //Check if the access token existed in the database
         //If we bypass this then 100% our access token is true and does exist in database
         String accessToken = authHeader.substring(7);
         Optional<Token> optToken = tokenRepo.findByToken(accessToken);
@@ -78,12 +78,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException ex) {
             sendError(response, ex.getMessage());
             tokenRepo.delete(optToken.get());
-            log.info("Delete token successfully");
-        } catch (IllegalArgumentException ex) {
-            sendError(response, ex.getMessage());
-        } catch (MalformedJwtException ex) {
-            sendError(response, ex.getMessage());
-        } catch (UnsupportedJwtException ex) {
+            log.info("Deleted token successfully");
+        } catch (IllegalArgumentException | MalformedJwtException | UnsupportedJwtException ex) {
             sendError(response, ex.getMessage());
         }
     }

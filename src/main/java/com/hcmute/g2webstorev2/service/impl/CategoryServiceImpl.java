@@ -24,12 +24,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryResponse> getAllCategories() {
-        return categoryRepo.findAllByParentCategory()
+        return categoryRepo.findAllCategories()
                 .stream()
                 .map(Mapper::toCategoryResponse)
                 .collect(Collectors.toList());
     }
-
     @Override
     @Transactional
     public void updateCategory(CategoryRequest body, Integer id) {
@@ -45,6 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
         category.setParentCategory(parentCategory);
         category.setName(body.getName());
+        log.info("Update category with ID = " + id + " successfully");
     }
 
     @Override

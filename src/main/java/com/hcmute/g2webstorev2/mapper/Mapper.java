@@ -65,11 +65,19 @@ public class Mapper {
                 .build();
     }
 
-    private static ShopResponse toShopResponse(Shop shop) {
+    public static ShopResponse toShopResponse(Shop shop) {
         return ShopResponse.builder()
                 .shopId(shop.getShopId())
                 .name(shop.getName())
                 .image(shop.getImage())
+                .build();
+    }
+    public static ShopCateResponse toShopCateResponse(ShopCategory shopCategory){
+        return ShopCateResponse.builder()
+                .shopCateId(shopCategory.getId())
+                .shopId(shopCategory.getShop().getShopId())
+                .childCategories(shopCategory.getChildCategories())
+                .name(shopCategory.getName())
                 .build();
     }
 }

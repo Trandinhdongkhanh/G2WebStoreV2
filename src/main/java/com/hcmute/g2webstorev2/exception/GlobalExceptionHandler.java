@@ -28,6 +28,17 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseEntity.internalServerError().body(err);
     }
+    @ExceptionHandler(ShopCategoryException.class)
+    public ResponseEntity<ErrorRes> handleShopCategoryException(ShopCategoryException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ErrorRes> handleJwtException(JwtException e){
         ErrorRes err = ErrorRes.builder()

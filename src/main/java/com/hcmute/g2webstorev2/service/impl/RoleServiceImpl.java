@@ -52,10 +52,15 @@ public class RoleServiceImpl implements RoleService {
             Permission updateUser = permissionRepo.findByAppPermission(UPDATE_USER);
             Permission deleteUser = permissionRepo.findByAppPermission(DELETE_USER);
 
+            Permission createCategory = permissionRepo.findByAppPermission(CREATE_CATEGORY);
+            Permission readCategory = permissionRepo.findByAppPermission(READ_CATEGORY);
+            Permission updateCategory = permissionRepo.findByAppPermission(UPDATE_CATEGORY);
+            Permission deleteCategory = permissionRepo.findByAppPermission(DELETE_CATEGORY);
+
             roleRepo.save(new Role(ADMIN, new HashSet<>(permissionRepo.findAll())));
             roleRepo.save(new Role(
                     CUSTOMER,
-                    null    //since we don't have to distinguish between users, we only need to check the user permissions
+                    null    //since we don't have to distinguish between users, we only need to check the user role
             ));
             roleRepo.save(new Role(
                     SELLER_PROMOTION_ACCESS,
@@ -67,7 +72,8 @@ public class RoleServiceImpl implements RoleService {
                             createPromotion, readPromotion, updatePromotion, deletePromotion,
                             readOrder, updateOrder, deleteOrder,
                             createReview, readReview, updateReview, deleteReview,
-                            createUser, readUser, updateUser, deleteUser)
+                            createUser, readUser, updateUser, deleteUser,
+                            createCategory, readCategory, updateCategory, deleteCategory)
             ));
             roleRepo.save(new Role(
                     SELLER_PRODUCT_ACCESS,
