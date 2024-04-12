@@ -154,7 +154,6 @@ public class JwtService {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException e) {
-            log.error(e.getMessage());
             throw e;
         }
     }

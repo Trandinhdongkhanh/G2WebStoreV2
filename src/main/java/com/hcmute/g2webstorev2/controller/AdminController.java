@@ -44,7 +44,7 @@ public class AdminController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest body) {
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest body) {
         return ResponseEntity.ok(adminService.refreshToken(body.getRefreshToken()));
     }
 }

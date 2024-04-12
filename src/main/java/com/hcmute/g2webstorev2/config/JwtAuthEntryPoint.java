@@ -18,20 +18,20 @@ import java.time.LocalDateTime;
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-//        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-//        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//
-//        ErrorRes err = ErrorRes.builder()
-//                .code(HttpStatus.UNAUTHORIZED.value())
-//                .status(HttpStatus.UNAUTHORIZED)
-//                .timestamp(LocalDateTime.now())
-//                .message(authException.getMessage())
-//                .build();
-//
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        objectMapper.findAndRegisterModules();
-//        objectMapper.writeValue(response.getOutputStream(), err);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+        ErrorRes err = ErrorRes.builder()
+                .code(HttpStatus.UNAUTHORIZED.value())
+                .status(HttpStatus.UNAUTHORIZED)
+                .timestamp(LocalDateTime.now())
+                .message(authException.getMessage())
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
+        objectMapper.writeValue(response.getOutputStream(), err);
+
+//        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
     }
 }

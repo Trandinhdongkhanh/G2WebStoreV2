@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
+import com.hcmute.g2webstorev2.dto.request.RefreshTokenRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.service.CustomerService;
@@ -41,7 +42,7 @@ public class CustomerController {
                 .body(customerService.register(body));
     }
     @PostMapping("/refresh-token")
-    public void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        customerService.refreshToken(req, res);
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest body) throws IOException {
+        return ResponseEntity.ok(customerService.refreshToken(body.getRefreshToken()));
     }
 }

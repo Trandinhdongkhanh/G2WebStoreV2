@@ -48,6 +48,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+
+        //Check if the acess token existed in the database
+        //If we bypass this then 100% our access token is true and does exist in database
         String accessToken = authHeader.substring(7);
         Optional<Token> optToken = tokenRepo.findByToken(accessToken);
         if (optToken.isEmpty()) {
@@ -55,6 +58,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+        //Now we need to check the expiration,... of the token, if the token is expired we delete it in the database
         try {
             String email = jwtService.extractEmail(accessToken);
             String role = jwtService.extractRole(accessToken);
