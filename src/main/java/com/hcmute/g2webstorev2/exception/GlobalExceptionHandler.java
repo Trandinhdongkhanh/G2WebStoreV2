@@ -28,6 +28,17 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseEntity.internalServerError().body(err);
     }
+    @ExceptionHandler(PasswordNotMatchException.class)
+    public ResponseEntity<ErrorRes> handlePasswordNotMatchException(PasswordNotMatchException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
     @ExceptionHandler(VoucherException.class)
     public ResponseEntity<ErrorRes> handleVoucherException(VoucherException e){
         ErrorRes err = ErrorRes.builder()

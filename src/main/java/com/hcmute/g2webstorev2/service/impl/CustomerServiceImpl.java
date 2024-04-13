@@ -1,12 +1,13 @@
 package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.config.JwtService;
-import com.hcmute.g2webstorev2.dto.request.AuthRequest;
-import com.hcmute.g2webstorev2.dto.request.CustomerProfileUpdateRequest;
+import com.hcmute.g2webstorev2.dto.request.*;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Role;
+import com.hcmute.g2webstorev2.entity.Seller;
+import com.hcmute.g2webstorev2.exception.PasswordNotMatchException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
@@ -25,6 +26,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+import java.util.Objects;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.*;
 
@@ -125,13 +128,51 @@ public class CustomerServiceImpl implements CustomerService {
 
         customer.setAvatar(body.getAvatar());
         customer.setDob(body.getDob());
-        customer.setEmail(body.getEmail());
         customer.setFullName(body.getFullName());
-        customer.setPassword(body.getPassword());
-        customer.setPhoneNo(body.getPhoneNo());
 
         CustomerResponse res = Mapper.toCustomerResponse(customerRepo.save(customer));
         log.info("Update customer with ID = " + customer.getCustomerId() + " successfully");
         return res;
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(PasswordUpdateRequest body) {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!passwordEncoder.matches(body.getOldPassword(), customer.getPassword()))
+            throw new PasswordNotMatchException("Incorrect old password");
+
+        customer.setPassword(passwordEncoder.encode(body.getNewPassword()));
+        log.info("Updated password of customer with ID = " + customer.getCustomerId() + " successfully");
+    }
+
+    @Override
+    @Transactional
+    public void updateEmail(EmailUpdateRequest body) {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (Objects.equals(customer.getEmail(), body.getNewEmail()))
+            throw new RuntimeException("New email must be different from current email");
+
+        if (customerRepo.existsByEmail(body.getNewEmail()))
+            throw new ResourceNotUniqueException("Email existed");
+
+        customer.setEmail(body.getNewEmail());
+        log.info("Email of customer with ID = " + customer.getCustomerId() + " updated successfully");
+    }
+
+    @Override
+    public void updatePhoneNo(PhoneNoUpdateRequest body) {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (Objects.equals(customer.getPhoneNo(), body.getNewPhoneNo()))
+            throw new RuntimeException("New Phone No must be different from current Phone No");
+
+        if (customerRepo.existsByPhoneNo(body.getNewPhoneNo()))
+            throw new ResourceNotUniqueException("Phone No exsited");
+
+        customer.setPhoneNo(body.getNewPhoneNo());
+        log.info("Phone No of customer with ID = " + customer.getCustomerId() + " updated successfully");
     }
 }

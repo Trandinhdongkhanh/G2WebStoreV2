@@ -1,17 +1,14 @@
 package com.hcmute.g2webstorev2.controller;
 
-import com.hcmute.g2webstorev2.dto.request.AuthRequest;
-import com.hcmute.g2webstorev2.dto.request.CustomerProfileUpdateRequest;
-import com.hcmute.g2webstorev2.dto.request.RefreshTokenRequest;
+import com.hcmute.g2webstorev2.dto.request.*;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.service.CustomerService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -51,8 +48,30 @@ public class CustomerController {
     }
 
     @PutMapping("/me")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CustomerResponse> updateProfile(
             @RequestBody @Valid CustomerProfileUpdateRequest body) {
         return ResponseEntity.ok(customerService.updateProfile(body));
+    }
+
+    @PutMapping("/me/password")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<String> updatePassword(@RequestBody @Valid PasswordUpdateRequest body) {
+        customerService.updatePassword(body);
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
+    @PutMapping("/me/email")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<String> updateEmail(@RequestBody @Valid EmailUpdateRequest body) {
+        customerService.updateEmail(body);
+        return ResponseEntity.ok("Email updated successfully");
+    }
+
+    @PutMapping("/me/phone-no")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<String> updatePhoneNo(@RequestBody @Valid PhoneNoUpdateRequest body) {
+        customerService.updatePhoneNo(body);
+        return ResponseEntity.ok("Phone No updated successfully");
     }
 }
