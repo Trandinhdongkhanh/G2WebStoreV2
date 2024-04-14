@@ -12,8 +12,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class AddressRequest {
-    @NotBlank(message = "Street cannot be blank")
-    private String street;
+    @JsonProperty("order_receive_address")
+    private String orderReceiveAddress;
     @NotBlank(message = "Ward cannot be blank")
     private String ward;
     @JsonProperty("district_id")
@@ -24,8 +24,12 @@ public class AddressRequest {
     private String district;
     @NotBlank(message = "Province cannot be blank")
     private String province;
-    @JsonProperty("customer_id")
-    @NotNull(message = "Customer ID cannot be null")
-    @Min(value = 1, message = "Customer ID must be equals or greater than 1")
-    private Integer customerId;
+    @JsonProperty("receiver_name")
+    @NotBlank(message = "Receiver name cannot be blank")
+    private String receiverName;
+    @JsonProperty("receiver_phone_no")
+    @NotBlank(message = "Receiver phone no cannot be blank")
+    private String receiverPhoneNo;
+    @JsonProperty("is_default")
+    private boolean isDefault;
 }

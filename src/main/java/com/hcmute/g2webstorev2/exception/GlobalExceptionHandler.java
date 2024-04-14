@@ -28,6 +28,28 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseEntity.internalServerError().body(err);
     }
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<ErrorRes> handleEmailException(EmailException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
+    @ExceptionHandler(PhoneNoException.class)
+    public ResponseEntity<ErrorRes> handlePhoneNoException(PhoneNoException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
     @ExceptionHandler(PasswordNotMatchException.class)
     public ResponseEntity<ErrorRes> handlePasswordNotMatchException(PasswordNotMatchException e){
         ErrorRes err = ErrorRes.builder()

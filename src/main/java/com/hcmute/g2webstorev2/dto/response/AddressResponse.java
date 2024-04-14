@@ -11,7 +11,8 @@ import lombok.*;
 public class AddressResponse {
     @JsonProperty("address_id")
     private Integer addressId;
-    private String street;
+    @JsonProperty("order_receive_address")
+    private String orderReceiveAddress;
     private String ward;
     @JsonProperty("district_id")
     private Integer districtId;
@@ -19,4 +20,11 @@ public class AddressResponse {
     private String province;
     @JsonProperty("customer_id")
     private Integer customerId;
+    @JsonProperty("receiver_name")
+    private String receiverName;
+    @JsonProperty("receiver_phone_no")
+    private String receiverPhoneNo;
+    @JsonProperty("is_default")
+    private boolean isDefault;
+
 }

@@ -22,5 +22,8 @@ public class Address {
     private String district;
     private Integer districtId;
     private String ward;
-    private String street;
+    private String orderReceiveAddress;
+    private String receiverName;
+    private String receiverPhoneNo;
+    private boolean isDefault;
 }

@@ -7,9 +7,7 @@ import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Role;
 import com.hcmute.g2webstorev2.entity.Seller;
-import com.hcmute.g2webstorev2.exception.PasswordNotMatchException;
-import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
-import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
+import com.hcmute.g2webstorev2.exception.*;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CustomerRepo;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
@@ -144,6 +142,7 @@ public class CustomerServiceImpl implements CustomerService {
             throw new PasswordNotMatchException("Incorrect old password");
 
         customer.setPassword(passwordEncoder.encode(body.getNewPassword()));
+        customerRepo.save(customer);
         log.info("Updated password of customer with ID = " + customer.getCustomerId() + " successfully");
     }
 
@@ -153,12 +152,13 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (Objects.equals(customer.getEmail(), body.getNewEmail()))
-            throw new RuntimeException("New email must be different from current email");
+            throw new EmailException("New email must be different from current email");
 
         if (customerRepo.existsByEmail(body.getNewEmail()))
             throw new ResourceNotUniqueException("Email existed");
 
         customer.setEmail(body.getNewEmail());
+        customerRepo.save(customer);
         log.info("Email of customer with ID = " + customer.getCustomerId() + " updated successfully");
     }
 
@@ -167,12 +167,13 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (Objects.equals(customer.getPhoneNo(), body.getNewPhoneNo()))
-            throw new RuntimeException("New Phone No must be different from current Phone No");
+            throw new PhoneNoException("New Phone No must be different from current Phone No");
 
         if (customerRepo.existsByPhoneNo(body.getNewPhoneNo()))
-            throw new ResourceNotUniqueException("Phone No exsited");
+            throw new ResourceNotUniqueException("Phone No existed");
 
         customer.setPhoneNo(body.getNewPhoneNo());
+        customerRepo.save(customer);
         log.info("Phone No of customer with ID = " + customer.getCustomerId() + " updated successfully");
     }
 }

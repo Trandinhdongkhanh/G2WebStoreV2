@@ -94,4 +94,18 @@ public class Mapper {
                 .shopId(voucher.getShop().getShopId())
                 .build();
     }
+    public static AddressResponse toAddressResponse(Address address){
+        return AddressResponse.builder()
+                .addressId(address.getAddressId())
+                .orderReceiveAddress(address.getOrderReceiveAddress())
+                .ward(address.getWard())
+                .districtId(address.getDistrictId())
+                .district(address.getDistrict())
+                .province(address.getProvince())
+                .customerId(address.getCustomer().getCustomerId())
+                .receiverPhoneNo(address.getReceiverPhoneNo())
+                .receiverName(address.getReceiverName())
+                .isDefault(address.isDefault())
+                .build();
+    }
 }
