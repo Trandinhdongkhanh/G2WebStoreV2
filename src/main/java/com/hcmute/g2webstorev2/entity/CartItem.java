@@ -26,4 +26,8 @@ public class CartItem {
     private Integer quantity;
     @Transient
     private Integer subTotal;
+
+    public Integer getSubTotal() {
+        return quantity * price;
+    }
 }

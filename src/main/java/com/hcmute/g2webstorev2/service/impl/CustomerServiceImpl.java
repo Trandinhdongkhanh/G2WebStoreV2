@@ -6,7 +6,6 @@ import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Role;
-import com.hcmute.g2webstorev2.entity.Seller;
 import com.hcmute.g2webstorev2.exception.*;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CustomerRepo;
@@ -47,7 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public CustomerResponse register(AuthRequest body) {
+    public AuthResponse register(AuthRequest body) {
         if (customerRepo.existsByEmail(body.getEmail()))
             throw new ResourceNotUniqueException("Email existed");
         Role role = roleRepo.findByAppRole(CUSTOMER);
@@ -60,9 +59,15 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setEmailVerified(true);
         customer.setRole(role);
 
-        CustomerResponse res = Mapper.toCustomerResponse(customerRepo.save(customer));
-        log.info("Customer with id " + res.getCustomerId() + " created");
-        return res;
+        Customer res = customerRepo.save(customer);
+        log.info("Customer with ID = " + res.getCustomerId() + " has been registered successfully");
+
+        String accessToken = jwtService.generateAccessToken(res);
+        String refreshToken = jwtService.generateRefreshToken(res);
+
+        tokenService.saveUserToken(res, accessToken);
+
+        return new AuthResponse(accessToken, refreshToken);
     }
 
     @Override

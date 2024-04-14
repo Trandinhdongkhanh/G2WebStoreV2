@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 public interface SellerService {
-    SellerResponse register(AuthRequest body);
+    AuthResponse register(AuthRequest body);
 
     AuthResponse authenticate(AuthRequest body);
 

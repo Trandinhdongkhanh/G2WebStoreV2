@@ -51,7 +51,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public AdminResponse register(AuthRequest body) {
+    public AuthResponse register(AuthRequest body) {
         if (adminRepo.existsByEmail(body.getEmail()))
             throw new ResourceNotUniqueException("Email existed");
         Role role = roleRepo.findByAppRole(ADMIN);
@@ -63,9 +63,14 @@ public class AdminServiceImpl implements AdminService {
         admin.setPassword(passwordEncoder.encode(body.getPassword()));
         admin.setRole(role);
 
-        AdminResponse res = Mapper.toAdminResponse(adminRepo.save(admin));
-        log.info("Admin created successfully");
-        return res;
+        Admin res = adminRepo.save(admin);
+        log.info("Admin with ID = " + res.getAdminId() + " created successfully");
+
+        String accessToken = jwtService.generateAccessToken(admin);
+        String refreshToken = jwtService.generateRefreshToken(admin);
+
+        tokenService.saveUserToken(admin, accessToken);
+        return new AuthResponse(accessToken, refreshToken);
     }
 
     @Override

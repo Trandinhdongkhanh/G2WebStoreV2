@@ -10,7 +10,7 @@ import org.springframework.http.ProblemDetail;
 import java.io.IOException;
 
 public interface CustomerService {
-    CustomerResponse register(AuthRequest body);
+    AuthResponse register(AuthRequest body);
 
     AuthResponse authenticate(AuthRequest body);
 

@@ -37,7 +37,7 @@ public class AdminController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AdminResponse> register(@Valid @RequestBody AuthRequest body) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRequest body) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(adminService.register(body));

@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public interface AdminService {
-    AdminResponse register(AuthRequest body);
+    AuthResponse register(AuthRequest body);
 
     AuthResponse authenticate(AuthRequest body);
 

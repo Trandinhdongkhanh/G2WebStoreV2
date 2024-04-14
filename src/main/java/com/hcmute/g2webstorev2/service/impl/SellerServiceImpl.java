@@ -49,7 +49,7 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     @Transactional
-    public SellerResponse register(AuthRequest body) {
+    public AuthResponse register(AuthRequest body) {
         Role role = roleRepo.findByAppRole(SELLER_FULL_ACCESS);
         if (role == null)
             throw new ResourceNotFoundException("Role SELLER_FULL_ACCESS not found");
@@ -57,9 +57,11 @@ public class SellerServiceImpl implements SellerService {
             throw new ResourceNotUniqueException("Email existed");
 
         Shop shop = shopRepo.save(Shop.builder()
-                        .image(null)
-                        .name(body.getEmail())
-                        .build());
+                .image(null)
+                .name(body.getEmail())
+                .build());
+
+        log.info("Shop with ID = " + shop.getShopId() + " created successfully");
 
         Seller seller = new Seller();
         seller.setEmail(body.getEmail());
@@ -68,10 +70,14 @@ public class SellerServiceImpl implements SellerService {
         seller.setEmailVerified(true);
         seller.setShop(shop);
 
-        SellerResponse res = Mapper.toSellerResponse(sellerRepo.save(seller));
+        Seller res = sellerRepo.save(seller);
+        log.info("Seller with ID = " + res.getSellerId() + " registered successfully");
 
-        log.info("Seller with ID = " + res.getSellerId() + " created");
-        return res;
+        String accessToken = jwtService.generateAccessToken(res);
+        String refreshToken = jwtService.generateRefreshToken(res);
+
+        tokenService.saveUserToken(seller, accessToken);
+        return new AuthResponse(accessToken, refreshToken);
     }
 
     @Override

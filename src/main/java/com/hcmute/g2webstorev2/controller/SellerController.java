@@ -36,7 +36,7 @@ public class SellerController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<SellerResponse> register(@Valid @RequestBody AuthRequest body){
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRequest body){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(sellerService.register(body));

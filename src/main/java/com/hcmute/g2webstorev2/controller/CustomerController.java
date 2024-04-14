@@ -36,7 +36,7 @@ public class CustomerController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<CustomerResponse> register(@Valid @RequestBody AuthRequest body) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRequest body) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(customerService.register(body));

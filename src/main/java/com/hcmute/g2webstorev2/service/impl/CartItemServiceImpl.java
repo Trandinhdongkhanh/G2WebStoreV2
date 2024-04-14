@@ -32,13 +32,7 @@ public class CartItemServiceImpl implements CartItemService {
     public List<CartItemResponse> getAllItems() {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return cartItemRepo.findAllByCustomer(customer)
-                .stream().map(cartItem -> {
-                    Integer subTotal = cartItem.getQuantity() * cartItem.getPrice();
-                    cartItem.setSubTotal(subTotal);
-                    return Mapper.toCartItemResponse(cartItem);
-                })
-                .collect(Collectors.toList());
+        return null;
     }
 
     @Override
@@ -84,7 +78,7 @@ public class CartItemServiceImpl implements CartItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + body.getProductId() + " not found"));
 
         CartItem cartItem = cartItemRepo.findByProductAndCustomer(product, customer)
-                .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + body.getProductId() + "" +
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + body.getProductId() +
                         " not existed in customer cart"));
 
         cartItem.setQuantity(body.getQuantity());
