@@ -66,7 +66,7 @@ public class AddressServiceImpl implements AddressService {
                         .orderReceiveAddress(body.getOrderReceiveAddress())
                         .receiverPhoneNo(body.getReceiverPhoneNo())
                         .receiverName(body.getReceiverName())
-                        .isDefault(false)
+                        .isDefault(body.isDefault())
                         .build()
         ));
 

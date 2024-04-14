@@ -42,7 +42,7 @@ public class ProductController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') and hasAuthority('CREATE_PRODUCT')")
+    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<ProductResponse> addProduct(@Valid @RequestBody ProductRequest body) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -50,7 +50,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') and hasAuthority('UPDATE_PRODUCT')")
+    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('UPDATE_PRODUCT')")
     public ResponseEntity<?> updateProduct(
             @PathVariable("id")
             @NotNull(message = "Product ID cannot be null")
@@ -61,7 +61,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') and hasAuthority('DELETE_PRODUCT')")
+    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<?> delProduct(
             @PathVariable("id")
             @NotNull(message = "Product ID cannot be null")

@@ -21,6 +21,10 @@ public class ProductResponse {
     private Integer stockQuantity;
     @JsonProperty("sold_quantity")
     private Integer soldQuantity;
+    private Float height;
+    private Float width;
+    private Float length;
+    private Float weight;
     private ShopResponse shop;
     private CategoryResponse category;
 }

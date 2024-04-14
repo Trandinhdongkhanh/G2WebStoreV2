@@ -13,4 +13,10 @@ public class ShopResponse {
     private Integer shopId;
     private String image;
     private String name;
+    private String province;
+    private String district;
+    @JsonProperty("district_id")
+    private Integer districtId;
+    private String ward;
+    private String street;
 }

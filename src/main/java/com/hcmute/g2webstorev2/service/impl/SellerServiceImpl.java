@@ -1,6 +1,5 @@
 package com.hcmute.g2webstorev2.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
@@ -12,15 +11,10 @@ import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.repository.SellerRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
-import com.hcmute.g2webstorev2.repository.TokenRepo;
 import com.hcmute.g2webstorev2.service.SellerService;
 import com.hcmute.g2webstorev2.service.TokenService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,10 +24,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.SELLER_FULL_ACCESS;
-import static com.hcmute.g2webstorev2.enums.TokenType.BEARER;
 
 
 @Service
@@ -65,9 +57,9 @@ public class SellerServiceImpl implements SellerService {
             throw new ResourceNotUniqueException("Email existed");
 
         Shop shop = shopRepo.save(Shop.builder()
-                .image(null)
-                .name(body.getEmail())
-                .build());
+                        .image(null)
+                        .name(body.getEmail())
+                        .build());
 
         Seller seller = new Seller();
         seller.setEmail(body.getEmail());
@@ -78,7 +70,7 @@ public class SellerServiceImpl implements SellerService {
 
         SellerResponse res = Mapper.toSellerResponse(sellerRepo.save(seller));
 
-        log.info("Seller with id = " + res.getSellerId() + " created");
+        log.info("Seller with ID = " + res.getSellerId() + " created");
         return res;
     }
 

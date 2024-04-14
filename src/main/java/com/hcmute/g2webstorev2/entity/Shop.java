@@ -17,4 +17,9 @@ public class Shop {
     private Integer shopId;
     private String image;
     private String name;
+    private String province;
+    private String district;
+    private Integer districtId;
+    private String ward;
+    private String street;
 }

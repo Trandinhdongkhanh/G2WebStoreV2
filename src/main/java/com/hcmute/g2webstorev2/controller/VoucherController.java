@@ -26,7 +26,7 @@ public class VoucherController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER_FULL_ACCESS', 'SELLER_PROMOTION_ACCESS') and " +
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER_FULL_ACCESS', 'SELLER_PROMOTION_ACCESS') or " +
             "hasAuthority('CREATE_PROMOTION')")
     public ResponseEntity<VoucherResponse> addVoucher(@RequestBody @Valid VoucherRequest body){
         return ResponseEntity

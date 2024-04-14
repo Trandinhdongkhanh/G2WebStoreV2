@@ -71,6 +71,10 @@ public class ProductServiceImpl implements ProductService {
                         .category(category)
                         .shop(seller.getShop())
                         .soldQuantity(0)
+                        .height(body.getHeight())
+                        .weight(body.getWeight())
+                        .width(body.getWidth())
+                        .length(body.getLength())
                         .build()
         ));
 
@@ -104,6 +108,10 @@ public class ProductServiceImpl implements ProductService {
         product.setSpecialPrice(body.getSpecialPrice());
         product.setStockQuantity(body.getStockQuantity());
         product.setCategory(category);
+        product.setHeight(body.getHeight());
+        product.setWeight(body.getWeight());
+        product.setWidth(body.getWidth());
+        product.setLength(body.getLength());
 
         log.info("Product with ID = " + id +" updated successfully");
     }

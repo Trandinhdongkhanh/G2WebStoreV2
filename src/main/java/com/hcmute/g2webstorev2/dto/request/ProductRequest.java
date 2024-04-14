@@ -28,8 +28,21 @@ public class ProductRequest {
     @NotNull(message = "Product quantity cannot be null")
     @Min(value = 0, message = "Product quantity must be equals or greater than 0")
     private Integer stockQuantity;
+    @NotNull(message = "Height cannot be null")
+    @Min(value = 0, message = "Height must be equals or greater than 0")
+    private Float height;
+    @NotNull(message = "Width cannot be null")
+    @Min(value = 0, message = "Width must be equals or greater than 0")
+    private Float width;
+    @NotNull(message = "Length cannot be null")
+    @Min(value = 0, message = "Length must be equals or greater than 0")
+    private Float length;
+    @NotNull(message = "Weight cannot be null")
+    @Min(value = 0, message = "Weight must be equals or greater than 0")
+    private Float weight;
     @JsonProperty("category_id")
     @NotNull(message = "Category ID cannot be null")
     @Min(value = 1, message = "Category ID must be equals or greater than 1")
     private Integer categoryId;
+
 }

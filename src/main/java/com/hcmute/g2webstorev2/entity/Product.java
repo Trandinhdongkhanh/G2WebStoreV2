@@ -24,6 +24,10 @@ public class Product {
     private Integer specialPrice;
     private Integer stockQuantity;
     private Integer soldQuantity;
+    private Float height;
+    private Float width;
+    private Float length;
+    private Float weight;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shop_id")
     private Shop shop;

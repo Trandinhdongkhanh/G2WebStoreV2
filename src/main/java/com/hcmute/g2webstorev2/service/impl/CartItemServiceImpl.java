@@ -50,21 +50,21 @@ public class CartItemServiceImpl implements CartItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + body.getProductId() + " not found"));
 
         CartItem cartItem = cartItemRepo.findByProductAndCustomer(product, customer)
-                        .orElse(null);
-        if (cartItem == null){
-            CartItemResponse res = Mapper.toCartItemResponse(cartItemRepo.save(CartItem.builder()
+                .orElse(null);
+
+        if (cartItem == null) {
+            cartItem = cartItemRepo.save(CartItem.builder()
                     .price(product.getPrice())
                     .name(product.getName())
                     .quantity(body.getQuantity())
                     .customer(customer)
                     .product(product)
-                    .build()));
-
-            log.info("Add item to cart successfully");
-            return res;
+                    .build());
+            cartItem = cartItemRepo.save(cartItem);
+        } else {
+            cartItem.setQuantity(cartItem.getQuantity() + body.getQuantity());
         }
 
-        cartItem.setQuantity(cartItem.getQuantity() + body.getQuantity());
         CartItemResponse res = Mapper.toCartItemResponse(cartItem);
         log.info("Add item to cart successfully");
 
@@ -78,6 +78,19 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public CartItemResponse updateItem(CartItemRequest body) {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Product product = productRepo.findById(body.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + body.getProductId() + " not found"));
+
+        CartItem cartItem = cartItemRepo.findByProductAndCustomer(product, customer)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + body.getProductId() + "" +
+                        " not existed in customer cart"));
+
+        cartItem.setQuantity(body.getQuantity());
+        cartItem.setName(product.getName());
+        cartItem.setPrice(product.getPrice());
+        cartItem.setSubTotal(product.getPrice() * body.getQuantity());
         return null;
     }
 }

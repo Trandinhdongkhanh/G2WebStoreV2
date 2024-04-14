@@ -59,6 +59,11 @@ public class Mapper {
                 .stockQuantity(product.getStockQuantity())
                 .shop(toShopResponse(product.getShop()))
                 .category(toCategoryResponse(product.getCategory()))
+                .weight(product.getWeight())
+                .height(product.getHeight())
+                .width(product.getWidth())
+                .length(product.getLength())
+                .soldQuantity(product.getSoldQuantity())
                 .build();
     }
 
@@ -67,6 +72,11 @@ public class Mapper {
                 .shopId(shop.getShopId())
                 .name(shop.getName())
                 .image(shop.getImage())
+                .street(shop.getStreet())
+                .district(shop.getDistrict())
+                .ward(shop.getWard())
+                .districtId(shop.getDistrictId())
+                .province(shop.getProvince())
                 .build();
     }
     public static ShopCateResponse toShopCateResponse(ShopCategory shopCategory){
