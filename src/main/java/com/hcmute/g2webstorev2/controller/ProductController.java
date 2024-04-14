@@ -25,6 +25,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
+    @GetMapping("/shop/{shopId}")
+    public ResponseEntity<List<ProductResponse>> getAllProductsByShop(
+            @PathVariable("shopId")
+            @NotNull(message = "Shop ID cannot be null")
+            @Min(value = 1, message = "Shop ID must be greater than 0") Integer id) {
+        return ResponseEntity.ok(productService.getAllProductsByShop(id));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProduct(
             @PathVariable("id")
@@ -34,7 +42,7 @@ public class ProductController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
+    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') and hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<ProductResponse> addProduct(@Valid @RequestBody ProductRequest body) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -42,7 +50,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
+    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') and hasAuthority('UPDATE_PRODUCT')")
     public ResponseEntity<?> updateProduct(
             @PathVariable("id")
             @NotNull(message = "Product ID cannot be null")
@@ -53,12 +61,11 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
+    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') and hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<?> delProduct(
             @PathVariable("id")
             @NotNull(message = "Product ID cannot be null")
-            @Min(value = 1, message = "Product ID must be greater than 0") Integer id
-    ) {
+            @Min(value = 1, message = "Product ID must be greater than 0") Integer id) {
         productService.delProduct(id);
         return ResponseEntity.ok("Product with ID = " + id + " updated successfully");
     }

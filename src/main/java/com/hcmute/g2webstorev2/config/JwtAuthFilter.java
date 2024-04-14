@@ -54,7 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String accessToken = authHeader.substring(7);
         Optional<Token> optToken = tokenRepo.findByToken(accessToken);
         if (optToken.isEmpty()) {
-            sendError(response, "Token invalid");
+            sendError(response, "Token is no longer valid, please replace new access token");
             return;
         }
 

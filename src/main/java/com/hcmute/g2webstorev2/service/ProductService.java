@@ -16,4 +16,5 @@ public interface ProductService {
     void updateProduct(ProductRequest body, Integer id);
 
     void delProduct(Integer id);
+    List<ProductResponse> getAllProductsByShop(Integer id);
 }

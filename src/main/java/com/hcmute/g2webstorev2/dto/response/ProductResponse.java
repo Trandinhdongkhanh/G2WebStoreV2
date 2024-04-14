@@ -1,7 +1,6 @@
 package com.hcmute.g2webstorev2.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hcmute.g2webstorev2.entity.Shop;
 import lombok.*;
 
 @Getter
@@ -20,6 +19,8 @@ public class ProductResponse {
     private Integer specialPrice;
     @JsonProperty("stock_quantity")
     private Integer stockQuantity;
+    @JsonProperty("sold_quantity")
+    private Integer soldQuantity;
     private ShopResponse shop;
     private CategoryResponse category;
 }

@@ -23,6 +23,7 @@ public class Product {
     private Integer price;
     private Integer specialPrice;
     private Integer stockQuantity;
+    private Integer soldQuantity;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shop_id")
     private Shop shop;

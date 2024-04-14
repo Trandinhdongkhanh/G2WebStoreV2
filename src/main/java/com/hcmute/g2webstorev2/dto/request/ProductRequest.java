@@ -28,10 +28,6 @@ public class ProductRequest {
     @NotNull(message = "Product quantity cannot be null")
     @Min(value = 0, message = "Product quantity must be equals or greater than 0")
     private Integer stockQuantity;
-    @JsonProperty("shop_id")
-    @NotNull(message = "Shop ID cannot be null")
-    @Min(value = 1, message = "Shop ID must be equals or greater than 1")
-    private Integer shopId;
     @JsonProperty("category_id")
     @NotNull(message = "Category ID cannot be null")
     @Min(value = 1, message = "Category ID must be equals or greater than 1")
