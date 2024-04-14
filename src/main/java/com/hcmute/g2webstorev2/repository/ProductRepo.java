@@ -15,4 +15,5 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
 
     @Query("select p from Product p where p.shop.shopId = :shopId")
     List<Product> findAllByShop(Integer shopId);
+
 }

@@ -108,4 +108,14 @@ public class Mapper {
                 .isDefault(address.isDefault())
                 .build();
     }
+    public static CartItemResponse toCartItemResponse(CartItem cartItem){
+        return CartItemResponse.builder()
+                .name(cartItem.getName())
+                .price(cartItem.getPrice())
+                .quantity(cartItem.getQuantity())
+                .productId(cartItem.getProduct().getProductId())
+                .customerId(cartItem.getCustomer().getCustomerId())
+                .subTotal(cartItem.getSubTotal())
+                .build();
+    }
 }

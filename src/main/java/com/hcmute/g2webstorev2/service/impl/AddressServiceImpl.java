@@ -25,6 +25,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public List<AddressResponse> getAddressesByCustomer() {
+        log.info("Begin fetching customer addresses...");
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return addressRepo.findAllByCustomer(customer)
