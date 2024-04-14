@@ -4,6 +4,7 @@ import com.hcmute.g2webstorev2.dto.request.CartItemRequest;
 import com.hcmute.g2webstorev2.dto.response.CartItemResponse;
 import com.hcmute.g2webstorev2.entity.CartItem;
 import com.hcmute.g2webstorev2.entity.Customer;
+import com.hcmute.g2webstorev2.entity.CustomerProductCompositeKey;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
@@ -32,7 +33,14 @@ public class CartItemServiceImpl implements CartItemService {
     public List<CartItemResponse> getAllItems() {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return null;
+        return cartItemRepo.findAllByCustomer(customer)
+                .stream().map(cartItem -> {
+                    cartItem.setName(cartItem.getProduct().getName());
+                    cartItem.setPrice(cartItem.getProduct().getPrice());
+                    cartItem.setSubTotal(cartItem.getPrice() * cartItem.getQuantity());
+                    return Mapper.toCartItemResponse(cartItem);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -48,6 +56,7 @@ public class CartItemServiceImpl implements CartItemService {
 
         if (cartItem == null) {
             cartItem = cartItemRepo.save(CartItem.builder()
+                    .customerProductCompositeKey(new CustomerProductCompositeKey(customer.getCustomerId(), product.getProductId()))
                     .price(product.getPrice())
                     .name(product.getName())
                     .quantity(body.getQuantity())
@@ -59,6 +68,7 @@ public class CartItemServiceImpl implements CartItemService {
             cartItem.setQuantity(cartItem.getQuantity() + body.getQuantity());
         }
 
+        cartItem.setSubTotal(cartItem.getQuantity() * cartItem.getPrice());
         CartItemResponse res = Mapper.toCartItemResponse(cartItem);
         log.info("Add item to cart successfully");
 
@@ -66,11 +76,26 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
+    @Transactional
     public void delItem(Integer productId) {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + productId + " not found"));
+
+        CartItem cartItem = cartItemRepo.findByProductAndCustomer(product, customer)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + productId +
+                        " not existed in customer cart"));
+
+        cartItem.setProduct(null);
+        cartItem.setCustomer(null);
+
+        cartItemRepo.delete(cartItem);
+        log.info("Item with ID = " + productId + " deleted successfully");
     }
 
     @Override
+    @Transactional
     public CartItemResponse updateItem(CartItemRequest body) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -85,6 +110,8 @@ public class CartItemServiceImpl implements CartItemService {
         cartItem.setName(product.getName());
         cartItem.setPrice(product.getPrice());
         cartItem.setSubTotal(product.getPrice() * body.getQuantity());
-        return null;
+
+        log.info("Item with ID = " + body.getProductId() + " updated successfully");
+        return Mapper.toCartItemResponse(cartItem);
     }
 }

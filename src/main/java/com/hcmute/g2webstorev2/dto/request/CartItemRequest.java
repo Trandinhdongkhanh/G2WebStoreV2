@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -15,5 +16,6 @@ public class CartItemRequest {
     private Integer quantity;
     @NotNull(message = "Product ID cannot be null")
     @Min(value = 1, message = "Product ID must be greater than 0")
+    @JsonProperty("product_id")
     private Integer productId;
 }
