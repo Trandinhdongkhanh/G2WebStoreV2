@@ -7,10 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AddressRepo extends JpaRepository<Address, Integer> {
     List<Address> findAllByCustomer(Customer customer);
 
-    Address findByReceiverPhoneNo(String phoneNo);
+    @Query("select a from Address a where a.isDefault = true")
+    Optional<Address> findByDefault(boolean isDefault);
 }

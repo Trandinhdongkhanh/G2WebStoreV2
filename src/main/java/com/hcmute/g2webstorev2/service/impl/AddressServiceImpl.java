@@ -39,6 +39,11 @@ public class AddressServiceImpl implements AddressService {
         Address address = addressRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Address with ID = " + id + " not found"));
 
+        if (body.isDefault()){
+             addressRepo.findByDefault(true)
+                     .ifPresent(defaultAddress -> defaultAddress.setDefault(false));
+        }
+
         address.setOrderReceiveAddress(body.getOrderReceiveAddress());
         address.setWard(body.getWard());
         address.setDistrictId(body.getDistrictId());
@@ -55,6 +60,11 @@ public class AddressServiceImpl implements AddressService {
     @Transactional
     public AddressResponse addAddressByCustomer(AddressRequest body) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (body.isDefault()){
+            addressRepo.findByDefault(true)
+                    .ifPresent(defaultAddress -> defaultAddress.setDefault(false));
+        }
 
         AddressResponse res = Mapper.toAddressResponse(addressRepo.save(
                 Address.builder()
