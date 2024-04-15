@@ -39,6 +39,28 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         return ResponseEntity.badRequest().body(err);
     }
+    @ExceptionHandler(NameNotMatchException.class)
+    public ResponseEntity<ErrorRes> handleNameNotMatchException(NameNotMatchException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
+    @ExceptionHandler(PriceNotMatchException.class)
+    public ResponseEntity<ErrorRes> handlePriceNotMatchException(PriceNotMatchException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
     @ExceptionHandler(PhoneNoException.class)
     public ResponseEntity<ErrorRes> handlePhoneNoException(PhoneNoException e){
         ErrorRes err = ErrorRes.builder()

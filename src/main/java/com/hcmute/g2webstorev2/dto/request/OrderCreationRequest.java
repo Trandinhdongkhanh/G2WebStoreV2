@@ -1,17 +1,20 @@
 package com.hcmute.g2webstorev2.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hcmute.g2webstorev2.dto.response.CartItemResponse;
+import com.hcmute.g2webstorev2.entity.CartItem;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OrderRequest {
+public class OrderCreationRequest {
     @JsonProperty("order_status")
     private OrderStatus orderStatus;
     @JsonProperty("created_date")
@@ -20,8 +23,7 @@ public class OrderRequest {
     private LocalDateTime curDate;
     @JsonProperty("delivered_date")
     private LocalDateTime deliveredDate;
-    @JsonProperty("customer_id")
-    private Integer customerId;
     @JsonProperty("shop_id")
     private Integer shopId;
+    private List<CartItemResponse> items;
 }

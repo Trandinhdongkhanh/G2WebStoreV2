@@ -128,4 +128,14 @@ public class Mapper {
                 .subTotal(cartItem.getSubTotal())
                 .build();
     }
+    public static OrderResponse toOrderResponse(Order order){
+        return OrderResponse.builder()
+                .orderStatus(order.getOrderStatus())
+                .createdDate(order.getCreatedDate())
+                .curDate(order.getCurDate())
+                .deliveredDate(order.getDeliveredDate())
+                .customerId(order.getCustomer().getCustomerId())
+                .shopId(order.getShop().getShopId())
+                .build();
+    }
 }
