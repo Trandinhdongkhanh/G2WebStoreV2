@@ -15,4 +15,6 @@ public interface CartItemRepo extends JpaRepository<CartItem, CustomerProductCom
     List<CartItem> findAllByCustomer(Customer customer);
 
     Optional<CartItem> findByProductAndCustomer(Product product, Customer customer);
+
+    void deleteAllByCustomer(Customer customer);
 }

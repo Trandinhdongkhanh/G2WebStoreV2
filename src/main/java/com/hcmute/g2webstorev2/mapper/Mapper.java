@@ -139,4 +139,15 @@ public class Mapper {
                 .shopId(order.getShop().getShopId())
                 .build();
     }
+    public static ReviewResponse toReviewResponse(Review review){
+        return ReviewResponse.builder()
+                .reviewId(review.getId())
+                .content(review.getContent())
+                .images(review.getImages())
+                .rate(review.getRate())
+                .customerName(review.getCustomer().getFullName())
+                .productId(review.getProduct().getProductId())
+                .shopFeedBack(review.getShopFeedBack())
+                .build();
+    }
 }

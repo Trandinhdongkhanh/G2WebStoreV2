@@ -26,7 +26,4 @@ public class Review {
     @JoinColumn(name = "product_id")
     private Product product;
     private String shopFeedBack;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "shop_id")
-    private Shop shop;
 }

@@ -55,8 +55,6 @@ public class CartItemServiceImpl implements CartItemService {
         if (cartItem == null) {
             cartItem = cartItemRepo.save(CartItem.builder()
                     .customerProductCompositeKey(new CustomerProductCompositeKey(customer.getCustomerId(), product.getProductId()))
-                    .price(product.getPrice())
-                    .name(product.getName())
                     .quantity(body.getQuantity())
                     .customer(customer)
                     .product(product)
@@ -66,7 +64,7 @@ public class CartItemServiceImpl implements CartItemService {
             cartItem.setQuantity(cartItem.getQuantity() + body.getQuantity());
         }
 
-        cartItem.setSubTotal(cartItem.getQuantity() * cartItem.getPrice());
+        cartItem.setSubTotal(cartItem.getQuantity() * product.getPrice());
         CartItemResponse res = Mapper.toCartItemResponse(cartItem);
         log.info("Add item to cart successfully");
 
@@ -105,8 +103,6 @@ public class CartItemServiceImpl implements CartItemService {
                         " not existed in customer cart"));
 
         cartItem.setQuantity(body.getQuantity());
-        cartItem.setName(product.getName());
-        cartItem.setPrice(product.getPrice());
         cartItem.setSubTotal(product.getPrice() * body.getQuantity());
 
         log.info("Item with ID = " + body.getProductId() + " updated successfully");

@@ -7,6 +7,7 @@ import com.hcmute.g2webstorev2.exception.NameNotMatchException;
 import com.hcmute.g2webstorev2.exception.PriceNotMatchException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
+import com.hcmute.g2webstorev2.repository.CartItemRepo;
 import com.hcmute.g2webstorev2.repository.OrderItemRepo;
 import com.hcmute.g2webstorev2.repository.OrderRepo;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
@@ -32,6 +33,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepo orderRepo;
     @Autowired
     private OrderItemRepo orderItemRepo;
+    @Autowired
+    private CartItemRepo cartItemRepo;
 
     @Override
     public List<OrderResponse> getOrders() {
@@ -53,6 +56,8 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Set<Shop> shops = new HashSet<>();
+
+        log.info("Perform checking data integrity...");
 
         body.getItems().forEach(item -> {
             Product product = productRepo.findById(item.getProductId())
@@ -77,10 +82,13 @@ public class OrderServiceImpl implements OrderService {
                     .shop(shop)
                     .build());
 
+            log.info("Order with ID = " + order.getOrderId() + " created successfully");
+
             orders.add(order);
 
             body.getItems().forEach(item -> {
                 orderItemRepo.save(OrderItem.builder()
+                        .image(item.getImages())
                         .price(item.getPrice())
                         .quantity(item.getQuantity())
                         .name(item.getName())
@@ -88,6 +96,10 @@ public class OrderServiceImpl implements OrderService {
                         .build());
             });
         });
+
+        cartItemRepo.deleteAllByCustomer(customer);
+
+        log.info("All items owned by customer with ID = " + customer.getCustomerId() + " deleted successfully");
 
         return orders.stream()
                 .map(Mapper::toOrderResponse)
