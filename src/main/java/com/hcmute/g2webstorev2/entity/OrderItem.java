@@ -13,6 +13,9 @@ import lombok.*;
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "item_id")
+    private Integer itemId;
+    private String image;
     private Integer price;
     private Integer quantity;
     private String name;

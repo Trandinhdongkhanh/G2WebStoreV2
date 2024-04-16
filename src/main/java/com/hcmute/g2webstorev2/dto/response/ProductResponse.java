@@ -27,4 +27,8 @@ public class ProductResponse {
     private Float weight;
     private ShopResponse shop;
     private CategoryResponse category;
+    @JsonProperty("is_deleted")
+    private boolean isDeleted;
+    @JsonProperty("is_available")
+    private boolean isAvailable;
 }

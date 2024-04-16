@@ -8,6 +8,6 @@ import java.util.List;
 public interface OrderService {
     List<OrderResponse> getOrders();
     List<OrderResponse> getOrdersByCustomer(Integer id);
-    OrderResponse createOrder(OrderCreationRequest body);
+    List<OrderResponse> createOrders(OrderCreationRequest body);
     List<OrderResponse> getOrdersByShop();
 }

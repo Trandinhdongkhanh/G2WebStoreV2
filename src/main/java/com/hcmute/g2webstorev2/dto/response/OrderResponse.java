@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class OrderResponse {
+    @JsonProperty("order_id")
+    private Integer orderId;
     @JsonProperty("order_status")
     private OrderStatus orderStatus;
     @JsonProperty("created_date")

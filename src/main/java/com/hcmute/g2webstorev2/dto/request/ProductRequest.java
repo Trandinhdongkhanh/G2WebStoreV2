@@ -44,5 +44,4 @@ public class ProductRequest {
     @NotNull(message = "Category ID cannot be null")
     @Min(value = 1, message = "Category ID must be equals or greater than 1")
     private Integer categoryId;
-
 }

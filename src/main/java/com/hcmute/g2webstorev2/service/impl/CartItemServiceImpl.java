@@ -35,9 +35,7 @@ public class CartItemServiceImpl implements CartItemService {
 
         return cartItemRepo.findAllByCustomer(customer)
                 .stream().map(cartItem -> {
-                    cartItem.setName(cartItem.getProduct().getName());
-                    cartItem.setPrice(cartItem.getProduct().getPrice());
-                    cartItem.setSubTotal(cartItem.getPrice() * cartItem.getQuantity());
+                    cartItem.setSubTotal(cartItem.getProduct().getPrice() * cartItem.getQuantity());
                     return Mapper.toCartItemResponse(cartItem);
                 })
                 .collect(Collectors.toList());

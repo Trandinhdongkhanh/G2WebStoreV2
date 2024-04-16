@@ -120,8 +120,8 @@ public class Mapper {
     }
     public static CartItemResponse toCartItemResponse(CartItem cartItem){
         return CartItemResponse.builder()
-                .name(cartItem.getName())
-                .price(cartItem.getPrice())
+                .name(cartItem.getProduct().getName())
+                .price(cartItem.getProduct().getPrice())
                 .quantity(cartItem.getQuantity())
                 .productId(cartItem.getProduct().getProductId())
                 .customerId(cartItem.getCustomer().getCustomerId())
@@ -130,6 +130,7 @@ public class Mapper {
     }
     public static OrderResponse toOrderResponse(Order order){
         return OrderResponse.builder()
+                .orderId(order.getOrderId())
                 .orderStatus(order.getOrderStatus())
                 .createdDate(order.getCreatedDate())
                 .curDate(order.getCurDate())

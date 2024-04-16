@@ -39,7 +39,6 @@ public class Product {
     private ShopCategory shopCategory;
     @ManyToMany(mappedBy = "products")
     private List<Voucher> vouchers;
-
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
     private List<CartItem> items;
 }

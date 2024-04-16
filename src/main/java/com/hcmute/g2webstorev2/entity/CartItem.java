@@ -21,8 +21,6 @@ public class CartItem {
     @MapsId("productId")
     @JoinColumn(name = "product_id")
     private Product product;
-    private Integer price;
-    private String name;
     private Integer quantity;
     @Transient
     private Integer subTotal;

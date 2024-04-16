@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class CartItemResponse {
+    private String images;
     private String name;
     private Integer price;
     private Integer quantity;
