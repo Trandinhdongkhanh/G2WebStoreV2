@@ -5,6 +5,7 @@ import com.hcmute.g2webstorev2.dto.response.ReviewResponse;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.entity.Review;
+import com.hcmute.g2webstorev2.exception.ProductReviewedException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -35,6 +37,9 @@ public class ReviewServiceImpl implements ReviewService {
         Product product = productRepo.findById(body.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + body.getProductId() + " not found"));
 
+        if (reviewRepo.existsByCustomerAndProduct(customer, product))
+            throw new ProductReviewedException("Product reviewed, can't create new review for this product");
+
         ReviewResponse res = Mapper.toReviewResponse(reviewRepo.save(Review.builder()
                 .content(body.getContent())
                 .images(body.getImages())
@@ -43,6 +48,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .product(product)
                 .build()));
 
+
         log.info("Review with ID = " + res.getReviewId() + " created successfully");
 
         return res;
@@ -50,6 +56,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public List<ReviewResponse> getReviews() {
-        return null;
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return reviewRepo.findAllByCustomer(customer)
+                .stream().map(Mapper::toReviewResponse)
+                .collect(Collectors.toList());
     }
 }
