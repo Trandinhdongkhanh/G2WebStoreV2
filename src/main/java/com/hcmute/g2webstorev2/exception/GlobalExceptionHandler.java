@@ -28,6 +28,17 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseEntity.internalServerError().body(err);
     }
+    @ExceptionHandler(ProductNotSufficientException.class)
+    public ResponseEntity<ErrorRes> handleProductNotSufficientException(ProductNotSufficientException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<ErrorRes> handleEmailException(EmailException e){
         ErrorRes err = ErrorRes.builder()

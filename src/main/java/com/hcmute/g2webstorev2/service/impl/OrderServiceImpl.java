@@ -5,6 +5,7 @@ import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.exception.NameNotMatchException;
 import com.hcmute.g2webstorev2.exception.PriceNotMatchException;
+import com.hcmute.g2webstorev2.exception.ProductNotSufficientException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CartItemRepo;
@@ -60,6 +61,8 @@ public class OrderServiceImpl implements OrderService {
                 throw new PriceNotMatchException("Item price and product price does not match, please perform checkout again");
             if (!Objects.equals(item.getName(), product.getName()))
                 throw new NameNotMatchException("Item name and product name does not match, please perform checkout again");
+            if (product.getStockQuantity() < item.getQuantity())
+                throw new ProductNotSufficientException("Product is not sufficient, please adjust quantity");
 
             shops.add(product.getShop());
             productMap.put(product.getProductId(), product);
