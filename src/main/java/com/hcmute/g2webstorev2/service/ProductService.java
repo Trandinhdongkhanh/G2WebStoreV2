@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ProductService {
-    Page<ProductResponse> getAllProducts(int pageNumber, int pageSize);
+    List<ProductResponse> getAllProducts(int pageNumber, int pageSize);
 
     ProductResponse getProduct(Integer id);
 

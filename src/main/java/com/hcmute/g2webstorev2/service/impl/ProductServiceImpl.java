@@ -40,21 +40,23 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepo categoryRepo;
 
     @Override
-    public Page<ProductResponse> getAllProducts(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+    public List<ProductResponse> getAllProducts(int pageNumber, int pageSize) {
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+//
+//        List<Product> products = new ArrayList<>();
+//
+//        shopRepo.findAll().forEach(shop -> {
+//            Product product = productRepo.findRandomProductByShopId(shop.getShopId());
+//            products.add(product);
+//        });
+//
+//        int start = (int) pageable.getOffset();
+//        int end = Math.min((start + pageable.getPageSize()), products.size());
+//
+//        List<Product> pageContent = products.subList(start, end);
+//        return new PageImpl<>(pageContent, pageable, products.size()).map(Mapper::toProductResponse);
 
-        List<Product> products = new ArrayList<>();
-
-        shopRepo.findAll().forEach(shop -> {
-            Product product = productRepo.findByShopRandom(shop.getShopId());
-            products.add(product);
-        });
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), products.size());
-
-        List<Product> pageContent = products.subList(start, end);
-        return new PageImpl<>(pageContent, pageable, products.size()).map(Mapper::toProductResponse);
+        return productRepo.findAll().stream().map(Mapper::toProductResponse).collect(Collectors.toList());
     }
 
     @Override

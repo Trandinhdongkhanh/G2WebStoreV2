@@ -17,5 +17,5 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     boolean existsByNameAndShop(String name, Shop shop);
     List<Product> findAllByShop(Shop shop);
     @Query("select p from Product p where p.shop.shopId = :shopId order by rand() limit 1")
-    Product findByShopRandom(Integer shopId);
+    Product findRandomProductByShopId(Integer shopId);
 }
