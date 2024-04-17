@@ -17,7 +17,7 @@ public class CartItem {
     @MapsId("customerId")
     @JoinColumn(name = "customer_id")
     private Customer customer;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @MapsId("productId")
     @JoinColumn(name = "product_id")
     private Product product;

@@ -50,6 +50,8 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("Perform checking data integrity...");
 
+        Map<Integer, Product> productMap = new HashMap<>();
+
         body.getItems().forEach(item -> {
             Product product = productRepo.findById(item.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + item.getProductId() + " not found"));
@@ -60,6 +62,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new NameNotMatchException("Item name and product name does not match, please perform checkout again");
 
             shops.add(product.getShop());
+            productMap.put(product.getProductId(), product);
         });
 
         List<Order> orders = new ArrayList<>();
@@ -91,8 +94,12 @@ public class OrderServiceImpl implements OrderService {
                 Integer curStockQuantity = cartItem.getProduct().getStockQuantity();
                 Integer curSoldQuantity = cartItem.getProduct().getSoldQuantity();
 
-                cartItem.getProduct().setStockQuantity(curStockQuantity - orderItem.getQuantity());
-                cartItem.getProduct().setSoldQuantity(curSoldQuantity + orderItem.getQuantity());
+                Product product = productMap.get(orderItem.getProductId());
+                product.setSoldQuantity(curSoldQuantity + orderItem.getQuantity());
+                product.setStockQuantity(curStockQuantity - orderItem.getQuantity());
+
+                productRepo.save(product);
+                log.info("Product with ID = " + product.getProductId() + " updated successfully");
 
                 total += orderItem.getPrice() * orderItem.getQuantity();
             }
