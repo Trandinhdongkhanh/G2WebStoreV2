@@ -32,4 +32,5 @@ public class Order {
     private Shop shop;
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems;
+    private Integer total;
 }

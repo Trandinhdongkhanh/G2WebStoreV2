@@ -8,14 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
 @Repository
 public interface ProductRepo extends JpaRepository<Product, Integer> {
 
     boolean existsByNameAndShop(String name, Shop shop);
-    List<Product> findAllByShop(Shop shop);
-    @Query("select p from Product p where p.shop.shopId = :shopId order by rand() limit 1")
-    Product findRandomProductByShopId(Integer shopId);
+    @Query("select p from Product p order by rand(:seed)")
+    Page<Product> findRandomProducts(Integer seed, Pageable pageable);
+    @Query("select p from Product p where p.name like :name% order by rand(:seed)")
+    Page<Product> findRandomProductsByName(Integer seed, Pageable pageable, String name);
+    @Query("select p from Product p where p.price between :startPrice and :endPrice order by rand(:seed)")
+    Page<Product> findRandomProductsByPriceBetween(Integer seed, Pageable pageable, Integer startPrice, Integer endPrice);
+    Page<Product> findAllByShop(Shop shop, Pageable pageable);
 }

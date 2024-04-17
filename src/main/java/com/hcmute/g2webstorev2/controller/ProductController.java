@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,24 +22,30 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts(
-            @RequestParam(value = "page", required = false) int pageNumber,
-            @RequestParam(value = "size", required = false) int pageSize) {
-        return ResponseEntity.ok(productService.getAllProducts(pageNumber, pageSize));
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+            @RequestParam(value = "page") @Min(value = 0, message = "Page index must not be less than zero")
+            @NotNull(message = "Page index must not be null") Integer pageNumber,
+            @RequestParam(value = "size") @Min(value = 0, message = "Page size must not be less than 1")
+            @NotNull(message = "Page size must not be null") Integer pageSize,
+            @RequestParam(value = "seed") @NotNull(message = "Seed cannot be null") Integer seed) {
+        //Seed is used to randomize products. Each time a seed change products get randomized
+        return ResponseEntity.ok(productService.getAllProducts(pageNumber, pageSize, seed));
     }
 
     @GetMapping("/shop/{shopId}")
-    public ResponseEntity<List<ProductResponse>> getAllProductsByShop(
-            @PathVariable("shopId")
-            @NotNull(message = "Shop ID cannot be null")
-            @Min(value = 1, message = "Shop ID must be greater than 0") Integer id) {
-        return ResponseEntity.ok(productService.getAllProductsByShop(id));
+    public ResponseEntity<Page<ProductResponse>> getAllProductsByShop(
+            @PathVariable("shopId") @NotNull(message = "Shop ID cannot be null")
+            @Min(value = 1, message = "Shop ID must be greater than 0") Integer id,
+            @RequestParam(value = "page") @Min(value = 0, message = "Page index must not be less than zero")
+            @NotNull(message = "Page index must not be null") Integer pageNumber,
+            @RequestParam(value = "size") @Min(value = 0, message = "Page size must not be less than 1")
+            @NotNull(message = "Page size must not be null") Integer pageSize) {
+        return ResponseEntity.ok(productService.getAllProductsByShop(id, pageNumber, pageSize));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProduct(
-            @PathVariable("id")
-            @NotNull(message = "Product ID cannot be null")
+            @PathVariable("id") @NotNull(message = "Product ID cannot be null")
             @Min(value = 1, message = "Product ID must be greater than 0") Integer id) {
         return ResponseEntity.ok(productService.getProduct(id));
     }

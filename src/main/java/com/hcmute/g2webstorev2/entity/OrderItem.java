@@ -24,4 +24,5 @@ public class OrderItem {
     private Order order;
     @Transient
     private Integer subTotal;
+    private Integer productId;
 }

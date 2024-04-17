@@ -16,18 +16,13 @@ import com.hcmute.g2webstorev2.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -40,30 +35,27 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepo categoryRepo;
 
     @Override
-    public List<ProductResponse> getAllProducts(int pageNumber, int pageSize) {
-//        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-//
-//        List<Product> products = new ArrayList<>();
-//
-//        shopRepo.findAll().forEach(shop -> {
-//            Product product = productRepo.findRandomProductByShopId(shop.getShopId());
-//            products.add(product);
-//        });
-//
-//        int start = (int) pageable.getOffset();
-//        int end = Math.min((start + pageable.getPageSize()), products.size());
-//
-//        List<Product> pageContent = products.subList(start, end);
-//        return new PageImpl<>(pageContent, pageable, products.size()).map(Mapper::toProductResponse);
-
-        return productRepo.findAll().stream().map(Mapper::toProductResponse).collect(Collectors.toList());
+    public Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed) {
+        return productRepo.findRandomProducts(seed, PageRequest.of(pageNumber, pageSize))
+                .map(Mapper::toProductResponse);
     }
 
     @Override
+    public Page<ProductResponse> getProductsByName(int pageNumber, int pageSize, String name, Integer seed) {
+        return productRepo.findRandomProductsByName(seed, PageRequest.of(pageNumber, pageSize), name)
+                .map(Mapper::toProductResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> getProductByPriceBetween(int pageNumber, int pageSize, Integer startPrice, Integer endPrice, Integer seed) {
+        return productRepo
+                .findRandomProductsByPriceBetween(seed, PageRequest.of(pageNumber, pageSize), startPrice, endPrice)
+                .map(Mapper::toProductResponse);
+    }
+    @Override
     public ProductResponse getProduct(Integer id) {
         return Mapper.toProductResponse(productRepo.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Product with ID = " + id + " not found")));
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + id + " not found")));
     }
 
     @Override
@@ -148,16 +140,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponse> getAllProductsByShop(Integer id) {
+    public Page<ProductResponse> getAllProductsByShop(Integer id, Integer pageNumber, Integer pageSize) {
         Shop shop = shopRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop with ID = " + id + " not found"));
-        return productRepo.findAllByShop(shop)
-                .stream().map(Mapper::toProductResponse)
-                .collect(Collectors.toList());
+
+        return productRepo.findAllByShop(shop, PageRequest.of(pageNumber, pageSize))
+                .map(Mapper::toProductResponse);
     }
 
-    @Override
-    public Page<ProductResponse> getAllRandomProducts(Integer pageNumber) {
-        return null;
-    }
 }

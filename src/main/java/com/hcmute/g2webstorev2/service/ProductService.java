@@ -8,7 +8,9 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ProductService {
-    List<ProductResponse> getAllProducts(int pageNumber, int pageSize);
+    Page<ProductResponse> getProductsByName(int pageNumber, int pageSize, String name, Integer seed);
+    Page<ProductResponse> getProductByPriceBetween(int pageNumber, int pageSize, Integer startPrice, Integer endPrice, Integer seed);
+    Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed);
 
     ProductResponse getProduct(Integer id);
 
@@ -17,6 +19,5 @@ public interface ProductService {
     void updateProduct(ProductRequest body, Integer id);
 
     void delProduct(Integer id);
-    List<ProductResponse> getAllProductsByShop(Integer id);
-    Page<ProductResponse> getAllRandomProducts(Integer pageNumber);
+    Page<ProductResponse> getAllProductsByShop(Integer id, Integer pageNumber, Integer pageSize);
 }

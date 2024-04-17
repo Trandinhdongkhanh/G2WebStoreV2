@@ -37,23 +37,14 @@ public class OrderServiceImpl implements OrderService {
     private CartItemRepo cartItemRepo;
 
     @Override
-    public List<OrderResponse> getOrders() {
-        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return orderRepo.findAllByCustomer(customer)
-                .stream().map(Mapper::toOrderResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<OrderResponse> getOrdersByCustomer(Integer id) {
-        return null;
-    }
-
-    @Override
     @Transactional
     public List<OrderResponse> createOrders(OrderCreationRequest body) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        List<CartItem> cartItems = cartItemRepo.findAllByCustomer(customer);
+
+        if (cartItems.isEmpty())
+            throw new ResourceNotFoundException("There are no items in cart, please add some products");
 
         Set<Shop> shops = new HashSet<>();
 
@@ -72,29 +63,40 @@ public class OrderServiceImpl implements OrderService {
         });
 
         List<Order> orders = new ArrayList<>();
+        List<OrderItem> orderItems = new ArrayList<>();
 
         shops.forEach(shop -> {
-            Order order = orderRepo.save(Order.builder()
+            Order order = Order.builder()
                     .orderStatus(ORDERED)
                     .createdDate(LocalDateTime.now())
                     .curDate(LocalDateTime.now())
                     .customer(customer)
                     .shop(shop)
-                    .build());
+                    .build();
 
-            log.info("Order with ID = " + order.getOrderId() + " created successfully");
+            int total = 0;
 
-            orders.add(order);
-
-            body.getItems().forEach(item -> {
-                orderItemRepo.save(OrderItem.builder()
-                        .image(item.getImages())
-                        .price(item.getPrice())
-                        .quantity(item.getQuantity())
-                        .name(item.getName())
+            for (CartItem cartItem : cartItems){
+                OrderItem orderItem = orderItemRepo.save(OrderItem.builder()
+                        .image(cartItem.getProduct().getImages())
+                        .price(cartItem.getProduct().getPrice())
+                        .quantity(cartItem.getQuantity())
+                        .name(cartItem.getProduct().getName())
                         .order(order)
+                        .productId(cartItem.getProduct().getProductId())
                         .build());
-            });
+
+                orderItems.add(orderItem);
+
+                total += orderItem.getPrice() * orderItem.getQuantity();
+            }
+
+            order.setOrderItems(orderItems);
+            order.setTotal(total);
+
+            Order res = orderRepo.save(order);
+            log.info("Order with ID = " + res.getOrderId() + " created successfully");
+            orders.add(res);
         });
 
         cartItemRepo.deleteAllByCustomer(customer);
@@ -107,10 +109,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getOrdersByShop() {
-        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public List<OrderResponse> getMyOrders() {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return orderRepo.findAllByShop(seller.getShop())
+        return orderRepo.findAllByCustomer(customer)
                 .stream().map(Mapper::toOrderResponse)
                 .collect(Collectors.toList());
     }

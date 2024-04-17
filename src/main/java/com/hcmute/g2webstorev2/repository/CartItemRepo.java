@@ -13,8 +13,6 @@ import java.util.Optional;
 @Repository
 public interface CartItemRepo extends JpaRepository<CartItem, CustomerProductCompositeKey> {
     List<CartItem> findAllByCustomer(Customer customer);
-
     Optional<CartItem> findByProductAndCustomer(Product product, Customer customer);
-
     void deleteAllByCustomer(Customer customer);
 }

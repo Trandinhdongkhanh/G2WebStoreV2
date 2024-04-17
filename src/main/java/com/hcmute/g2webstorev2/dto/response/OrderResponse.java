@@ -5,6 +5,7 @@ import com.hcmute.g2webstorev2.enums.OrderStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Getter
@@ -27,4 +28,6 @@ public class OrderResponse {
     private Integer customerId;
     @JsonProperty("shop_id")
     private Integer shopId;
+    private Integer total;
+    private List<OrderItemResponse> items;
 }

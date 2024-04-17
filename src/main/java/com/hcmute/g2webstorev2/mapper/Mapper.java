@@ -3,6 +3,9 @@ package com.hcmute.g2webstorev2.mapper;
 import com.hcmute.g2webstorev2.dto.response.*;
 import com.hcmute.g2webstorev2.entity.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 public class Mapper {
     public static CustomerResponse toCustomerResponse(Customer customer) {
@@ -79,7 +82,8 @@ public class Mapper {
                 .province(shop.getProvince())
                 .build();
     }
-    public static ShopCateResponse toShopCateResponse(ShopCategory shopCategory){
+
+    public static ShopCateResponse toShopCateResponse(ShopCategory shopCategory) {
         return ShopCateResponse.builder()
                 .shopCateId(shopCategory.getId())
                 .shopId(shopCategory.getShop().getShopId())
@@ -104,7 +108,8 @@ public class Mapper {
                 .shopId(voucher.getShop().getShopId())
                 .build();
     }
-    public static AddressResponse toAddressResponse(Address address){
+
+    public static AddressResponse toAddressResponse(Address address) {
         return AddressResponse.builder()
                 .addressId(address.getAddressId())
                 .orderReceiveAddress(address.getOrderReceiveAddress())
@@ -118,7 +123,8 @@ public class Mapper {
                 .isDefault(address.isDefault())
                 .build();
     }
-    public static CartItemResponse toCartItemResponse(CartItem cartItem){
+
+    public static CartItemResponse toCartItemResponse(CartItem cartItem) {
         return CartItemResponse.builder()
                 .name(cartItem.getProduct().getName())
                 .price(cartItem.getProduct().getPrice())
@@ -128,7 +134,8 @@ public class Mapper {
                 .subTotal(cartItem.getSubTotal())
                 .build();
     }
-    public static OrderResponse toOrderResponse(Order order){
+
+    public static OrderResponse toOrderResponse(Order order) {
         return OrderResponse.builder()
                 .orderId(order.getOrderId())
                 .orderStatus(order.getOrderStatus())
@@ -137,9 +144,14 @@ public class Mapper {
                 .deliveredDate(order.getDeliveredDate())
                 .customerId(order.getCustomer().getCustomerId())
                 .shopId(order.getShop().getShopId())
+                .total(order.getTotal())
+                .items(order.getOrderItems()
+                        .stream().map(Mapper::toOrderItemResponse)
+                        .collect(Collectors.toList()))
                 .build();
     }
-    public static ReviewResponse toReviewResponse(Review review){
+
+    public static ReviewResponse toReviewResponse(Review review) {
         return ReviewResponse.builder()
                 .reviewId(review.getId())
                 .content(review.getContent())
@@ -148,6 +160,19 @@ public class Mapper {
                 .customerName(review.getCustomer().getFullName())
                 .productId(review.getProduct().getProductId())
                 .shopFeedBack(review.getShopFeedBack())
+                .build();
+    }
+
+    public static OrderItemResponse toOrderItemResponse(OrderItem orderItem) {
+        return OrderItemResponse.builder()
+                .itemId(orderItem.getItemId())
+                .image(orderItem.getImage())
+                .price(orderItem.getPrice())
+                .quantity(orderItem.getQuantity())
+                .name(orderItem.getName())
+                .orderId(orderItem.getOrder().getOrderId())
+                .productId(orderItem.getProductId())
+                .subTotal(orderItem.getQuantity() * orderItem.getPrice())
                 .build();
     }
 }
