@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
 
             int total = 0;
 
-            for (CartItem cartItem : cartItems){
+            for (CartItem cartItem : cartItems) {
                 OrderItem orderItem = orderItemRepo.save(OrderItem.builder()
                         .image(cartItem.getProduct().getImages())
                         .price(cartItem.getProduct().getPrice())
@@ -91,12 +91,10 @@ public class OrderServiceImpl implements OrderService {
 
                 orderItems.add(orderItem);
 
-                Integer curStockQuantity = cartItem.getProduct().getStockQuantity();
-                Integer curSoldQuantity = cartItem.getProduct().getSoldQuantity();
-
                 Product product = productMap.get(orderItem.getProductId());
-                product.setSoldQuantity(curSoldQuantity + orderItem.getQuantity());
-                product.setStockQuantity(curStockQuantity - orderItem.getQuantity());
+
+                product.setSoldQuantity(product.getSoldQuantity() + orderItem.getQuantity());
+                product.setStockQuantity(product.getStockQuantity() - orderItem.getQuantity());
 
                 productRepo.save(product);
                 log.info("Product with ID = " + product.getProductId() + " updated successfully");
