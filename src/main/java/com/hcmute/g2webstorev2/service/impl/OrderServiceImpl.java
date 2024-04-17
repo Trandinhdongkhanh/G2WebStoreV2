@@ -88,6 +88,12 @@ public class OrderServiceImpl implements OrderService {
 
                 orderItems.add(orderItem);
 
+                Integer curStockQuantity = cartItem.getProduct().getStockQuantity();
+                Integer curSoldQuantity = cartItem.getProduct().getSoldQuantity();
+
+                cartItem.getProduct().setStockQuantity(curStockQuantity - orderItem.getQuantity());
+                cartItem.getProduct().setSoldQuantity(curSoldQuantity + orderItem.getQuantity());
+
                 total += orderItem.getPrice() * orderItem.getQuantity();
             }
 
