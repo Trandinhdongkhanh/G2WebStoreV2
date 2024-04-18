@@ -8,10 +8,7 @@ import com.hcmute.g2webstorev2.exception.PriceNotMatchException;
 import com.hcmute.g2webstorev2.exception.ProductNotSufficientException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
-import com.hcmute.g2webstorev2.repository.CartItemRepo;
-import com.hcmute.g2webstorev2.repository.OrderItemRepo;
-import com.hcmute.g2webstorev2.repository.OrderRepo;
-import com.hcmute.g2webstorev2.repository.ProductRepo;
+import com.hcmute.g2webstorev2.repository.*;
 import com.hcmute.g2webstorev2.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +33,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderItemRepo orderItemRepo;
     @Autowired
     private CartItemRepo cartItemRepo;
+    @Autowired
+    private CustomerRepo customerRepo;
 
     @Override
     @Transactional
@@ -107,6 +106,11 @@ public class OrderServiceImpl implements OrderService {
 
             order.setOrderItems(orderItems);
             order.setTotal(total);
+
+            customer.setPoint(customer.getPoint() + total * 0.05);
+            customerRepo.save(customer);
+
+            log.info("Point of customer with ID = " + customer.getCustomerId() + " updated successfully");
 
             Order res = orderRepo.save(order);
             log.info("Order with ID = " + res.getOrderId() + " created successfully");

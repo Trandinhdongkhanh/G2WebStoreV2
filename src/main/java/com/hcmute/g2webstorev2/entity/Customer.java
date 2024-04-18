@@ -31,7 +31,7 @@ public class Customer implements UserDetails {
     private String phoneNo;
     private String fullName;
     private String avatar;
-    private float point = 0;
+    private double point = 0;
     private LocalDate dob;
     private boolean isEmailVerified;
     private boolean isAccountNonExpired = true;
