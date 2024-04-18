@@ -82,14 +82,13 @@ public class OrderServiceImpl implements OrderService {
             int total = 0;
 
             for (CartItem cartItem : cartItems) {
-                OrderItem orderItem = orderItemRepo.save(OrderItem.builder()
+                OrderItem orderItem = OrderItem.builder()
                         .image(cartItem.getProduct().getImages())
                         .price(cartItem.getProduct().getPrice())
                         .quantity(cartItem.getQuantity())
                         .name(cartItem.getProduct().getName())
-                        .order(order)
                         .productId(cartItem.getProduct().getProductId())
-                        .build());
+                        .build();
 
                 orderItems.add(orderItem);
 

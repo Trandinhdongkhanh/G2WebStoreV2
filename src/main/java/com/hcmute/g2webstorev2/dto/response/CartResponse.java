@@ -10,6 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class CartResponse {
-    private ShopResponse shop;
-    private List<CartItemResponse> items;
+    List<ShopResponse> shops;
+
 }

@@ -24,6 +24,4 @@ public class Shop {
     private Integer districtId;
     private String ward;
     private String street;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "shop", fetch = FetchType.LAZY)
-    private List<Product> products;
 }

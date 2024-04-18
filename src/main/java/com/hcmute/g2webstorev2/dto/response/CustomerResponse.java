@@ -22,7 +22,7 @@ public class CustomerResponse {
     private String fullName;
 
     private String avatar;
-    private float point;
+    private double point;
     private LocalDate dob;
     @JsonProperty("is_email_verified")
     private boolean isEmailVerified;;

@@ -126,11 +126,13 @@ public class Mapper {
 
     public static CartItemResponse toCartItemResponse(CartItem cartItem) {
         return CartItemResponse.builder()
+                .images(cartItem.getProduct().getImages())
                 .name(cartItem.getProduct().getName())
                 .price(cartItem.getProduct().getPrice())
                 .quantity(cartItem.getQuantity())
                 .productId(cartItem.getProduct().getProductId())
                 .customerId(cartItem.getCustomer().getCustomerId())
+                .shopId(cartItem.getProduct().getShop().getShopId())
                 .subTotal(cartItem.getSubTotal())
                 .build();
     }

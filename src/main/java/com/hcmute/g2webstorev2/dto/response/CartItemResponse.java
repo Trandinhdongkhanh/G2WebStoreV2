@@ -17,6 +17,8 @@ public class CartItemResponse {
     private Integer customerId;
     @JsonProperty("product_id")
     private Integer productId;
+    @JsonProperty("shop_id")
+    private Integer shopId;
     @JsonProperty("sub_total")
     private Integer subTotal;
 }
