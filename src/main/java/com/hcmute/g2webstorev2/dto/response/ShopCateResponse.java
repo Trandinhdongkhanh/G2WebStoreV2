@@ -1,7 +1,6 @@
 package com.hcmute.g2webstorev2.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hcmute.g2webstorev2.entity.Category;
 import com.hcmute.g2webstorev2.entity.ShopCategory;
 import lombok.*;
 

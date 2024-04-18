@@ -34,6 +34,7 @@ public class Seller implements UserDetails {
     private boolean isAccountNonExpired = true;
     private boolean isCredentialsNonExpired = true;
     private boolean isEnabled = true;
+    private boolean isMainAcc = true;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")

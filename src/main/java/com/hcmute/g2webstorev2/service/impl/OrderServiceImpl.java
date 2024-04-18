@@ -30,8 +30,6 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepo orderRepo;
     @Autowired
-    private OrderItemRepo orderItemRepo;
-    @Autowired
     private CartItemRepo cartItemRepo;
     @Autowired
     private CustomerRepo customerRepo;
@@ -60,17 +58,22 @@ public class OrderServiceImpl implements OrderService {
                 throw new PriceNotMatchException("Item price and product price does not match, please perform checkout again");
             if (!Objects.equals(item.getName(), product.getName()))
                 throw new NameNotMatchException("Item name and product name does not match, please perform checkout again");
+            if (product.getStockQuantity() == 0)
+                throw new ProductNotSufficientException("Product with ID = "
+                        + product.getProductId() + " is out of stock, please perform checkout again");
             if (product.getStockQuantity() < item.getQuantity())
-                throw new ProductNotSufficientException("Product is not sufficient, please adjust quantity");
+                throw new ProductNotSufficientException("Product with ID = " + product.getProductId() + " is not" +
+                        " sufficient, please adjust your quantity");
 
             shops.add(product.getShop());
             productMap.put(product.getProductId(), product);
         });
 
         List<Order> orders = new ArrayList<>();
-        List<OrderItem> orderItems = new ArrayList<>();
 
         shops.forEach(shop -> {
+            List<OrderItem> orderItems = new ArrayList<>();
+
             Order order = Order.builder()
                     .orderStatus(ORDERED)
                     .createdDate(LocalDateTime.now())
@@ -88,6 +91,7 @@ public class OrderServiceImpl implements OrderService {
                         .quantity(cartItem.getQuantity())
                         .name(cartItem.getProduct().getName())
                         .productId(cartItem.getProduct().getProductId())
+                        .order(order)
                         .build();
 
                 orderItems.add(orderItem);

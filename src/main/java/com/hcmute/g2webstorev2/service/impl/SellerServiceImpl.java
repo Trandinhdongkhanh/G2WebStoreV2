@@ -2,6 +2,7 @@ package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
+import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
 import com.hcmute.g2webstorev2.entity.*;
@@ -24,6 +25,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.SELLER_FULL_ACCESS;
 
@@ -129,5 +135,52 @@ public class SellerServiceImpl implements SellerService {
         if (seller == null) throw new UsernameNotFoundException("Please login");
 
         return Mapper.toSellerResponse(seller);
+    }
+
+    @Override
+    @Transactional
+    public SellerResponse addSeller(SellerAddRequest body) {
+        if (sellerRepo.existsByEmail(body.getEmail()))
+            throw new ResourceNotUniqueException("Seller with email = '" + body.getEmail() + "' already existed");
+
+        Role role = roleRepo.findById(body.getRoleId())
+                .orElseThrow(() -> new ResourceNotFoundException("Role with ID = " + body.getRoleId() + " not found"));
+
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        SellerResponse res = Mapper.toSellerResponse(sellerRepo.save(Seller.builder()
+                .email(body.getEmail())
+                .password(passwordEncoder.encode(body.getPassword()))
+                .role(role)
+                .shop(seller.getShop())
+                .isMainAcc(false)
+                .build()));
+
+        log.info("Seller with ID = " + res.getSellerId() + " added to shop with ID = " + seller.getShop().getShopId()
+                + " successfully");
+
+        return res;
+    }
+
+    @Override
+    public List<Map<String, Object>> getSellersFromMyShop() {
+        List<Map<String, Object>> sellers = new ArrayList<>();
+
+        Seller adminSeller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        sellerRepo.findAllByShop(adminSeller.getShop()).forEach(seller -> {
+            Map<String, Object> map = new HashMap<>();
+
+            map.put("seller_id", seller.getSellerId());
+            map.put("shop_id", seller.getShop().getShopId());
+            map.put("email", seller.getEmail());
+            map.put("role", seller.getRole().getAppRole());
+            map.put("role_id", seller.getRole().getRoleId());
+            map.put("is_enabled", seller.isEnabled());
+            map.put("is_main_acc", seller.isMainAcc());
+
+            sellers.add(map);
+        });
+        return sellers;
     }
 }

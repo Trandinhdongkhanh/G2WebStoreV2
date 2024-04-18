@@ -55,10 +55,10 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewResponse> getReviews() {
-        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return reviewRepo.findAllByCustomer(customer)
+    public List<ReviewResponse> getReviewByProduct(Integer id) {
+        Product product = productRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + id + " not found"));
+        return reviewRepo.findAllByProduct(product)
                 .stream().map(Mapper::toReviewResponse)
                 .collect(Collectors.toList());
     }

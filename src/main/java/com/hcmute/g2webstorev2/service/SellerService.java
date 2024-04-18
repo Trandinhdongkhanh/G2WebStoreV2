@@ -1,13 +1,13 @@
 package com.hcmute.g2webstorev2.service;
 
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
+import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 
 public interface SellerService {
     AuthResponse register(AuthRequest body);
@@ -17,4 +17,7 @@ public interface SellerService {
     AuthResponse refreshToken (String refreshToken);
 
     SellerResponse getInfo();
+    SellerResponse addSeller(SellerAddRequest body);
+
+    List<Map<String, Object>> getSellersFromMyShop();
 }

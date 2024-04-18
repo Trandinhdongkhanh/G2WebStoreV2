@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hcmute.g2webstorev2.enums.AppRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,9 +20,11 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id")
+    @JsonProperty("role_id")
     private Integer roleId;
     @Enumerated(EnumType.STRING)
     @Column(unique = true)
+    @JsonProperty("app_role")
     private AppRole appRole;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ReviewService {
     ReviewResponse createReview(ReviewRequest body);
-    List<ReviewResponse> getReviews();
+    List<ReviewResponse> getReviewByProduct(Integer id);
 }
