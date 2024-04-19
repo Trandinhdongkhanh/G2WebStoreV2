@@ -9,4 +9,6 @@ import java.util.List;
 public interface OrderService {
     List<OrderResponse> createOrders(OrderCreationRequest body);
     List<OrderResponse> getMyOrders();
+    OrderResponse sellerUpdateOrderStatus(Integer id, OrderStatus status);
+    OrderResponse customerUpdateOrderStatus(Integer id, OrderStatus status);
 }
