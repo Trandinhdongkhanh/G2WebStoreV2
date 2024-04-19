@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -105,6 +106,9 @@ public class VoucherServiceImpl implements VoucherService {
         Voucher voucher = voucherRepo
                 .findById(body.getVoucherId())
                 .orElseThrow(() -> new ResourceNotFoundException("Voucher with ID = " + body.getVoucherId() + " not found"));
+
+        if (voucher.getEndDate().isBefore(LocalDate.now()))
+            throw new VoucherException("Voucher is expired");
 
         List<Product> products = new ArrayList<>();
 

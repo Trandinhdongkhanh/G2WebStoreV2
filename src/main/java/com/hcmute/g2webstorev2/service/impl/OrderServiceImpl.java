@@ -111,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             order.setOrderItems(orderItems);
-            order.setTotal(total);
+            order.setTotal(total + body.getFeeShip());
 
             customer.setPoint(customer.getPoint() + total * 0.05);
             customerRepo.save(customer);
