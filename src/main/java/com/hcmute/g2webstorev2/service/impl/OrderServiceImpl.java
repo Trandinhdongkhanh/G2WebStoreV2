@@ -73,10 +73,9 @@ public class OrderServiceImpl implements OrderService {
         });
 
         List<Order> orders = new ArrayList<>();
-
+        List<OrderItem> orderItems = new ArrayList<>();
         shops.forEach(shop -> {
-            List<OrderItem> orderItems = new ArrayList<>();
-
+            orderItems.clear();
             Order order = Order.builder()
                     .orderStatus(ORDERED)
                     .createdDate(LocalDateTime.now())
@@ -111,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
             }
 
             order.setOrderItems(orderItems);
-            order.setTotal(total + body.getFeeShip());
+            order.setTotal(total);
 
             customer.setPoint(customer.getPoint() + total * 0.05);
             customerRepo.save(customer);
