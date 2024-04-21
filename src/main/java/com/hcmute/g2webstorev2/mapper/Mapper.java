@@ -22,6 +22,18 @@ public class Mapper {
                 .build();
     }
 
+    public static SellersFromShopResponse toSellersFromShopResponse(Seller seller) {
+        return SellersFromShopResponse.builder()
+                .sellerId(seller.getSellerId())
+                .shopId(seller.getShop().getShopId())
+                .email(seller.getEmail())
+                .role(seller.getRole().getAppRole())
+                .roleId(seller.getRole().getRoleId())
+                .isEnabled(seller.isEnabled())
+                .isMainAcc(seller.isMainAcc())
+                .build();
+    }
+
     public static SellerResponse toSellerResponse(Seller seller) {
         return SellerResponse.builder()
                 .sellerId(seller.getSellerId())
@@ -40,6 +52,7 @@ public class Mapper {
                 .categoryId(category.getCategoryId())
                 .name(category.getName())
                 .childCategories(category.getChildCategories())
+                .path(category.getPath())
                 .build();
     }
 

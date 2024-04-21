@@ -30,4 +30,5 @@ public class Category {
     @JsonManagedReference
     @JsonProperty("child_categories")
     private Set<Category> childCategories;
+    private String path;
 }

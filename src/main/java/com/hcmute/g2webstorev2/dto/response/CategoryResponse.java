@@ -17,4 +17,5 @@ public class CategoryResponse {
     private String name;
     @JsonProperty("child_categories")
     private Set<Category> childCategories;
+    private String path;
 }

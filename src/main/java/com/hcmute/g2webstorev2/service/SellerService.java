@@ -4,6 +4,7 @@ import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
+import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -19,5 +20,5 @@ public interface SellerService {
     SellerResponse getInfo();
     SellerResponse addSeller(SellerAddRequest body);
 
-    List<Map<String, Object>> getSellersFromMyShop();
+    List<SellersFromShopResponse> getSellersFromMyShop();
 }

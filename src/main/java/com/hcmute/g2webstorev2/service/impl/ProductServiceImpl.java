@@ -52,6 +52,7 @@ public class ProductServiceImpl implements ProductService {
                 .findRandomProductsByPriceBetween(seed, PageRequest.of(pageNumber, pageSize), startPrice, endPrice)
                 .map(Mapper::toProductResponse);
     }
+
     @Override
     public ProductResponse getProduct(Integer id) {
         return Mapper.toProductResponse(productRepo.findById(id)
@@ -145,6 +146,20 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Shop with ID = " + id + " not found"));
 
         return productRepo.findAllByShop(shop, PageRequest.of(pageNumber, pageSize))
+                .map(Mapper::toProductResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> getProductsByCategory(Integer id, int pageNumber, int pageSize, Integer seed) {
+        Category category = categoryRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category with ID = " + id + " not found"));
+
+        String path;
+
+        if (category.getChildCategories().isEmpty()) path = category.getPath();
+        else path = category.getPath() + "/";
+
+        return productRepo.findAllByCategory(path, PageRequest.of(pageNumber, pageSize), seed)
                 .map(Mapper::toProductResponse);
     }
 

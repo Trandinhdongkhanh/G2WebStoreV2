@@ -29,6 +29,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(Mapper::toCategoryResponse)
                 .collect(Collectors.toList());
     }
+
     @Override
     @Transactional
     public void updateCategory(CategoryRequest body, Integer id) {
@@ -44,6 +45,10 @@ public class CategoryServiceImpl implements CategoryService {
         }
         category.setParentCategory(parentCategory);
         category.setName(body.getName());
+
+        if (parentCategory == null) category.setPath(category.getCategoryId().toString());
+        else category.setPath(parentCategory.getPath() + "/" + category.getCategoryId().toString());
+
         log.info("Update category with ID = " + id + " successfully");
     }
 
@@ -75,13 +80,16 @@ public class CategoryServiceImpl implements CategoryService {
                             new ResourceNotFoundException("Parent category with ID = " + body.getParentId() + " not found"));
         }
 
-        CategoryResponse res = Mapper.toCategoryResponse(categoryRepo.save(
-                Category.builder()
-                        .name(body.getName())
-                        .parentCategory(parentCategory)
-                        .build()));
+        Category category = categoryRepo.save(Category.builder()
+                .name(body.getName())
+                .parentCategory(parentCategory)
+                .build());
+
+        if (parentCategory == null) category.setPath(category.getCategoryId().toString());
+        else category.setPath(parentCategory.getPath() + "/" + category.getCategoryId().toString());
+
         log.info("Category created successfully");
-        return res;
+        return Mapper.toCategoryResponse(category);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
+import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.SELLER_FULL_ACCESS;
 
@@ -163,24 +165,11 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public List<Map<String, Object>> getSellersFromMyShop() {
-        List<Map<String, Object>> sellers = new ArrayList<>();
-
+    public List<SellersFromShopResponse> getSellersFromMyShop() {
         Seller adminSeller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        sellerRepo.findAllByShop(adminSeller.getShop()).forEach(seller -> {
-            Map<String, Object> map = new HashMap<>();
-
-            map.put("seller_id", seller.getSellerId());
-            map.put("shop_id", seller.getShop().getShopId());
-            map.put("email", seller.getEmail());
-            map.put("role", seller.getRole().getAppRole());
-            map.put("role_id", seller.getRole().getRoleId());
-            map.put("is_enabled", seller.isEnabled());
-            map.put("is_main_acc", seller.isMainAcc());
-
-            sellers.add(map);
-        });
-        return sellers;
+        return sellerRepo.findAllByShop(adminSeller.getShop())
+                        .stream().map(Mapper::toSellersFromShopResponse)
+                        .collect(Collectors.toList());
     }
 }

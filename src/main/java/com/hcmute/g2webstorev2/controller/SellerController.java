@@ -5,6 +5,7 @@ import com.hcmute.g2webstorev2.dto.request.RefreshTokenRequest;
 import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
+import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
 import com.hcmute.g2webstorev2.service.SellerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class SellerController {
     }
     @GetMapping("/my-shop")
     @PreAuthorize("hasRole('SELLER_FULL_ACCESS') or hasAuthority('READ_USER')")
-    public ResponseEntity<List<Map<String, Object>>> getSellersFromMyShop(){
+    public ResponseEntity<List<SellersFromShopResponse>> getSellersFromMyShop(){
         return ResponseEntity.ok(sellerService.getSellersFromMyShop());
     }
 }
