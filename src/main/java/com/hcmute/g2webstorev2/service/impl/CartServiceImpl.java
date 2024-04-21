@@ -1,45 +1,56 @@
 package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.dto.response.CartResponse;
-import com.hcmute.g2webstorev2.dto.response.ShopResponse;
 import com.hcmute.g2webstorev2.entity.CartItem;
 import com.hcmute.g2webstorev2.entity.Customer;
+import com.hcmute.g2webstorev2.entity.Shop;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CartItemRepo;
+import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
     @Autowired
     private CartItemRepo cartItemRepo;
+    @Autowired
+    private ProductRepo productRepo;
 
     @Override
-    public CartResponse getCartInfo() {
+    public List<CartResponse> getCartInfo() {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Map<Integer, ShopResponse> shopMap = new HashMap<>();
+        Map<Shop, List<CartItem>> itemsInShop = new HashMap<>();
+        List<CartResponse> res = new ArrayList<>();
 
-        List<CartItem> cartItems = cartItemRepo.findAllByCustomer(customer);
-
-        cartItems.forEach(item -> {
-            Integer shopId = item.getProduct().getShop().getShopId();
-            if (shopMap.get(shopId) == null) {
-                shopMap.put(shopId, Mapper.toShopResponse(item.getProduct().getShop()));
-            }
+        cartItemRepo.findAllByCustomer(customer).forEach(item -> {
+            Shop shop = item.getProduct().getShop();
             item.setSubTotal(item.getProduct().getPrice() * item.getQuantity());
+            if (!itemsInShop.containsKey(shop)) {
+                itemsInShop.put(shop, new ArrayList<>(List.of(item)));
+                return;
+            }
+            itemsInShop.get(shop).add(item);
         });
 
-        return CartResponse.builder()
-                .shopsInfo(shopMap)
-                .items(cartItems.stream().map(Mapper::toCartItemResponse).collect(Collectors.toList()))
-                .build();
+        itemsInShop.forEach((shop, items) -> {
+            int total = 0;
+            for (CartItem item : items) total += item.getSubTotal();
+            res.add(CartResponse.builder()
+                    .shop(Mapper.toShopResponse(shop))
+                    .items(items.stream()
+                            .map(Mapper::toCartItemResponse)
+                            .collect(Collectors.toList()))
+                    .total(total)
+                    .build());
+        });
+
+        return res;
     }
 }

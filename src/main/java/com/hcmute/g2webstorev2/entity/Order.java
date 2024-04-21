@@ -30,7 +30,15 @@ public class Order {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shop_id")
     private Shop shop;
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
+    private Integer productsPriceTotal;
+    private Integer feeShip;
+    private Integer g2VoucherPriceReduce;
+    private Integer shopVoucherPriceReduce;
+    private Integer pointSpent;
     private Integer total;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "address_id")
+    private Address address;
 }

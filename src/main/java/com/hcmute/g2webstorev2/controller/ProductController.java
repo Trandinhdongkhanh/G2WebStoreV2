@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductController {
@@ -35,7 +33,6 @@ public class ProductController {
             Integer pageSize,
 
             @RequestParam(value = "seed")
-            @NotNull(message = "Seed cannot be null")
             Integer seed) {
         //Seed is used to randomize products. Each time a seed change products get randomized
         return ResponseEntity.ok(productService.getAllProducts(pageNumber, pageSize, seed));

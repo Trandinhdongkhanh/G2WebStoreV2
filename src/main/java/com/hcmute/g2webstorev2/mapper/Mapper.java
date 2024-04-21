@@ -3,7 +3,6 @@ package com.hcmute.g2webstorev2.mapper;
 import com.hcmute.g2webstorev2.dto.response.*;
 import com.hcmute.g2webstorev2.entity.*;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -159,10 +158,17 @@ public class Mapper {
                 .deliveredDate(order.getDeliveredDate())
                 .customerId(order.getCustomer().getCustomerId())
                 .shopId(order.getShop().getShopId())
-                .total(order.getTotal())
                 .items(order.getOrderItems()
                         .stream().map(Mapper::toOrderItemResponse)
                         .collect(Collectors.toList()))
+                .shopName(order.getShop().getName())
+                .productsPriceTotal(order.getProductsPriceTotal())
+                .feeShip(order.getFeeShip())
+                .g2VoucherPriceReduce(order.getG2VoucherPriceReduce())
+                .shopVoucherPriceReduce(order.getShopVoucherPriceReduce())
+                .pointSpent(order.getPointSpent())
+                .total(order.getTotal())
+                .address(Mapper.toAddressResponse(order.getAddress()))
                 .build();
     }
 

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/intended-cart")
 public class CartController {
@@ -16,7 +18,7 @@ public class CartController {
     private CartService cartService;
     @GetMapping("/me")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<CartResponse> getCartInfo(){
+    public ResponseEntity<List<CartResponse>> getCartInfo(){
         return ResponseEntity.ok(cartService.getCartInfo());
     }
 }

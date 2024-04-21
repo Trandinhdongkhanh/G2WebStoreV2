@@ -1,10 +1,8 @@
 package com.hcmute.g2webstorev2.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -12,7 +10,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder
 public class CartResponse {
-    @JsonProperty("shops_info")
-    Map<Integer, ShopResponse> shopsInfo;
-    List<CartItemResponse> items;
+    private ShopResponse shop;
+    private List<CartItemResponse> items;
+    private Integer total;
 }

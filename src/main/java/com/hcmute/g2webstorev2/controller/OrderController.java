@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.request.OrderCreationRequest;
+import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import com.hcmute.g2webstorev2.service.OrderService;
@@ -23,7 +24,7 @@ public class OrderController {
 
     @PostMapping("/me")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<List<OrderResponse>> createOrders(@Valid @RequestBody OrderCreationRequest body) {
+    public ResponseEntity<List<OrderResponse>> createOrders(@Valid @RequestBody OrdersCreationRequest body) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(orderService.createOrders(body));

@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -16,6 +15,8 @@ import java.util.Map;
 public class OrderCreationRequest {
     @NotNull(message = "Items cannot be null")
     private List<CartItemResponse> items;
-    @JsonProperty("shops_fee_ship")
-    private Map<Integer, Integer> shopsFeeShip;
+    @JsonProperty("shop_id")
+    private Integer shopId;
+    @JsonProperty("fee_ship")
+    private Integer feeShip;
 }
