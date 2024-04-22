@@ -20,11 +20,6 @@ public class ShopCateController {
     @Autowired
     private ShopCateService shopCateService;
 
-    @GetMapping
-    public ResponseEntity<List<ShopCateResponse>> getAllShopCategories() {
-        return ResponseEntity.ok(shopCateService.getAllShopCategories());
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<ShopCateResponse> getShopCategory(
             @PathVariable("id")

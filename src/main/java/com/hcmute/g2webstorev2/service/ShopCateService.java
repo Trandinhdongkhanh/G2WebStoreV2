@@ -6,8 +6,6 @@ import com.hcmute.g2webstorev2.dto.response.ShopCateResponse;
 import java.util.List;
 
 public interface ShopCateService {
-
-    List<ShopCateResponse> getAllShopCategories();
     ShopCateResponse getShopCategory(Integer id);
     void updateShopCategory(ShopCateRequest body, Integer id);
     void delShopCategory(Integer id);

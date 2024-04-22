@@ -18,5 +18,5 @@ public class ShopCateResponse {
     @JsonProperty("shop_id")
     private Integer shopId;
     @JsonProperty("child_categories")
-    private List<ShopCategory> childCategories;
+    private List<ShopCateResponse> childCategories;
 }

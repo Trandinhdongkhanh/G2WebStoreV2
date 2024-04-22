@@ -30,14 +30,6 @@ public class ShopCateServiceImpl implements ShopCateService {
     private ShopCateRepo shopCateRepo;
     @Autowired
     private ShopRepo shopRepo;
-
-    @Override
-    public List<ShopCateResponse> getAllShopCategories() {
-        return shopCateRepo.findAllShopCategories()
-                .stream().map(Mapper::toShopCateResponse)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public ShopCateResponse getShopCategory(Integer id) {
         return Mapper.toShopCateResponse(shopCateRepo.findById(id)

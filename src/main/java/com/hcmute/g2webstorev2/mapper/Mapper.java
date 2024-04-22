@@ -3,6 +3,8 @@ package com.hcmute.g2webstorev2.mapper;
 import com.hcmute.g2webstorev2.dto.response.*;
 import com.hcmute.g2webstorev2.entity.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -96,10 +98,17 @@ public class Mapper {
     }
 
     public static ShopCateResponse toShopCateResponse(ShopCategory shopCategory) {
+        List<ShopCateResponse> childCategories = null;
+
+        if (shopCategory.getChildCategories() != null)
+            childCategories = shopCategory.getChildCategories()
+                    .stream().map(Mapper::toShopCateResponse)
+                    .collect(Collectors.toList());
+
         return ShopCateResponse.builder()
                 .shopCateId(shopCategory.getId())
                 .shopId(shopCategory.getShop().getShopId())
-                .childCategories(shopCategory.getChildCategories())
+                .childCategories(childCategories)
                 .name(shopCategory.getName())
                 .build();
     }
