@@ -19,13 +19,6 @@ import java.util.List;
 public class CartItemController {
     @Autowired
     private CartItemService cartItemService;
-
-    @GetMapping("/me")
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<List<CartItemResponse>> getAllItems() {
-        return ResponseEntity.ok(cartItemService.getAllItems());
-    }
-
     @PostMapping("/me")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<CartItemResponse> addItem(@Valid @RequestBody CartItemRequest body) {
