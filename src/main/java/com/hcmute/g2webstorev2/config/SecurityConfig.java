@@ -96,6 +96,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/shops/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/*/refresh-token").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/files-upload/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthEntryPoint))
