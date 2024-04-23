@@ -47,13 +47,14 @@ public class GCPDataBucketUtil {
             Bucket bucket = storage.get(gcpBucketId, Storage.BucketGetOption.fields());
 
             String id = UUID.randomUUID().toString();
-            Blob blob = bucket.create(id + "-" + fileName, multipartFile.getBytes(), contentType);
+            String gcpFileName = id + "-" + fileName;
+            Blob blob = bucket.create(gcpFileName, multipartFile.getBytes(), contentType);
 
 
             if (blob != null) {
                 log.debug("File successfully uploaded to GCS");
                 return GCPFile.builder()
-                        .fileName(fileName)
+                        .fileName(gcpFileName)
                         .fileUrl(PUBLIC_GG_STORAGE_PREFIX + gcpBucketId + "/" + blob.getName())
                         .fileType(blob.getContentType())
                         .build();
