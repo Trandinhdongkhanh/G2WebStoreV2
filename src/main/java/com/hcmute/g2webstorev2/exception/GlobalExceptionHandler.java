@@ -28,6 +28,50 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseEntity.internalServerError().body(err);
     }
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<ErrorRes> handleInvalidFileTypeException(InvalidFileTypeException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
+    @ExceptionHandler(FileWriteException.class)
+    public ResponseEntity<ErrorRes> handleFileWriteException(FileWriteException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
+    @ExceptionHandler(GCPFileUploadException.class)
+    public ResponseEntity<ErrorRes> handleGCPFileUploadException(GCPFileUploadException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
+    @ExceptionHandler(FilesUploadException.class)
+    public ResponseEntity<ErrorRes> handleFilesUploadException(FilesUploadException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
     @ExceptionHandler(ProductNotSufficientException.class)
     public ResponseEntity<ErrorRes> handleProductNotSufficientException(ProductNotSufficientException e){
         ErrorRes err = ErrorRes.builder()

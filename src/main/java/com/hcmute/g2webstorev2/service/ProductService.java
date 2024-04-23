@@ -4,6 +4,7 @@ package com.hcmute.g2webstorev2.service;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 
 public interface ProductService {
@@ -15,9 +16,9 @@ public interface ProductService {
 
     ProductResponse getProduct(Integer id);
 
-    ProductResponse addProduct(ProductRequest body);
+    ProductResponse addProduct(ProductRequest body, MultipartFile[] files);
 
-    void updateProduct(ProductRequest body, Integer id);
+    void updateProduct(ProductRequest body, Integer id, MultipartFile[] files);
 
     void delProduct(Integer id);
 

@@ -2,16 +2,14 @@ package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
-import com.hcmute.g2webstorev2.entity.Category;
-import com.hcmute.g2webstorev2.entity.Product;
-import com.hcmute.g2webstorev2.entity.Seller;
-import com.hcmute.g2webstorev2.entity.Shop;
+import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CategoryRepo;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
+import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -33,6 +33,9 @@ public class ProductServiceImpl implements ProductService {
     private ShopRepo shopRepo;
     @Autowired
     private CategoryRepo categoryRepo;
+
+    @Autowired
+    private FileService fileService;
 
     @Override
     public Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed) {
@@ -61,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse addProduct(ProductRequest body) {
+    public ProductResponse addProduct(ProductRequest body, MultipartFile[] files) {
         log.info("Beginning add product...");
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -72,23 +75,27 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Category with ID = " + body.getCategoryId() + " not found"));
 
-        ProductResponse res = Mapper.toProductResponse(productRepo.save(
-                Product.builder()
-                        .name(body.getName())
-                        .images(body.getImages())
-                        .description(body.getDescription())
-                        .price(body.getPrice())
-                        .specialPrice(body.getSpecialPrice())
-                        .stockQuantity(body.getStockQuantity())
-                        .category(category)
-                        .shop(seller.getShop())
-                        .soldQuantity(0)
-                        .height(body.getHeight())
-                        .weight(body.getWeight())
-                        .width(body.getWidth())
-                        .length(body.getLength())
-                        .build()
-        ));
+        Product product = Product.builder()
+                .name(body.getName())
+                .description(body.getDescription())
+                .price(body.getPrice())
+                .specialPrice(body.getSpecialPrice())
+                .stockQuantity(body.getStockQuantity())
+                .category(category)
+                .shop(seller.getShop())
+                .soldQuantity(0)
+                .height(body.getHeight())
+                .weight(body.getWeight())
+                .width(body.getWidth())
+                .length(body.getLength())
+                .build();
+
+        List<GCPFile> images = fileService.uploadFiles(files);
+        images.forEach(img -> img.setProduct(product));
+
+        product.setImages(images);
+
+        ProductResponse res = Mapper.toProductResponse(productRepo.save(product));
 
         log.info("Product with ID = " + res.getProductId() + " have been created");
         return res;
@@ -96,7 +103,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public void updateProduct(ProductRequest body, Integer id) {
+    public void updateProduct(ProductRequest body, Integer id, MultipartFile[] files) {
         Product product = productRepo.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Product with ID = " + id + " not found"));
@@ -114,8 +121,11 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Category with ID = " + body.getCategoryId() + " not found"));
 
+
+
         product.setName(body.getName());
-        product.setImages(body.getImages());
+        //TODO: fix this
+//        product.setImages(body.getImages());
         product.setDescription(body.getDescription());
         product.setPrice(body.getPrice());
         product.setSpecialPrice(body.getSpecialPrice());

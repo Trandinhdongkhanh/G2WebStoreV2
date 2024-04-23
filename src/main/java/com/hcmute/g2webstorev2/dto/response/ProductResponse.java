@@ -1,7 +1,10 @@
 package com.hcmute.g2webstorev2.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.hcmute.g2webstorev2.entity.GCPFile;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,7 +15,7 @@ public class ProductResponse {
     @JsonProperty("product_id")
     private Integer productId;
     private String name;
-    private String images;
+    private List<GCPFileResponse> images;
     private String description;
     private Integer price;
     @JsonProperty("special_price")

@@ -69,7 +69,9 @@ public class Mapper {
         return ProductResponse.builder()
                 .productId(product.getProductId())
                 .name(product.getName())
-                .images(product.getImages())
+                .images(product.getImages().stream()
+                        .map(Mapper::toGCPFileResponse)
+                        .collect(Collectors.toList()))
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .specialPrice(product.getSpecialPrice())
@@ -81,6 +83,15 @@ public class Mapper {
                 .width(product.getWidth())
                 .length(product.getLength())
                 .soldQuantity(product.getSoldQuantity())
+                .build();
+    }
+
+    public static GCPFileResponse toGCPFileResponse(GCPFile gcpFile) {
+        return GCPFileResponse.builder()
+                .id(gcpFile.getId())
+                .fileName(gcpFile.getFileName())
+                .fileType(gcpFile.getFileType())
+                .fileUrl(gcpFile.getFileUrl())
                 .build();
     }
 
@@ -147,7 +158,7 @@ public class Mapper {
 
     public static CartItemResponse toCartItemResponse(CartItem cartItem) {
         return CartItemResponse.builder()
-                .images(cartItem.getProduct().getImages())
+                .images(cartItem.getProduct().getImages().get(0).getFileUrl())
                 .name(cartItem.getProduct().getName())
                 .price(cartItem.getProduct().getPrice())
                 .quantity(cartItem.getQuantity())

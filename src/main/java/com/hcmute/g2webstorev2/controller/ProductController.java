@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -68,10 +69,12 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('CREATE_PRODUCT')")
-    public ResponseEntity<ProductResponse> addProduct(@Valid @RequestBody ProductRequest body) {
+    public ResponseEntity<ProductResponse> addProduct(
+            @Valid @ModelAttribute ProductRequest body,
+            @RequestParam("files") MultipartFile[] files) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(productService.addProduct(body));
+                .body(productService.addProduct(body, files));
     }
 
     @PutMapping("/{id}")
@@ -80,8 +83,9 @@ public class ProductController {
             @PathVariable("id")
             @NotNull(message = "Product ID cannot be null")
             @Min(value = 1, message = "Product ID must be greater than 0") Integer id,
-            @Valid @RequestBody ProductRequest body) {
-        productService.updateProduct(body, id);
+            @Valid @RequestBody ProductRequest body,
+            @RequestParam(value = "files", required = false) MultipartFile[] files) {
+        productService.updateProduct(body, id, files);
         return ResponseEntity.ok("Product with ID = " + id + " updated successfully");
     }
 

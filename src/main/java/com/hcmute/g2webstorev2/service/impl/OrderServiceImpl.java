@@ -104,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
             for (CartItem cartItem : cartItems) {
                 if (!Objects.equals(cartItem.getProduct().getShop().getShopId(), shop.getShopId())) continue;
                 OrderItem orderItem = OrderItem.builder()
-                        .image(cartItem.getProduct().getImages())
+                        .image(cartItem.getProduct().getImages().get(0).getFileUrl())
                         .price(cartItem.getProduct().getPrice())
                         .quantity(cartItem.getQuantity())
                         .name(cartItem.getProduct().getName())
@@ -166,11 +166,11 @@ public class OrderServiceImpl implements OrderService {
             throw new AccessDeniedException("You don't have permission on this order, access denied");
 
         if (status == RECEIVED && !isSevenDaysPassed(order.getDeliveredDate(), LocalDateTime.now()))
-            throw new AccessDeniedException("You don't have permission to update the Order Status to '" + RECEIVED + "'" +
+            throw new AccessDeniedException("You don't have permission to update the Order Status to '" + RECEIVED.name() + "'" +
                     ", please update after 7 days from delivered date");
 
         order.setOrderStatus(status);
-        log.info("Order status of order with ID = " + id + " have been updated to '" + status + "' successfully");
+        log.info("Order status of order with ID = " + id + " have been updated to '" + status.name() + "' successfully");
         return Mapper.toOrderResponse(order);
     }
 

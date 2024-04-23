@@ -18,7 +18,8 @@ public class Product {
     @Column(name = "product_id")
     private Integer productId;
     private String name;
-    private String images;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<GCPFile> images;
     private String description;
     private Integer price;
     private Integer specialPrice;
