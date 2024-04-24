@@ -6,6 +6,7 @@ import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ProblemDetail;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -25,4 +26,6 @@ public interface CustomerService {
     void updateEmail(EmailUpdateRequest body);
 
     void updatePhoneNo(PhoneNoUpdateRequest body);
+
+    CustomerResponse uploadAvatar(MultipartFile file);
 }

@@ -121,11 +121,13 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Category with ID = " + body.getCategoryId() + " not found"));
 
-
+        if (files.length != 0){
+            List<GCPFile> images = fileService.uploadFiles(files);
+            images.forEach(img -> img.setProduct(product));
+            product.setImages(images);
+        }
 
         product.setName(body.getName());
-        //TODO: fix this
-//        product.setImages(body.getImages());
         product.setDescription(body.getDescription());
         product.setPrice(body.getPrice());
         product.setSpecialPrice(body.getSpecialPrice());

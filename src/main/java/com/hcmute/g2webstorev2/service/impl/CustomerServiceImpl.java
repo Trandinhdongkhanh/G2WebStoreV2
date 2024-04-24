@@ -5,12 +5,15 @@ import com.hcmute.g2webstorev2.dto.request.*;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.entity.Customer;
+import com.hcmute.g2webstorev2.entity.GCPFile;
 import com.hcmute.g2webstorev2.entity.Role;
 import com.hcmute.g2webstorev2.exception.*;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CustomerRepo;
+import com.hcmute.g2webstorev2.repository.GCPFileRepo;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.service.CustomerService;
+import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +25,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.*;
@@ -43,6 +48,10 @@ public class CustomerServiceImpl implements CustomerService {
     private RoleRepo roleRepo;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private FileService fileService;
+    @Autowired
+    private GCPFileRepo gcpFileRepo;
 
     @Override
     @Transactional
@@ -129,7 +138,6 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse updateProfile(CustomerProfileUpdateRequest body) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        customer.setAvatar(body.getAvatar());
         customer.setDob(body.getDob());
         customer.setFullName(body.getFullName());
 
@@ -180,5 +188,22 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setPhoneNo(body.getNewPhoneNo());
         customerRepo.save(customer);
         log.info("Phone No of customer with ID = " + customer.getCustomerId() + " updated successfully");
+    }
+
+    @Override
+    @Transactional
+    public CustomerResponse uploadAvatar(MultipartFile file) {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (customer.getAvatar() != null) fileService.delFile(customer.getAvatar().getId());
+
+        List<GCPFile> images = fileService.uploadFiles(new MultipartFile[]{file});
+        customer.setAvatar(images.get(0));
+        images.get(0).setCustomer(customer);
+
+        customerRepo.save(customer);
+        log.info("Customer with ID = " + customer.getCustomerId() + " updated avatar successfully");
+
+        return Mapper.toCustomerResponse(customer);
     }
 }

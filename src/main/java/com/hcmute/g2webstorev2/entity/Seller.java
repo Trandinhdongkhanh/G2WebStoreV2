@@ -28,7 +28,8 @@ public class Seller implements UserDetails {
     @Column(unique = true)
     private String phoneNo;
     private String fullName;
-    private String avatar;
+    @OneToOne(mappedBy = "seller", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private GCPFile avatar;
     private boolean isEmailVerified;
     private boolean isAccountNonLocked = true;
     private boolean isAccountNonExpired = true;

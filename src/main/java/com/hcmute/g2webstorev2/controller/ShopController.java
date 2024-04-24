@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/shops")
@@ -28,5 +29,10 @@ public class ShopController {
     @PreAuthorize("hasRole('SELLER_FULL_ACCESS')")
     public ResponseEntity<ShopResponse> updateShopInfo(@RequestBody @Valid ShopRequest body){
         return ResponseEntity.ok(shopService.updateShopInfo(body));
+    }
+    @PutMapping("/upload-image")
+    @PreAuthorize("hasRole('SELLER_FULL_ACCESS')")
+    public ResponseEntity<ShopResponse> uploadShopImage(@RequestParam("file")MultipartFile file){
+        return ResponseEntity.ok(shopService.uploadShopImage(file));
     }
 }

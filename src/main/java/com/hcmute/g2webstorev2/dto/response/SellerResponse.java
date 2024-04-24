@@ -25,5 +25,4 @@ public class SellerResponse {
     private Shop shop;
     @JsonProperty("is_main_acc")
     private boolean isMainAcc;
-
 }

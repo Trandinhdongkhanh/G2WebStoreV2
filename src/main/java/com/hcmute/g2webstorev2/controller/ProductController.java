@@ -83,7 +83,7 @@ public class ProductController {
             @PathVariable("id")
             @NotNull(message = "Product ID cannot be null")
             @Min(value = 1, message = "Product ID must be greater than 0") Integer id,
-            @Valid @RequestBody ProductRequest body,
+            @Valid @ModelAttribute ProductRequest body,
             @RequestParam(value = "files", required = false) MultipartFile[] files) {
         productService.updateProduct(body, id, files);
         return ResponseEntity.ok("Product with ID = " + id + " updated successfully");

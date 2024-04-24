@@ -17,7 +17,8 @@ public class Shop {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shop_id")
     private Integer shopId;
-    private String image;
+    @OneToOne(mappedBy = "shop", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private GCPFile image;
     private String name;
     private String province;
     private String district;

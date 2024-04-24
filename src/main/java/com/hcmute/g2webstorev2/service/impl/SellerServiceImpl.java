@@ -13,6 +13,7 @@ import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.repository.SellerRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
+import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.SellerService;
 import com.hcmute.g2webstorev2.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +26,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.SELLER_FULL_ACCESS;
@@ -54,6 +53,8 @@ public class SellerServiceImpl implements SellerService {
 
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private FileService fileService;
 
     @Override
     @Transactional
@@ -171,5 +172,21 @@ public class SellerServiceImpl implements SellerService {
         return sellerRepo.findAllByShop(adminSeller.getShop())
                         .stream().map(Mapper::toSellersFromShopResponse)
                         .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public SellerResponse uploadAvatar(MultipartFile file) {
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (seller.getAvatar() != null) fileService.delFile(seller.getAvatar().getId());
+
+        List<GCPFile> images = fileService.uploadFiles(new MultipartFile[]{file});
+        seller.setAvatar(images.get(0));
+        images.get(0).setSeller(seller);
+
+        SellerResponse res = Mapper.toSellerResponse(sellerRepo.save(seller));
+        log.info("Seller with ID = " + seller.getSellerId() + " updated avatar successfully");
+        return res;
     }
 }

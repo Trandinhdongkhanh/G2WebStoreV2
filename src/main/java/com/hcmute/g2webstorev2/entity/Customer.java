@@ -30,7 +30,6 @@ public class Customer implements UserDetails {
     @Column(unique = true)
     private String phoneNo;
     private String fullName;
-    private String avatar;
     private double point = 0;
     private LocalDate dob;
     private boolean isEmailVerified;
@@ -38,6 +37,8 @@ public class Customer implements UserDetails {
     private boolean isAccountNonLocked = true;
     private boolean isCredentialsNonExpired = true;
     private boolean isEnabled = true;
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    private GCPFile avatar;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;

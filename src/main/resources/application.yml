@@ -19,9 +19,15 @@ spring:
       hibernate:
         format_sql: true
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 200MB
+
 gcp:
   config:
-    file: g2-test-project-9acd517c0ab4.json
+    file: g2-test-project-05bf49dd9bfb.json
   project:
     id: g2-test-project
   bucket:

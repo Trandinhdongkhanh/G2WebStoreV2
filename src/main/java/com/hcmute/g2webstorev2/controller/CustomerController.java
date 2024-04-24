@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -52,6 +53,12 @@ public class CustomerController {
     public ResponseEntity<CustomerResponse> updateProfile(
             @RequestBody @Valid CustomerProfileUpdateRequest body) {
         return ResponseEntity.ok(customerService.updateProfile(body));
+    }
+
+    @PutMapping("/me/upload-avatar")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<CustomerResponse> uploadAvatar(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(customerService.uploadAvatar(file));
     }
 
     @PutMapping("/me/password")

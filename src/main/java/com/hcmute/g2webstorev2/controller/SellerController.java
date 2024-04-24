@@ -13,10 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/sellers")
@@ -62,5 +62,16 @@ public class SellerController {
     @PreAuthorize("hasRole('SELLER_FULL_ACCESS') or hasAuthority('READ_USER')")
     public ResponseEntity<List<SellersFromShopResponse>> getSellersFromMyShop(){
         return ResponseEntity.ok(sellerService.getSellersFromMyShop());
+    }
+    @PutMapping("/upload-avatar")
+    @PreAuthorize("hasAnyRole(" +
+            "'SELLER_FULL_ACCESS', " +
+            "'SELLER_READ_ONLY'," +
+            "'SELLER_ORDER_MANAGEMENT'," +
+            "'JUNIOR_CHAT_AGENT'," +
+            "'SELLER_PRODUCT_ACCESS'," +
+            "'SELLER_PROMOTION_ACCESS')")
+    public ResponseEntity<SellerResponse> uploadAvatar(@RequestParam("file")MultipartFile file){
+        return ResponseEntity.ok(sellerService.uploadAvatar(file));
     }
 }

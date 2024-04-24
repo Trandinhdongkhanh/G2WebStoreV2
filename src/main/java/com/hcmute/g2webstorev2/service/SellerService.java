@@ -5,6 +5,7 @@ import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
 import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -21,4 +22,5 @@ public interface SellerService {
     SellerResponse addSeller(SellerAddRequest body);
 
     List<SellersFromShopResponse> getSellersFromMyShop();
+    SellerResponse uploadAvatar(MultipartFile file);
 }

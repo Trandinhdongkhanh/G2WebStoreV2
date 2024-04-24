@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class CustomerProfileUpdateRequest {
-    private String avatar;
     private LocalDate dob;
     @JsonProperty("full_name")
     private String fullName;

@@ -7,6 +7,7 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.hcmute.g2webstorev2.entity.GCPFile;
 import com.hcmute.g2webstorev2.exception.GCPFileUploadException;
+import com.hcmute.g2webstorev2.exception.GCSFileNotFoundException;
 import com.hcmute.g2webstorev2.exception.InvalidFileTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,28 @@ public class GCPDataBucketUtil {
     private String gcpBucketId;
 
     private static final String PUBLIC_GG_STORAGE_PREFIX = "https://storage.googleapis.com/";
+
+    public boolean delFile(String fileName) {
+        try {
+
+            InputStream inputStream = new ClassPathResource(gcpConfigFile).getInputStream();
+
+            Storage storage = StorageOptions.newBuilder()
+                    .setCredentials(GoogleCredentials.fromStream(inputStream))
+                    .setProjectId(gcpProjectId).build().getService();
+
+            Blob blob = storage.get(gcpBucketId, fileName);
+            if (blob == null)
+                throw new GCSFileNotFoundException("The object " + fileName + " wasn't found in " + gcpBucketId);
+            storage.delete(gcpBucketId, fileName);
+            log.info("Object " + fileName + " was deleted from " + gcpBucketId);
+            return true;
+
+        } catch (Exception e) {
+            log.error("An error occurred while uploading data. Exception: ", e);
+            throw new GCPFileUploadException("An error occurred while storing data to GCS");
+        }
+    }
 
     public GCPFile uploadFile(MultipartFile multipartFile, String fileName, String contentType) {
 

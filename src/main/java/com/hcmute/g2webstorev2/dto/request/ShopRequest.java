@@ -12,8 +12,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ShopRequest {
-    @NotBlank(message = "Image cannot be blank")
-    private String image;
     @NotBlank(message = "Shop name cannot be blank")
     private String name;
     @NotBlank(message = "Province cannot be blank")

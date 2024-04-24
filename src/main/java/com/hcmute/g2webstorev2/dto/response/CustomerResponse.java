@@ -17,14 +17,12 @@ public class CustomerResponse {
     private String email;
     @JsonProperty("phone_no")
     private String phoneNo;
-
     @JsonProperty("full_name")
     private String fullName;
-
-    private String avatar;
     private double point;
     private LocalDate dob;
     @JsonProperty("is_email_verified")
     private boolean isEmailVerified;;
     private Role role;
+    private String avatar;
 }
