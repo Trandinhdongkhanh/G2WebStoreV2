@@ -3,6 +3,7 @@ package com.hcmute.g2webstorev2.service.impl;
 import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
+import com.hcmute.g2webstorev2.dto.request.SellerProfileUpdateRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
 import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
@@ -170,8 +171,8 @@ public class SellerServiceImpl implements SellerService {
         Seller adminSeller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return sellerRepo.findAllByShop(adminSeller.getShop())
-                        .stream().map(Mapper::toSellersFromShopResponse)
-                        .collect(Collectors.toList());
+                .stream().map(Mapper::toSellersFromShopResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -188,5 +189,25 @@ public class SellerServiceImpl implements SellerService {
         SellerResponse res = Mapper.toSellerResponse(sellerRepo.save(seller));
         log.info("Seller with ID = " + seller.getSellerId() + " updated avatar successfully");
         return res;
+    }
+
+    @Override
+    public SellerResponse updateSellerRole(Integer sellerId, Integer roleId) {
+        Role role = roleRepo.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role with ID = " + roleId + " not found"));
+
+        Seller seller = sellerRepo.findById(sellerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Seller with ID = " + sellerId + " not found"));
+
+
+        seller.setRole(role);
+        SellerResponse res = Mapper.toSellerResponse(sellerRepo.save(seller));
+        log.info("Seller with ID = " + sellerId + " has been updated to role " + role.getAppRole().name());
+        return res;
+    }
+
+    @Override
+    public SellerResponse updateInfo(SellerProfileUpdateRequest body) {
+        return null;
     }
 }

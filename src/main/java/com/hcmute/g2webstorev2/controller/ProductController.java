@@ -2,6 +2,7 @@ package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
+import com.hcmute.g2webstorev2.enums.SortType;
 import com.hcmute.g2webstorev2.service.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -116,10 +117,23 @@ public class ProductController {
             @NotNull(message = "Page size must not be null")
             Integer pageSize,
 
-            @RequestParam(value = "seed")
-            @NotNull(message = "Seed cannot be null")
-            Integer seed) {
-        return ResponseEntity.ok(productService.getProductsByCategory(id, pageNumber, pageSize, seed));
+            @RequestParam(value = "seed") @NotNull(message = "Seed cannot be null")
+            Integer seed,
+
+            @RequestParam(value = "sort", required = false) SortType sortType,
+            @RequestParam(value = "startPrice", required = false) Integer startPrice,
+            @RequestParam(value = "endPrice", required = false) Integer endPrice,
+            @RequestParam(value = "districtId", required = false) Integer districtId) {
+        return ResponseEntity.ok(productService.getProductsByCategory(
+                id,
+                pageNumber,
+                pageSize,
+                seed,
+                sortType,
+                startPrice,
+                endPrice,
+                districtId
+        ));
     }
 
     @GetMapping("/search")

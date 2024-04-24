@@ -10,12 +10,14 @@ import java.util.stream.Collectors;
 
 public class Mapper {
     public static CustomerResponse toCustomerResponse(Customer customer) {
+        String avatar = null;
+        if (customer.getAvatar() != null) avatar = customer.getAvatar().getFileUrl();
         return CustomerResponse.builder()
                 .customerId(customer.getCustomerId())
                 .email(customer.getEmail())
                 .phoneNo(customer.getPhoneNo())
                 .fullName(customer.getFullName())
-                .avatar(customer.getAvatar().getFileUrl())
+                .avatar(avatar)
                 .point(customer.getPoint())
                 .dob(customer.getDob())
                 .isEmailVerified(customer.isEmailVerified())
@@ -36,12 +38,14 @@ public class Mapper {
     }
 
     public static SellerResponse toSellerResponse(Seller seller) {
+        String avatar = null;
+        if (seller.getAvatar() != null) avatar = seller.getAvatar().getFileUrl();
         return SellerResponse.builder()
                 .sellerId(seller.getSellerId())
                 .email(seller.getEmail())
                 .phoneNo(seller.getPhoneNo())
                 .fullName(seller.getFullName())
-                .avatar(seller.getAvatar().getFileUrl())
+                .avatar(avatar)
                 .isEmailVerified(seller.isEmailVerified())
                 .role(seller.getRole())
                 .shop(seller.getShop())
@@ -66,12 +70,13 @@ public class Mapper {
     }
 
     public static ProductResponse toProductResponse(Product product) {
+        List<GCPFileResponse> images = null;
+        if (product.getImages() != null)
+            images = product.getImages().stream().map(Mapper::toGCPFileResponse).collect(Collectors.toList());
         return ProductResponse.builder()
                 .productId(product.getProductId())
                 .name(product.getName())
-                .images(product.getImages().stream()
-                        .map(Mapper::toGCPFileResponse)
-                        .collect(Collectors.toList()))
+                .images(images)
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .specialPrice(product.getSpecialPrice())
@@ -96,10 +101,12 @@ public class Mapper {
     }
 
     public static ShopResponse toShopResponse(Shop shop) {
+        String image = null;
+        if (shop.getImage() != null) image = shop.getImage().getFileUrl();
         return ShopResponse.builder()
                 .shopId(shop.getShopId())
                 .name(shop.getName())
-                .image(shop.getImage().getFileUrl())
+                .image(image)
                 .street(shop.getStreet())
                 .district(shop.getDistrict())
                 .ward(shop.getWard())

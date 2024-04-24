@@ -3,6 +3,7 @@ package com.hcmute.g2webstorev2.service.impl;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.entity.*;
+import com.hcmute.g2webstorev2.enums.SortType;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
@@ -46,13 +47,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponse> getProductsByName(int pageNumber, int pageSize, String name, Integer seed) {
         return productRepo.findRandomProductsByName(seed, PageRequest.of(pageNumber, pageSize), name)
-                .map(Mapper::toProductResponse);
-    }
-
-    @Override
-    public Page<ProductResponse> getProductByPriceBetween(int pageNumber, int pageSize, Integer startPrice, Integer endPrice, Integer seed) {
-        return productRepo
-                .findRandomProductsByPriceBetween(seed, PageRequest.of(pageNumber, pageSize), startPrice, endPrice)
                 .map(Mapper::toProductResponse);
     }
 
@@ -121,7 +115,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Category with ID = " + body.getCategoryId() + " not found"));
 
-        if (files.length != 0){
+        if (files != null && files.length != 0) {
             List<GCPFile> images = fileService.uploadFiles(files);
             images.forEach(img -> img.setProduct(product));
             product.setImages(images);
@@ -162,7 +156,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getProductsByCategory(Integer id, int pageNumber, int pageSize, Integer seed) {
+    public Page<ProductResponse> getProductsByCategory(Integer id, int pageNumber, int pageSize, Integer seed,
+                                                       SortType sortType, Integer startPrice, Integer endPrice,
+                                                       Integer districtId) {
+
+        if (sortType != null && startPrice == null && endPrice == null && districtId == null)
+            return this.getProductsByCategory(id ,pageNumber, pageSize, sortType, seed);
+
+        if (sortType != null && startPrice != null && endPrice != null && districtId == null)
+            return this.getProductsByCategory(id, pageNumber, pageSize, sortType, seed ,startPrice, endPrice);
+
+        return productRepo.findAllByCategory(this.getPath(id), PageRequest.of(pageNumber, pageSize), seed)
+                .map(Mapper::toProductResponse);
+    }
+
+    private String getPath(Integer id) {
         Category category = categoryRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with ID = " + id + " not found"));
 
@@ -171,8 +179,96 @@ public class ProductServiceImpl implements ProductService {
         if (category.getChildCategories().isEmpty()) path = category.getPath();
         else path = category.getPath() + "/";
 
+        return path;
+    }
+
+    private Page<ProductResponse> getProductsByCategory(Integer id, int pageNumber, int pageSize,
+                                                        SortType sortType, Integer seed, Integer starPrice, Integer endPrice) {
+
+        String path = this.getPath(id);
+
+        switch (sortType){
+            case PRICE_ASC -> {
+                return productRepo.findAllByCategoryOrderByPriceAsc(
+                        path,
+                        PageRequest.of(pageNumber, pageSize),
+                        starPrice,
+                        endPrice
+                ).map(Mapper::toProductResponse);
+            }
+            case PRICE_DESC -> {
+                return productRepo.findAllByCategoryOrderByPriceDesc(
+                        path,
+                        PageRequest.of(pageNumber, pageSize),
+                        starPrice,
+                        endPrice
+                ).map(Mapper::toProductResponse);
+            }
+            case TOP_SELLER -> {
+                return productRepo.findTopSellByCategory(
+                        path,
+                        PageRequest.of(pageNumber, pageSize),
+                        starPrice,
+                        endPrice
+                ).map(Mapper::toProductResponse);
+            }
+            case NEWEST -> {
+                return productRepo.findNewestByCategory(
+                        path,
+                        PageRequest.of(pageNumber, pageSize),
+                        starPrice,
+                        endPrice
+                ).map(Mapper::toProductResponse);
+            }
+            case DEFAULT -> {
+                return productRepo.findAllByCategory(
+                        path,
+                        PageRequest.of(pageNumber, pageSize),
+                        starPrice,
+                        endPrice,
+                        seed
+                ).map(Mapper::toProductResponse);
+            }
+        }
+
+        return productRepo.findProductsByCategoryWherePriceBetween(
+                path,
+                PageRequest.of(pageNumber, pageSize),
+                starPrice,
+                endPrice,
+                seed
+        ).map(Mapper::toProductResponse);
+    }
+
+
+    private Page<ProductResponse> getProductsByCategory(Integer id, int pageNumber, int pageSize,
+                                                        SortType sortType, Integer seed) {
+        String path = this.getPath(id);
+
+        switch (sortType) {
+            case DEFAULT -> {
+                return productRepo.findAllByCategory(path, PageRequest.of(pageNumber, pageSize), seed)
+                        .map(Mapper::toProductResponse);
+            }
+            case PRICE_DESC -> {
+                return productRepo.findAllByCategoryOrderByPriceDesc(path, PageRequest.of(pageNumber, pageSize))
+                        .map(Mapper::toProductResponse);
+            }
+            case PRICE_ASC -> {
+                return productRepo.findAllByCategoryOrderByPriceAsc(path, PageRequest.of(pageNumber, pageSize))
+                        .map(Mapper::toProductResponse);
+            }
+            case NEWEST -> {
+                return productRepo.findNewestByCategory(path, PageRequest.of(pageNumber, pageSize))
+                        .map(Mapper::toProductResponse);
+            }
+            case TOP_SELLER -> {
+                return productRepo.findTopSellByCategory(path, PageRequest.of(pageNumber, pageSize))
+                        .map(Mapper::toProductResponse);
+            }
+        }
+
         return productRepo.findAllByCategory(path, PageRequest.of(pageNumber, pageSize), seed)
                 .map(Mapper::toProductResponse);
     }
-
 }

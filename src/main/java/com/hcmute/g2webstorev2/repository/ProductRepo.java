@@ -12,12 +12,16 @@ import org.springframework.stereotype.Repository;
 public interface ProductRepo extends JpaRepository<Product, Integer> {
 
     boolean existsByNameAndShop(String name, Shop shop);
+
     @Query("select p from Product p order by rand(:seed)")
     Page<Product> findRandomProducts(Integer seed, Pageable pageable);
+
     @Query("select p from Product p where p.name like :name% order by rand(:seed)")
     Page<Product> findRandomProductsByName(Integer seed, Pageable pageable, String name);
+
     @Query("select p from Product p where p.price between :startPrice and :endPrice order by rand(:seed)")
     Page<Product> findRandomProductsByPriceBetween(Integer seed, Pageable pageable, Integer startPrice, Integer endPrice);
+
     Page<Product> findAllByShop(Shop shop, Pageable pageable);
 //    @Query(nativeQuery = true, value = """
 //            WITH recursive cte AS (
@@ -37,4 +41,53 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
 
     @Query("select p from Product p where p.category.path like :path% order by rand(:seed)")
     Page<Product> findAllByCategory(String path, Pageable pageable, Integer seed);
+
+    @Query("select p from Product p " +
+            "where p.category.path like :path% and " +
+            "p.price between :startPrice and :endPrice " +
+            "order by rand(:seed)")
+    Page<Product> findAllByCategory(String path, Pageable pageable, Integer seed, Integer startPrice, Integer endPrice);
+
+    @Query("select p from Product p where p.category.path like :path% order by p.productId desc")
+    Page<Product> findNewestByCategory(String path, Pageable pageable);
+
+    @Query("select p from Product p " +
+            "where p.category.path like :path% and " +
+            "p.price between :startPrice and :endPrice " +
+            "order by rand(:seed)")
+    Page<Product> findProductsByCategoryWherePriceBetween(String path, Pageable pageable,
+                                                          Integer startPrice, Integer endPrice, Integer seed);
+
+    @Query("select p from Product p where p.category.path like :path% order by p.soldQuantity desc")
+    Page<Product> findTopSellByCategory(String path, Pageable pageable);
+
+    @Query("select p from Product p where p.category.path like :path% order by p.price asc")
+    Page<Product> findAllByCategoryOrderByPriceAsc(String path, Pageable pageable);
+
+    @Query("select p from Product p where p.category.path like :path% order by p.price desc")
+    Page<Product> findAllByCategoryOrderByPriceDesc(String path, Pageable pageable);
+    @Query("select p from Product p " +
+            "where p.category.path like :path% " +
+            "and p.price between :startPrice and :endPrice " +
+            "order by p.price asc")
+    Page<Product> findAllByCategoryOrderByPriceAsc(String path, Pageable pageable, Integer startPrice, Integer endPrice);
+
+    @Query("select p from Product p " +
+            "where p.category.path like :path% " +
+            "and p.price between :startPrice and :endPrice " +
+            "order by p.productId desc")
+    Page<Product> findNewestByCategory(String path, Pageable pageable, Integer startPrice, Integer endPrice);
+
+    @Query("select p from Product p " +
+            "where p.category.path like :path% " +
+            "and p.price between :startPrice and :endPrice " +
+            "order by p.soldQuantity desc")
+    Page<Product> findTopSellByCategory(String path, Pageable pageable, Integer startPrice, Integer endPrice);
+
+    @Query("select p from Product p " +
+            "where p.category.path like :path% " +
+            "and p.price between :startPrice and :endPrice " +
+            "order by p.price desc")
+    Page<Product> findAllByCategoryOrderByPriceDesc(String path, Pageable pageable, Integer startPrice, Integer endPrice);
+
 }

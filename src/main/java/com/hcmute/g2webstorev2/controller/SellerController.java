@@ -58,11 +58,13 @@ public class SellerController {
                 .status(HttpStatus.CREATED)
                 .body(sellerService.addSeller(body));
     }
+
     @GetMapping("/my-shop")
     @PreAuthorize("hasRole('SELLER_FULL_ACCESS') or hasAuthority('READ_USER')")
-    public ResponseEntity<List<SellersFromShopResponse>> getSellersFromMyShop(){
+    public ResponseEntity<List<SellersFromShopResponse>> getSellersFromMyShop() {
         return ResponseEntity.ok(sellerService.getSellersFromMyShop());
     }
+
     @PutMapping("/upload-avatar")
     @PreAuthorize("hasAnyRole(" +
             "'SELLER_FULL_ACCESS', " +
@@ -71,7 +73,16 @@ public class SellerController {
             "'JUNIOR_CHAT_AGENT'," +
             "'SELLER_PRODUCT_ACCESS'," +
             "'SELLER_PROMOTION_ACCESS')")
-    public ResponseEntity<SellerResponse> uploadAvatar(@RequestParam("file")MultipartFile file){
+    public ResponseEntity<SellerResponse> uploadAvatar(@RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(sellerService.uploadAvatar(file));
+    }
+
+    @PutMapping("/{sellerId}/role/{roleId}")
+    @PreAuthorize("hasRole('SELLER_FULL_ACCESS') or hasAuthority('UPDATE_USER')")
+    public ResponseEntity<SellerResponse> updateSellerRole(
+            @PathVariable("sellerId") Integer sellerId,
+            @PathVariable("roleId") Integer roleId
+    ) {
+        return ResponseEntity.ok(sellerService.updateSellerRole(sellerId, roleId));
     }
 }

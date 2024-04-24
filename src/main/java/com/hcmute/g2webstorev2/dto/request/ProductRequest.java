@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,9 +20,11 @@ public class ProductRequest {
     @Min(value = 0, message = "Product price must be equals or greater than 0")
     private Integer price;
     @Min(value = 0, message = "Product special price must be equals or greater than 0")
+    @JsonProperty("special_price")
     private Integer specialPrice;
     @NotNull(message = "Product quantity cannot be null")
     @Min(value = 0, message = "Product quantity must be equals or greater than 0")
+    @JsonProperty("stock_quantity")
     private Integer stockQuantity;
     @NotNull(message = "Height cannot be null")
     @Min(value = 0, message = "Height must be equals or greater than 0")
@@ -37,5 +40,6 @@ public class ProductRequest {
     private Float weight;
     @NotNull(message = "Category ID cannot be null")
     @Min(value = 1, message = "Category ID must be equals or greater than 1")
+    @JsonProperty("category_id")
     private Integer categoryId;
 }
