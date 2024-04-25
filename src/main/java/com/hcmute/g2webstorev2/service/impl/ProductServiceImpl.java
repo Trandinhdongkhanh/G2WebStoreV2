@@ -34,19 +34,102 @@ public class ProductServiceImpl implements ProductService {
     private ShopRepo shopRepo;
     @Autowired
     private CategoryRepo categoryRepo;
-
     @Autowired
     private FileService fileService;
 
     @Override
-    public Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed) {
-        return productRepo.findRandomProducts(seed, PageRequest.of(pageNumber, pageSize))
+    public Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed, SortType sortType,
+                                                   Integer startPrice, Integer endPrice, Integer districtId) {
+
+        if (sortType != null && startPrice == null && endPrice == null && districtId == null)
+            return this.getProductsByName(name, pageNumber, pageSize, seed, sortType);
+        if (sortType != null && startPrice != null && endPrice != null && districtId == null)
+            return this.getProductsByName(name, pageNumber, pageSize, seed, sortType, startPrice, endPrice);
+
+        return productRepo.findAllByName(name, PageRequest.of(pageNumber, pageSize), seed)
+                .map(Mapper::toProductResponse);
+    }
+
+    private Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize,
+                                                    Integer seed, SortType sortType, Integer startPrice, Integer endPrice) {
+        switch (sortType){
+            case TOP_SELLER -> {
+                return productRepo.findTopSellByName(
+                        name,
+                        PageRequest.of(pageNumber, pageSize),
+                        startPrice,
+                        endPrice
+                ).map(Mapper::toProductResponse);
+            }
+            case NEWEST -> {
+                return productRepo.findNewestByName(
+                        name,
+                        PageRequest.of(pageNumber, pageSize),
+                        startPrice,
+                        endPrice
+                ).map(Mapper::toProductResponse);
+            }
+            case PRICE_ASC -> {
+                return productRepo.findAllByNameOrderByPriceAsc(
+                        name,
+                        PageRequest.of(pageNumber, pageSize),
+                        startPrice,
+                        endPrice
+                ).map(Mapper::toProductResponse);
+            }
+            case PRICE_DESC -> {
+                return productRepo.findAllByNameOrderByPriceDesc(
+                        name,
+                        PageRequest.of(pageNumber, pageSize),
+                        startPrice,
+                        endPrice
+                ).map(Mapper::toProductResponse);
+            }
+            case DEFAULT -> {
+                return productRepo.findAllByName(
+                        name,
+                        PageRequest.of(pageNumber, pageSize),
+                        startPrice,
+                        endPrice,
+                        seed
+                ).map(Mapper::toProductResponse);
+            }
+        }
+        return productRepo.findAllByName(name, PageRequest.of(pageNumber, pageSize), startPrice, endPrice, seed)
+                .map(Mapper::toProductResponse);
+    }
+
+    private Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed, SortType sortType) {
+        switch (sortType) {
+            case TOP_SELLER -> {
+                return productRepo.findTopSellByName(name, PageRequest.of(pageNumber, pageSize))
+                        .map(Mapper::toProductResponse);
+            }
+            case NEWEST -> {
+                return productRepo.findNewestByName(name, PageRequest.of(pageNumber, pageSize))
+                        .map(Mapper::toProductResponse);
+            }
+            case PRICE_DESC -> {
+                return productRepo.findAllByNameOrderByPriceDesc(name, PageRequest.of(pageNumber, pageSize))
+                        .map(Mapper::toProductResponse);
+            }
+            case PRICE_ASC -> {
+                return productRepo.findAllByNameOrderByPriceAsc(name, PageRequest.of(pageNumber, pageSize))
+                        .map(Mapper::toProductResponse);
+            }
+            case DEFAULT -> {
+                return productRepo.findAllByName(name, PageRequest.of(pageNumber, pageSize), seed)
+                        .map(Mapper::toProductResponse);
+            }
+        }
+
+        return productRepo.findAllByName(name, PageRequest.of(pageNumber, pageSize), seed)
                 .map(Mapper::toProductResponse);
     }
 
     @Override
-    public Page<ProductResponse> getProductsByName(int pageNumber, int pageSize, String name, Integer seed) {
-        return productRepo.findRandomProductsByName(seed, PageRequest.of(pageNumber, pageSize), name)
+    public Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed) {
+        return productRepo.findRandomProducts(seed, PageRequest.of(pageNumber, pageSize))
                 .map(Mapper::toProductResponse);
     }
 
@@ -161,10 +244,10 @@ public class ProductServiceImpl implements ProductService {
                                                        Integer districtId) {
 
         if (sortType != null && startPrice == null && endPrice == null && districtId == null)
-            return this.getProductsByCategory(id ,pageNumber, pageSize, sortType, seed);
+            return this.getProductsByCategory(id, pageNumber, pageSize, sortType, seed);
 
         if (sortType != null && startPrice != null && endPrice != null && districtId == null)
-            return this.getProductsByCategory(id, pageNumber, pageSize, sortType, seed ,startPrice, endPrice);
+            return this.getProductsByCategory(id, pageNumber, pageSize, sortType, seed, startPrice, endPrice);
 
         return productRepo.findAllByCategory(this.getPath(id), PageRequest.of(pageNumber, pageSize), seed)
                 .map(Mapper::toProductResponse);
@@ -187,7 +270,7 @@ public class ProductServiceImpl implements ProductService {
 
         String path = this.getPath(id);
 
-        switch (sortType){
+        switch (sortType) {
             case PRICE_ASC -> {
                 return productRepo.findAllByCategoryOrderByPriceAsc(
                         path,
@@ -231,7 +314,7 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-        return productRepo.findProductsByCategoryWherePriceBetween(
+        return productRepo.findAllByCategory(
                 path,
                 PageRequest.of(pageNumber, pageSize),
                 starPrice,

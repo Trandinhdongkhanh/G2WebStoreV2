@@ -153,8 +153,20 @@ public class ProductController {
             Integer seed,
 
             @RequestParam("name")
-            @NotBlank(message = "Product name cannot be blank")
-            String name) {
-        return ResponseEntity.ok(productService.getProductsByName(pageNumber, pageSize, name, seed));
+            @NotBlank(message = "Product name cannot be blank") String name,
+            @RequestParam(value = "sort", required = false) SortType sortType,
+            @RequestParam(value = "startPrice", required = false) Integer startPrice,
+            @RequestParam(value = "endPrice", required = false) Integer endPrice,
+            @RequestParam(value = "districtId", required = false) Integer districtId) {
+        return ResponseEntity.ok(productService.getProductsByName(
+                name,
+                pageNumber,
+                pageSize,
+                seed,
+                sortType,
+                startPrice,
+                endPrice,
+                districtId
+        ));
     }
 }
