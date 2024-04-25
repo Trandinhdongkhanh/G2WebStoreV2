@@ -48,7 +48,7 @@ public class Mapper {
                 .avatar(avatar)
                 .isEmailVerified(seller.isEmailVerified())
                 .role(seller.getRole())
-                .shop(seller.getShop())
+                .shop(Mapper.toShopResponse(seller.getShop()))
                 .build();
     }
 

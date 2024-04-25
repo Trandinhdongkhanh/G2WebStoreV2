@@ -53,6 +53,7 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
 
     @Query("select p from Product p where p.category.path like :path% order by p.price desc")
     Page<Product> findAllByCategoryOrderByPriceDesc(String path, Pageable pageable);
+
     @Query("select p from Product p " +
             "where p.category.path like :path% " +
             "and p.price between :startPrice and :endPrice " +
@@ -92,6 +93,7 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "where p.name like :name% " +
             "order by p.soldQuantity desc")
     Page<Product> findTopSellByName(String name, Pageable pageable);
+
     @Query("select p from Product p " +
             "where p.name like :name% " +
             "and p.price between :startPrice and :endPrice " +

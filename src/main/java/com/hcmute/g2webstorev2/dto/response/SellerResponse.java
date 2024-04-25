@@ -22,7 +22,7 @@ public class SellerResponse {
     @JsonProperty("is_email_verified")
     private boolean isEmailVerified;
     private Role role;
-    private Shop shop;
+    private ShopResponse shop;
     @JsonProperty("is_main_acc")
     private boolean isMainAcc;
 }

@@ -18,6 +18,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+    database: mysql
 
   servlet:
     multipart:
