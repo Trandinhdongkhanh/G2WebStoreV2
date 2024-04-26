@@ -8,6 +8,7 @@ import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
 import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
 import com.hcmute.g2webstorev2.service.SellerService;
+import com.hcmute.g2webstorev2.util.CaptchaValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,8 @@ import java.util.List;
 public class SellerController {
     @Autowired
     private SellerService sellerService;
+    @Autowired
+    private CaptchaValidator captchaValidator;
 
     @GetMapping("/me")
     public ResponseEntity<SellerResponse> getInfo() {
@@ -39,28 +42,36 @@ public class SellerController {
                 .header("Refresh-Token", res.getRefreshToken())
                 .body(res);
     }
+
     @GetMapping("/activate-account")
-    public ResponseEntity<String> activateAccount(@RequestParam("verification-code") String code){
+    public ResponseEntity<String> activateAccount(@RequestParam("verification-code") String code) {
         sellerService.activateAccount(code);
         return ResponseEntity.ok("Account Activated");
     }
+
     @GetMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestParam("email") String email){
+    public ResponseEntity<String> forgotPassword(@RequestParam("email") String email) {
         sellerService.forgotPassword(email);
         return ResponseEntity.ok("Verification code has been sent to your email");
     }
+
     @GetMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest body){
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest body) {
         sellerService.resetPassword(body);
         return ResponseEntity.ok("Password changed successfully");
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody AuthRequest body) {
-        sellerService.register(body);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("Please check your email for verification code");
+    public ResponseEntity<String> register(
+            @Valid @RequestBody AuthRequest body,
+            @RequestParam("g-recaptcha-response") String captcha) {
+        if (captchaValidator.isValidCaptcha(captcha)) {
+            sellerService.register(body);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body("Please check your email for verification code");
+        }
+        return ResponseEntity.badRequest().body("Please try again");
     }
 
     @PostMapping("/refresh-token")

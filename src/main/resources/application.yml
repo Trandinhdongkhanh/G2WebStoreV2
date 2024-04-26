@@ -46,6 +46,10 @@ gcp:
   bucket:
     id: demo-bucket-g2
 
+captcha:
+  secret: 6Lcdz8cpAAAAAPYumczXzpVgiX_5G_vHzcrQo7rC
+  url: https://www.google.com/recaptcha/api/siteverify
+
 application:
   security:
     jwt:
