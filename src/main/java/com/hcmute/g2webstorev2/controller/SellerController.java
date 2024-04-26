@@ -65,13 +65,13 @@ public class SellerController {
     public ResponseEntity<String> register(
             @Valid @RequestBody AuthRequest body,
             @RequestParam("g-recaptcha-response") String captcha) {
-        if (captchaValidator.isValidCaptcha(captcha)) {
-            sellerService.register(body);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body("Please check your email for verification code");
-        }
-        return ResponseEntity.badRequest().body("Please try again");
+//        if (captchaValidator.isValidCaptcha(captcha)) {
+        sellerService.register(body);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("Please check your email for verification code");
+//        }
+//        return ResponseEntity.badRequest().body("Please try again");
     }
 
     @PostMapping("/refresh-token")
