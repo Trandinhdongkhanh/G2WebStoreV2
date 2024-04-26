@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.controller;
 
+import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.enums.SortType;
@@ -172,7 +173,17 @@ public class ProductController {
 
     @PutMapping("/shop-category/{id}")
     @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('UPDATE_PRODUCT')")
-    public ResponseEntity<String> addProductsToShopCate(@PathVariable("id") Integer id){
-        return null;
+    public ResponseEntity<String> addProductsToShopCate(
+            @PathVariable("id") Integer id,
+            @Valid @RequestBody AddProductsToShopCateRequest body){
+        productService.addProductsToShopCate(id, body);
+        return ResponseEntity.ok("Add successfully");
+    }
+    @GetMapping("/shop-category/{id}")
+    public ResponseEntity<Page<ProductResponse>> getProductsByShopCate(
+            @PathVariable("id") Integer id,
+            @RequestParam("page") int pageNumber,
+            @RequestParam("size") int pageSize){
+        return ResponseEntity.ok(productService.getProductsByShopCate(id, pageNumber, pageSize));
     }
 }

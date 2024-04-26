@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.service.impl;
 
+import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.entity.*;
@@ -9,6 +10,7 @@ import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CategoryRepo;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
+import com.hcmute.g2webstorev2.repository.ShopCateRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ProductService;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,6 +39,8 @@ public class ProductServiceImpl implements ProductService {
     private CategoryRepo categoryRepo;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private ShopCateRepo shopCateRepo;
 
     @Override
     public Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed, SortType sortType,
@@ -250,6 +255,34 @@ public class ProductServiceImpl implements ProductService {
             return this.getProductsByCategory(id, pageNumber, pageSize, sortType, seed, startPrice, endPrice);
 
         return productRepo.findAllByCategory(this.getPath(id), PageRequest.of(pageNumber, pageSize), seed)
+                .map(Mapper::toProductResponse);
+    }
+
+    @Override
+    @Transactional
+    public void addProductsToShopCate(Integer shopCateId, AddProductsToShopCateRequest body) {
+        ShopCategory shopCategory = shopCateRepo.findById(shopCateId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop category with ID = " + shopCateId + " not found"));
+
+        List<Product> products = new ArrayList<>();
+
+        body.getIds().forEach(id -> {
+            Product product = productRepo.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + id + " not found"));
+
+            product.setShopCategory(shopCategory);
+            products.add(product);
+        });
+
+        productRepo.saveAll(products);
+    }
+
+    @Override
+    public Page<ProductResponse> getProductsByShopCate(Integer id, int pageNumber, int pageSize) {
+        ShopCategory shopCategory = shopCateRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop category with ID = " + id + " not found"));
+
+        return productRepo.findAllByShopCategory(shopCategory, PageRequest.of(pageNumber, pageSize))
                 .map(Mapper::toProductResponse);
     }
 

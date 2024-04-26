@@ -1,11 +1,13 @@
 package com.hcmute.g2webstorev2.service;
 
 
+import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.enums.SortType;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
+
 
 
 public interface ProductService {
@@ -27,4 +29,8 @@ public interface ProductService {
     Page<ProductResponse> getProductsByCategory(
             Integer id, int pageNumber, int pageSize, Integer seed,
             SortType sortType, Integer startPrice, Integer endPrice, Integer districtId);
+
+    void addProductsToShopCate(Integer shopCateId, AddProductsToShopCateRequest body);
+
+    Page<ProductResponse> getProductsByShopCate(Integer id, int pageNumber, int pageSize);
 }

@@ -2,6 +2,7 @@ package com.hcmute.g2webstorev2.repository;
 
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.entity.Shop;
+import com.hcmute.g2webstorev2.entity.ShopCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -132,4 +133,6 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "and p.price between :startPrice and :endPrice " +
             "order by p.price asc")
     Page<Product> findAllByNameOrderByPriceAsc(String name, Pageable pageable, Integer startPrice, Integer endPrice);
+
+    Page<Product> findAllByShopCategory(ShopCategory shopCategory, Pageable pageable);
 }
