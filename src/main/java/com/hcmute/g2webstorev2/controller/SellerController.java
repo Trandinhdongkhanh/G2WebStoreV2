@@ -2,6 +2,7 @@ package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.request.RefreshTokenRequest;
+import com.hcmute.g2webstorev2.dto.request.ResetPasswordRequest;
 import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
@@ -37,6 +38,21 @@ public class SellerController {
                 .header("Acess-Token", res.getAccessToken())
                 .header("Refresh-Token", res.getRefreshToken())
                 .body(res);
+    }
+    @GetMapping("/activate-account")
+    public ResponseEntity<String> activateAccount(@RequestParam("verification-code") String code){
+        sellerService.activateAccount(code);
+        return ResponseEntity.ok("Account Activated");
+    }
+    @GetMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam("email") String email){
+        sellerService.forgotPassword(email);
+        return ResponseEntity.ok("Verification code has been sent to your email");
+    }
+    @GetMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest body){
+        sellerService.resetPassword(body);
+        return ResponseEntity.ok("Password changed successfully");
     }
 
     @PostMapping("/register")

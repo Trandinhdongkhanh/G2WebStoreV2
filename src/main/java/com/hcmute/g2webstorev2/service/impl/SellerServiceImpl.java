@@ -2,22 +2,27 @@ package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
+import com.hcmute.g2webstorev2.dto.request.ResetPasswordRequest;
 import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
 import com.hcmute.g2webstorev2.dto.request.SellerProfileUpdateRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
 import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
 import com.hcmute.g2webstorev2.entity.*;
+import com.hcmute.g2webstorev2.exception.OTPExpiredException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
+import com.hcmute.g2webstorev2.repository.OTPRepo;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.repository.SellerRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
+import com.hcmute.g2webstorev2.service.EmailService;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.SellerService;
 import com.hcmute.g2webstorev2.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +62,10 @@ public class SellerServiceImpl implements SellerService {
     private TokenService tokenService;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private OTPRepo otpRepo;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     @Transactional
@@ -207,7 +217,67 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    public SellerResponse updateInfo(SellerProfileUpdateRequest body) {
-        return null;
+    @Transactional
+    public void activateAccount(String verificationCode) {
+        OTP otp = otpRepo.findByVerificationCode(verificationCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid OTP"));
+
+        if (LocalDateTime.now().isAfter(otp.getExpiresAt())) {
+            emailService.sendVerificationCode(
+                    generateAndSaveActivationToken(otp.getSeller()),
+                    otp.getSeller().getEmail(),
+                    "Activate Account"
+            );
+            throw new OTPExpiredException("OTP is expired. A new OTP has been sent to your email");
+        }
+
+        otp.getSeller().setEmailVerified(true);
+        Seller seller = sellerRepo.save(otp.getSeller());
+
+        otpRepo.deleteAllBySellerId(seller.getSellerId());
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+        Seller seller = sellerRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Email not found"));
+
+        String verificationCode = generateAndSaveActivationToken(seller);
+        emailService.sendVerificationCode(verificationCode, seller.getEmail(), "Reset Password");
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordRequest body) {
+        OTP otp = otpRepo.findByVerificationCode(body.getCode())
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid OTP"));
+
+        if (LocalDateTime.now().isAfter(otp.getExpiresAt())) {
+            emailService.sendVerificationCode(
+                    generateAndSaveActivationToken(otp.getSeller()),
+                    otp.getSeller().getEmail(),
+                    "Reset Password"
+            );
+            throw new OTPExpiredException("OTP is expired. A new OTP has been sent to your email");
+        }
+
+        otp.getSeller().setPassword(passwordEncoder.encode(body.getNewPass()));
+        Seller seller = sellerRepo.save(otp.getSeller());
+
+        otpRepo.deleteAllBySellerId(seller.getSellerId());
+    }
+
+    private String generateAndSaveActivationToken(Seller seller) {
+        String verificationCode = RandomStringUtils.random(6, "0123456789");
+        OTP otp = OTP.builder()
+                .verificationCode(verificationCode)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(5))
+                .seller(seller)
+                .build();
+
+        otpRepo.save(otp);
+        log.info("Verification code saved to customer " + seller.getEmail());
+        return verificationCode;
     }
 }

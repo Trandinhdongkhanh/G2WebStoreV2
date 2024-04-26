@@ -6,16 +6,19 @@ import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.GCPFile;
+import com.hcmute.g2webstorev2.entity.OTP;
 import com.hcmute.g2webstorev2.entity.Role;
 import com.hcmute.g2webstorev2.exception.*;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CustomerRepo;
-import com.hcmute.g2webstorev2.repository.GCPFileRepo;
+import com.hcmute.g2webstorev2.repository.OTPRepo;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.service.CustomerService;
+import com.hcmute.g2webstorev2.service.EmailService;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,11 +55,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private FileService fileService;
     @Autowired
-    private GCPFileRepo gcpFileRepo;
+    private OTPRepo otpRepo;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     @Transactional
-    public AuthResponse register(AuthRequest body) {
+    public void register(AuthRequest body) {
         if (customerRepo.existsByEmail(body.getEmail()))
             throw new ResourceNotUniqueException("Email existed");
         Role role = roleRepo.findByAppRole(CUSTOMER);
@@ -65,18 +71,14 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = new Customer();
         customer.setEmail(body.getEmail());
         customer.setPassword(passwordEncoder.encode(body.getPassword()));
-        customer.setEmailVerified(true);
+        customer.setEmailVerified(false);
         customer.setRole(role);
 
         Customer res = customerRepo.save(customer);
         log.info("Customer with ID = " + res.getCustomerId() + " has been registered successfully");
 
-        String accessToken = jwtService.generateAccessToken(res);
-        String refreshToken = jwtService.generateRefreshToken(res);
-
-        tokenService.saveUserToken(res, accessToken);
-
-        return new AuthResponse(accessToken, refreshToken);
+        String verificationCode = generateAndSaveActivationToken(customer);
+        emailService.sendVerificationCode(verificationCode, customer.getEmail(), "Activate Account");
     }
 
     @Override
@@ -92,6 +94,14 @@ public class CustomerServiceImpl implements CustomerService {
                 )
         );
         Customer customer = (Customer) authentication.getPrincipal();
+
+        if (!customer.isEmailVerified()) {
+            String verificationCode = this.generateAndSaveActivationToken(customer);
+            emailService.sendVerificationCode(verificationCode, customer.getEmail(), "Activate Account");
+            throw new AccountNotActivatedException("Your account has not been activated, " +
+                    "please check your email to retrieve the activation code");
+        }
+
         String accessToken = jwtService.generateAccessToken(customer);
         String refreshToken = jwtService.generateRefreshToken(customer);
 
@@ -205,5 +215,70 @@ public class CustomerServiceImpl implements CustomerService {
         log.info("Customer with ID = " + customer.getCustomerId() + " updated avatar successfully");
 
         return Mapper.toCustomerResponse(customer);
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+        Customer customer = customerRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Email not found"));
+
+        String verificationCode = generateAndSaveActivationToken(customer);
+        emailService.sendVerificationCode(verificationCode, email, "Reset Password");
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordRequest body) {
+        OTP otp = otpRepo.findByVerificationCode(body.getCode())
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid OTP"));
+
+        if (LocalDateTime.now().isAfter(otp.getExpiresAt())) {
+            emailService.sendVerificationCode(
+                    generateAndSaveActivationToken(otp.getCustomer()),
+                    otp.getCustomer().getEmail(),
+                    "Reset Password"
+            );
+            throw new OTPExpiredException("OTP is expired. A new OTP has been sent to your email");
+        }
+
+        otp.getCustomer().setPassword(passwordEncoder.encode(body.getNewPass()));
+        Customer customer = customerRepo.save(otp.getCustomer());
+
+        otpRepo.deleteAllByCustomerId(customer.getCustomerId());
+    }
+
+    @Override
+    @Transactional
+    public void activateAccount(String verificationCode) {
+        OTP otp = otpRepo.findByVerificationCode(verificationCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid OTP"));
+
+        if (LocalDateTime.now().isAfter(otp.getExpiresAt())) {
+            emailService.sendVerificationCode(
+                    generateAndSaveActivationToken(otp.getCustomer()),
+                    otp.getCustomer().getEmail(),
+                    "Activate Account"
+            );
+            throw new OTPExpiredException("OTP is expired. A new OTP has been sent to your email");
+        }
+
+        otp.getCustomer().setEmailVerified(true);
+        Customer customer = customerRepo.save(otp.getCustomer());
+
+        otpRepo.deleteAllByCustomerId(customer.getCustomerId());
+    }
+
+    private String generateAndSaveActivationToken(Customer customer) {
+        String verificationCode = RandomStringUtils.random(6, "0123456789");
+        OTP otp = OTP.builder()
+                .verificationCode(verificationCode)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(5))
+                .customer(customer)
+                .build();
+
+        otpRepo.save(otp);
+        log.info("Verification code saved to customer " + customer.getEmail());
+        return verificationCode;
     }
 }

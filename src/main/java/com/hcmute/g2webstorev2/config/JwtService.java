@@ -34,16 +34,6 @@ public class JwtService {
                 .get("email")
                 .toString();
     }
-
-    public String extractUserId(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
     public String extractRole(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())
@@ -53,17 +43,6 @@ public class JwtService {
                 .get("role")
                 .toString();
     }
-
-    public String extractShopId(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSignInKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("shop")
-                .toString();
-    }
-
     public String generateAccessToken(Customer customer) {
         return Jwts.builder()
                 .setIssuer("https://g2store.vn")
@@ -155,10 +134,6 @@ public class JwtService {
         } catch (JwtException e) {
             throw e;
         }
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
     }
 
     private Key getSignInKey() {

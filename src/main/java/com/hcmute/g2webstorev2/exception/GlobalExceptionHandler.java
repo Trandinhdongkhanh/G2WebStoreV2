@@ -39,6 +39,28 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         return ResponseEntity.badRequest().body(err);
     }
+    @ExceptionHandler(OTPExpiredException.class)
+    public ResponseEntity<ErrorRes> handleOTPExpiredException(OTPExpiredException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
+    @ExceptionHandler(AccountNotActivatedException.class)
+    public ResponseEntity<ErrorRes> handleAccountNotActivatedException(AccountNotActivatedException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
     @ExceptionHandler(FileWriteException.class)
     public ResponseEntity<ErrorRes> handleFileWriteException(FileWriteException e){
         ErrorRes err = ErrorRes.builder()

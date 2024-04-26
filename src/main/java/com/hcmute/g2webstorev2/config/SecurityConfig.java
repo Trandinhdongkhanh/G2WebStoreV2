@@ -34,7 +34,16 @@ public class SecurityConfig {
             "/api/v1/*/login",
             "/api/v1/*/register",
             "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            "/v3/api-docs",
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui/**",
+            "/webjars/**",
+            "/swagger-ui.html"
     };
     @Autowired
     private JwtAuthEntryPoint jwtAuthEntryPoint;
@@ -96,7 +105,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/shops/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/*/refresh-token").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/files-upload/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/*/activate-account").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/*/forgot-password").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/*/reset-password").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthEntryPoint))
