@@ -174,6 +174,10 @@ public class SellerServiceImpl implements SellerService {
                 .shop(seller.getShop())
                 .isMainAcc(false)
                 .isEmailVerified(false)
+                .isEnabled(true)
+                .isAccountNonExpired(true)
+                .isCredentialsNonExpired(true)
+                .isAccountNonLocked(true)
                 .build()));
 
         log.info("Seller with ID = " + res.getSellerId() + " added to shop with ID = " + seller.getShop().getShopId()
