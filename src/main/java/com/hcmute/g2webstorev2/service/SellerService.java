@@ -12,7 +12,7 @@ import java.util.List;
 
 
 public interface SellerService {
-    AuthResponse register(AuthRequest body);
+    void register(AuthRequest body);
 
     AuthResponse authenticate(AuthRequest body);
 

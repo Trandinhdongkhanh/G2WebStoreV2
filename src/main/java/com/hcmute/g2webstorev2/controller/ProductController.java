@@ -169,4 +169,10 @@ public class ProductController {
                 districtId
         ));
     }
+
+    @PutMapping("/shop-category/{id}")
+    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('UPDATE_PRODUCT')")
+    public ResponseEntity<String> addProductsToShopCate(@PathVariable("id") Integer id){
+        return null;
+    }
 }

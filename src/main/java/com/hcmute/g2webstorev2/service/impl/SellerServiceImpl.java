@@ -4,11 +4,11 @@ import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.request.ResetPasswordRequest;
 import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
-import com.hcmute.g2webstorev2.dto.request.SellerProfileUpdateRequest;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
 import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
 import com.hcmute.g2webstorev2.entity.*;
+import com.hcmute.g2webstorev2.exception.AccountNotActivatedException;
 import com.hcmute.g2webstorev2.exception.OTPExpiredException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
@@ -57,7 +57,6 @@ public class SellerServiceImpl implements SellerService {
     private AuthenticationManager authManager;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private TokenService tokenService;
     @Autowired
@@ -69,7 +68,7 @@ public class SellerServiceImpl implements SellerService {
 
     @Override
     @Transactional
-    public AuthResponse register(AuthRequest body) {
+    public void register(AuthRequest body) {
         Role role = roleRepo.findByAppRole(SELLER_FULL_ACCESS);
         if (role == null)
             throw new ResourceNotFoundException("Role SELLER_FULL_ACCESS not found");
@@ -87,17 +86,15 @@ public class SellerServiceImpl implements SellerService {
         seller.setEmail(body.getEmail());
         seller.setPassword(passwordEncoder.encode(body.getPassword()));
         seller.setRole(role);
-        seller.setEmailVerified(true);
+        seller.setEmailVerified(false);
+        seller.setMainAcc(true);
         seller.setShop(shop);
 
         Seller res = sellerRepo.save(seller);
         log.info("Seller with ID = " + res.getSellerId() + " registered successfully");
 
-        String accessToken = jwtService.generateAccessToken(res);
-        String refreshToken = jwtService.generateRefreshToken(res);
-
-        tokenService.saveUserToken(seller, accessToken);
-        return new AuthResponse(accessToken, refreshToken);
+        String verificationCode = generateAndSaveActivationToken(seller);
+        emailService.sendVerificationCode(verificationCode, seller.getEmail(), "Activation Account");
     }
 
     @Override
@@ -110,6 +107,14 @@ public class SellerServiceImpl implements SellerService {
                 )
         );
         Seller seller = (Seller) authentication.getPrincipal();
+
+        if (!seller.isEmailVerified()) {
+            String verificationCode = this.generateAndSaveActivationToken(seller);
+            emailService.sendVerificationCode(verificationCode, seller.getEmail(), "Activate Account");
+            throw new AccountNotActivatedException("Your account has not been activated, " +
+                    "please check your email to retrieve the activation code");
+        }
+
         String accessToken = jwtService.generateAccessToken(seller);
         String refreshToken = jwtService.generateRefreshToken(seller);
 
@@ -168,6 +173,7 @@ public class SellerServiceImpl implements SellerService {
                 .role(role)
                 .shop(seller.getShop())
                 .isMainAcc(false)
+                .isEmailVerified(false)
                 .build()));
 
         log.info("Seller with ID = " + res.getSellerId() + " added to shop with ID = " + seller.getShop().getShopId()

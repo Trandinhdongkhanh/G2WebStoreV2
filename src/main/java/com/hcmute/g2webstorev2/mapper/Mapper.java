@@ -33,6 +33,7 @@ public class Mapper {
                 .role(seller.getRole().getAppRole())
                 .roleId(seller.getRole().getRoleId())
                 .isEnabled(seller.isEnabled())
+                .isEmailVerified(seller.isEmailVerified())
                 .isMainAcc(seller.isMainAcc())
                 .build();
     }

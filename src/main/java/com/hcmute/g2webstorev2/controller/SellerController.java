@@ -56,10 +56,11 @@ public class SellerController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody AuthRequest body) {
+    public ResponseEntity<String> register(@Valid @RequestBody AuthRequest body) {
+        sellerService.register(body);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(sellerService.register(body));
+                .body("Please check your email for verification code");
     }
 
     @PostMapping("/refresh-token")

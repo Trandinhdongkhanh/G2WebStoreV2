@@ -22,4 +22,6 @@ public class SellersFromShopResponse {
     private boolean isEnabled;
     @JsonProperty("is_main_acc")
     private boolean isMainAcc;
+    @JsonProperty("is_email_verified")
+    private boolean isEmailVerified;
 }
