@@ -45,6 +45,19 @@ gcp:
     id: g2-test-project
   bucket:
     id: demo-bucket-g2
+  gcs:
+    url-prefix: https://storage.googleapis.com/
+
+vnp:
+  pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:8080/api/v1/payments/payment-info
+  api-url: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+  tmn-code: 9279QT0C
+  secret-key: RIPBIASTCZTZNUAOQYTKVZDTBLAKOMOR
+  version: 2.1.0
+  command: pay
+
+
 
 captcha:
   secret: 6Lcdz8cpAAAAAPYumczXzpVgiX_5G_vHzcrQo7rC

@@ -45,10 +45,10 @@ public class CustomerController {
             @Valid @RequestBody AuthRequest body,
             @RequestParam("g-recaptcha-response") String captcha) {
         if (captchaValidator.isValidCaptcha(captcha)) {
-        customerService.register(body);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("Please check your email for verification code");
+            customerService.register(body);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body("Please check your email for verification code");
         }
         return ResponseEntity.badRequest().body("Please try again");
     }

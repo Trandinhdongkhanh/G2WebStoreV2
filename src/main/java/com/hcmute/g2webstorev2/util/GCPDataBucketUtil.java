@@ -29,8 +29,9 @@ public class GCPDataBucketUtil {
 
     @Value("${gcp.bucket.id}")
     private String gcpBucketId;
+    @Value("${gcp.gcs.url-prefix}")
+    private String gcsUrlPrefix;
 
-    private static final String PUBLIC_GG_STORAGE_PREFIX = "https://storage.googleapis.com/";
 
     public boolean delFile(String fileName) {
         try {
@@ -78,7 +79,7 @@ public class GCPDataBucketUtil {
                 log.debug("File successfully uploaded to GCS");
                 return GCPFile.builder()
                         .fileName(gcpFileName)
-                        .fileUrl(PUBLIC_GG_STORAGE_PREFIX + gcpBucketId + "/" + blob.getName())
+                        .fileUrl(gcsUrlPrefix + gcpBucketId + "/" + blob.getName())
                         .fileType(blob.getContentType())
                         .build();
             }
