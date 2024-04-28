@@ -1,8 +1,6 @@
 package com.hcmute.g2webstorev2.controller;
 
-import com.hcmute.g2webstorev2.dto.response.PaymentResponse;
-import com.hcmute.g2webstorev2.dto.response.TransactionResponse;
-import com.hcmute.g2webstorev2.dto.response.VNPAYTransactionRes;
+import com.hcmute.g2webstorev2.dto.response.*;
 import com.hcmute.g2webstorev2.service.VNPAYService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,11 +21,30 @@ public class PaymentController {
     private VNPAYService vnpayService;
 
     @GetMapping("/create-payment")
-    public ResponseEntity<PaymentResponse> createPayment(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        return ResponseEntity.ok(vnpayService.createPayment(req, resp));
+    public ResponseEntity<PaymentResponse> createPayment(
+            @RequestParam("amount") int reqAmount,
+            @RequestParam(value = "bankCode", required = false) String bankCode,
+            @RequestParam(value = "language", required = false) String language,
+            HttpServletRequest req
+    ) throws IOException {
+        return ResponseEntity.ok(vnpayService.createPayment(reqAmount, bankCode, language, req));
     }
 
-    @GetMapping("/payment-info")
+    @GetMapping("/query-payment")
+    public ResponseEntity<MerchantResponseToVNPAY> IPNPaymentInfo(
+            @RequestParam("order_id") String orderId,
+            @RequestParam("trans_date") String transDate,
+            HttpServletRequest req
+    ) throws IOException {
+        IPNResponse res = vnpayService.queryPayment(orderId, transDate, req);
+        return ResponseEntity.ok(MerchantResponseToVNPAY.builder()
+                        .data(res)
+                        .Message("Giao dịch thành công")
+                        .RspCode("00")
+                .build());
+    }
+
+    @GetMapping("/callback-url")
     public ResponseEntity<TransactionResponse> paymentInfo(
             @RequestParam("vnp_TxnRef") String vnp_TxnRef,
             @RequestParam("vnp_Amount") String vnp_Amount,
@@ -40,7 +57,7 @@ public class PaymentController {
             //Status code of VNPAY, for more detail visit their website
             @RequestParam("vnp_TransactionStatus") String vnp_TransactionStatus
     ) {
-        if (vnp_TransactionStatus.equals("00")) {
+        if (vnp_TransactionStatus.equals("00"))
             return ResponseEntity.ok(TransactionResponse.builder()
                     .code(HttpStatus.OK.value())
                     .status(HttpStatus.OK)
@@ -56,7 +73,7 @@ public class PaymentController {
                             .vnp_TransactionStatus(vnp_TransactionStatus)
                             .build())
                     .build());
-        }
+
         return ResponseEntity.badRequest().body(TransactionResponse.builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .status(HttpStatus.BAD_REQUEST)
