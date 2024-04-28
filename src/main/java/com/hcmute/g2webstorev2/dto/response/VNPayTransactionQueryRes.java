@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class IPNResponse {
+public class VNPayTransactionQueryRes {
     private String vnp_ResponseId;
     private String vnp_Command;
     private String vnp_TmnCode;

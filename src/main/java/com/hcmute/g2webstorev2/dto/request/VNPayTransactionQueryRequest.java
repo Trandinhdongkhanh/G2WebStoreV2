@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class IPNRequest {
+public class VNPayTransactionQueryRequest {
     private String vnp_RequestId;
     private String vnp_Version;
     private String vnp_Command;

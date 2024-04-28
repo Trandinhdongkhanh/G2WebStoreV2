@@ -5,7 +5,6 @@ import com.hcmute.g2webstorev2.service.VNPAYService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,54 +29,75 @@ public class PaymentController {
         return ResponseEntity.ok(vnpayService.createPayment(reqAmount, bankCode, language, req));
     }
 
-    @GetMapping("/query-payment")
-    public ResponseEntity<MerchantResponseToVNPAY> IPNPaymentInfo(
+    @GetMapping("/query-transaction-from-vnpay")
+    public ResponseEntity<VNPayTransactionQueryRes> getTransactionInfoFromVNPay(
             @RequestParam("order_id") String orderId,
             @RequestParam("trans_date") String transDate,
             HttpServletRequest req
     ) throws IOException {
-        IPNResponse res = vnpayService.queryPayment(orderId, transDate, req);
-        return ResponseEntity.ok(MerchantResponseToVNPAY.builder()
-                        .data(res)
-                        .Message("Giao dịch thành công")
-                        .RspCode("00")
-                .build());
+        //Can only request after 5 min
+        return ResponseEntity.ok(vnpayService.getTransactionInfoFromVNPay(orderId, transDate, req));
     }
 
-    @GetMapping("/callback-url")
-    public ResponseEntity<TransactionResponse> paymentInfo(
-            @RequestParam("vnp_TxnRef") String vnp_TxnRef,
+    @GetMapping("/return-url")
+    public ResponseEntity<ReturnURLResponse> returnUrl(
+            @RequestParam("vnp_TmnCode") String vnp_TmnCode,
             @RequestParam("vnp_Amount") String vnp_Amount,
-            @RequestParam("vnp_OrderInfo") String vnp_OrderInfo,
-            @RequestParam("vnp_ResponseCode") String vnp_ResponseCode,
-            @RequestParam("vnp_TransactionNo") String vnp_TransactionNo,
             @RequestParam("vnp_BankCode") String vnp_BankCode,
-            @RequestParam("vnp_PayDate") String vnp_PayDate,
+            @RequestParam(value = "vnp_BankTranNo", required = false) String vnp_BankTranNo,
+            @RequestParam(value = "vnp_CardType", required = false) String vnp_CardType,
+            @RequestParam(value = "vnp_PayDate", required = false) String vnp_PayDate,
+            @RequestParam("vnp_OrderInfo") String vnp_OrderInfo,
+            @RequestParam("vnp_TransactionNo") String vnp_TransactionNo,
+            @RequestParam("vnp_ResponseCode") String vnp_ResponseCode,
 
             //Status code of VNPAY, for more detail visit their website
-            @RequestParam("vnp_TransactionStatus") String vnp_TransactionStatus
-    ) {
-        if (vnp_TransactionStatus.equals("00"))
-            return ResponseEntity.ok(TransactionResponse.builder()
-                    .code(HttpStatus.OK.value())
-                    .status(HttpStatus.OK)
-                    .message("Successfully")
-                    .data(VNPAYTransactionRes.builder()
-                            .vnp_TxnRef(vnp_TxnRef)
+            @RequestParam("vnp_TransactionStatus") String vnp_TransactionStatus,
+            @RequestParam("vnp_TxnRef") String vnp_TxnRef,
+            @RequestParam(value = "vnp_SecureHashType", required = false) String vnp_SecureHashType,
+            @RequestParam("vnp_SecureHash") String vnp_SecureHash,
+            HttpServletResponse res
+    ) throws IOException {
+        if (vnp_TransactionStatus.equals("00")) {
+            res.sendRedirect("http://localhost:8002/thanks");
+            return ResponseEntity.ok(ReturnURLResponse.builder()
+                    .message("Thanh cong")
+                    .vnp_Rsp(vnp_ResponseCode)
+                    .data(VNPayTransactionRes.builder()
+                            .vnp_TmnCode(vnp_TmnCode)
                             .vnp_Amount(vnp_Amount)
-                            .vnp_OrderInfo(vnp_OrderInfo)
-                            .vnp_ResponseCode(vnp_ResponseCode)
-                            .vnp_TransactionNo(vnp_TransactionNo)
                             .vnp_BankCode(vnp_BankCode)
+                            .vnp_BankTranNo(vnp_BankTranNo)
+                            .vnp_CardType(vnp_CardType)
                             .vnp_PayDate(vnp_PayDate)
+                            .vnp_OrderInfo(vnp_OrderInfo)
+                            .vnp_TransactionNo(vnp_TransactionNo)
+                            .vnp_ResponseCode(vnp_ResponseCode)
                             .vnp_TransactionStatus(vnp_TransactionStatus)
+                            .vnp_TxnRef(vnp_TxnRef)
+                            .vnp_SecureHashType(vnp_SecureHashType)
+                            .vnp_SecureHash(vnp_SecureHash)
                             .build())
                     .build());
-
-        return ResponseEntity.badRequest().body(TransactionResponse.builder()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .status(HttpStatus.BAD_REQUEST)
-                .message("Failed")
+        }
+        return ResponseEntity.ok(ReturnURLResponse.builder()
+                .message("Khong thanh cong")
+                .vnp_Rsp(vnp_ResponseCode)
+                .data(VNPayTransactionRes.builder()
+                        .vnp_TmnCode(vnp_TmnCode)
+                        .vnp_Amount(vnp_Amount)
+                        .vnp_BankCode(vnp_BankCode)
+                        .vnp_BankTranNo(vnp_BankTranNo)
+                        .vnp_CardType(vnp_CardType)
+                        .vnp_PayDate(vnp_PayDate)
+                        .vnp_OrderInfo(vnp_OrderInfo)
+                        .vnp_TransactionNo(vnp_TransactionNo)
+                        .vnp_ResponseCode(vnp_ResponseCode)
+                        .vnp_TransactionStatus(vnp_TransactionStatus)
+                        .vnp_TxnRef(vnp_TxnRef)
+                        .vnp_SecureHashType(vnp_SecureHashType)
+                        .vnp_SecureHash(vnp_SecureHash)
+                        .build())
                 .build());
     }
 }

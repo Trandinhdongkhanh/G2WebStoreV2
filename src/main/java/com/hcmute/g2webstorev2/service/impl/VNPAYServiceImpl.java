@@ -1,9 +1,9 @@
 package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.config.VNPAYConfig;
-import com.hcmute.g2webstorev2.dto.request.IPNRequest;
-import com.hcmute.g2webstorev2.dto.response.IPNResponse;
+import com.hcmute.g2webstorev2.dto.request.VNPayTransactionQueryRequest;
 import com.hcmute.g2webstorev2.dto.response.PaymentResponse;
+import com.hcmute.g2webstorev2.dto.response.VNPayTransactionQueryRes;
 import com.hcmute.g2webstorev2.service.VNPAYService;
 import com.hcmute.g2webstorev2.util.VNPAYUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -80,7 +80,7 @@ public class VNPAYServiceImpl implements VNPAYService {
     }
 
     @Override
-    public IPNResponse queryPayment(String orderId, String transDate, HttpServletRequest req) throws IOException {
+    public VNPayTransactionQueryRes getTransactionInfoFromVNPay(String orderId, String transDate, HttpServletRequest req) throws IOException {
         String vnp_RequestId = vnpayUtil.getRandomNumber(8);
         String vnp_Command = "querydr";
         String vnp_OrderInfo = "Kiem tra ket qua GD OrderId: " + orderId;
@@ -93,10 +93,10 @@ public class VNPAYServiceImpl implements VNPAYService {
         String hash_Data= String.join("|", vnp_RequestId, vnpayConfig.getVnp_Version(), vnp_Command,
                 vnpayConfig.getVnp_TmnCode(), orderId, transDate, vnp_CreateDate, vnp_IpAddr, vnp_OrderInfo);
 
-        IPNRequest ipnRequest = IPNRequest.builder()
+        VNPayTransactionQueryRequest transactionReq = VNPayTransactionQueryRequest.builder()
                 .vnp_RequestId(vnp_RequestId)
                 .vnp_Version(vnpayConfig.getVnp_Version())
-                .vnp_Command("querydr")
+                .vnp_Command(vnp_Command)
                 .vnp_TmnCode(vnpayConfig.getVnp_TmnCode())
                 .vnp_TxnRef(orderId)
                 .vnp_OrderInfo(vnp_OrderInfo)
@@ -108,6 +108,6 @@ public class VNPAYServiceImpl implements VNPAYService {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        return restTemplate.postForObject(vnpayConfig.getVnp_ApiUrl(), ipnRequest, IPNResponse.class);
+        return restTemplate.postForObject(vnpayConfig.getVnp_ApiUrl(), transactionReq, VNPayTransactionQueryRes.class);
     }
 }
