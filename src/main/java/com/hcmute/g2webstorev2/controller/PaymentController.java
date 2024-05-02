@@ -1,7 +1,10 @@
 package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.response.*;
+import com.hcmute.g2webstorev2.entity.VNPAYTransaction;
+import com.hcmute.g2webstorev2.service.OrderService;
 import com.hcmute.g2webstorev2.service.VNPAYService;
+import com.hcmute.g2webstorev2.util.VNPAYUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,10 @@ import java.io.IOException;
 public class PaymentController {
     @Autowired
     private VNPAYService vnpayService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private VNPAYUtil vnpayUtil;
 
     @GetMapping("/create-payment")
     public ResponseEntity<PaymentResponse> createPayment(
@@ -56,48 +63,39 @@ public class PaymentController {
             @RequestParam("vnp_TxnRef") String vnp_TxnRef,
             @RequestParam(value = "vnp_SecureHashType", required = false) String vnp_SecureHashType,
             @RequestParam("vnp_SecureHash") String vnp_SecureHash,
-            HttpServletResponse res
+            HttpServletResponse res,
+            HttpServletRequest req
     ) throws IOException {
-        if (vnp_TransactionStatus.equals("00")) {
-            res.sendRedirect("http://localhost:8002/thanks");
-            return ResponseEntity.ok(ReturnURLResponse.builder()
-                    .message("Thanh cong")
-                    .vnp_Rsp(vnp_ResponseCode)
-                    .data(VNPayTransactionRes.builder()
-                            .vnp_TmnCode(vnp_TmnCode)
-                            .vnp_Amount(vnp_Amount)
-                            .vnp_BankCode(vnp_BankCode)
-                            .vnp_BankTranNo(vnp_BankTranNo)
-                            .vnp_CardType(vnp_CardType)
-                            .vnp_PayDate(vnp_PayDate)
-                            .vnp_OrderInfo(vnp_OrderInfo)
-                            .vnp_TransactionNo(vnp_TransactionNo)
-                            .vnp_ResponseCode(vnp_ResponseCode)
-                            .vnp_TransactionStatus(vnp_TransactionStatus)
-                            .vnp_TxnRef(vnp_TxnRef)
-                            .vnp_SecureHashType(vnp_SecureHashType)
-                            .vnp_SecureHash(vnp_SecureHash)
-                            .build())
-                    .build());
+        VNPayTransactionRes vnpayTransactionRes = VNPayTransactionRes.builder()
+                .vnp_TmnCode(vnp_TmnCode)
+                .vnp_Amount(vnp_Amount)
+                .vnp_BankCode(vnp_BankCode)
+                .vnp_BankTranNo(vnp_BankTranNo)
+                .vnp_CardType(vnp_CardType)
+                .vnp_PayDate(vnp_PayDate)
+                .vnp_OrderInfo(vnp_OrderInfo)
+                .vnp_TransactionNo(vnp_TransactionNo)
+                .vnp_ResponseCode(vnp_ResponseCode)
+                .vnp_TransactionStatus(vnp_TransactionStatus)
+                .vnp_TxnRef(vnp_TxnRef)
+                .vnp_SecureHashType(vnp_SecureHashType)
+                .vnp_SecureHash(vnp_SecureHash)
+                .build();
+        if (vnpayService.isValidSignValue(vnp_SecureHash, req)) {
+            if ("00".equals(vnp_TransactionStatus)) {
+                orderService.updateUnPaidOrder(vnp_TxnRef);
+//                res.sendRedirect("http://localhost:8002/thanks");
+                return ResponseEntity.ok(ReturnURLResponse.builder()
+                        .vnp_Rsp(vnp_ResponseCode)
+                        .message("Success")
+                        .data(vnpayTransactionRes)
+                        .build());
+            }
         }
-        return ResponseEntity.ok(ReturnURLResponse.builder()
-                .message("Khong thanh cong")
+        return ResponseEntity.badRequest().body(ReturnURLResponse.builder()
+                .message("Failed")
                 .vnp_Rsp(vnp_ResponseCode)
-                .data(VNPayTransactionRes.builder()
-                        .vnp_TmnCode(vnp_TmnCode)
-                        .vnp_Amount(vnp_Amount)
-                        .vnp_BankCode(vnp_BankCode)
-                        .vnp_BankTranNo(vnp_BankTranNo)
-                        .vnp_CardType(vnp_CardType)
-                        .vnp_PayDate(vnp_PayDate)
-                        .vnp_OrderInfo(vnp_OrderInfo)
-                        .vnp_TransactionNo(vnp_TransactionNo)
-                        .vnp_ResponseCode(vnp_ResponseCode)
-                        .vnp_TransactionStatus(vnp_TransactionStatus)
-                        .vnp_TxnRef(vnp_TxnRef)
-                        .vnp_SecureHashType(vnp_SecureHashType)
-                        .vnp_SecureHash(vnp_SecureHash)
-                        .build())
+                .data(vnpayTransactionRes)
                 .build());
     }
 }

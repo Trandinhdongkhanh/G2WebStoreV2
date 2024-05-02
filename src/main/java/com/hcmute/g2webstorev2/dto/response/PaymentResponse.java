@@ -15,4 +15,5 @@ public class PaymentResponse {
     private String message;
     @JsonProperty("payment_url")
     private String paymentUrl;
+    private String vnp_TxnRef;
 }

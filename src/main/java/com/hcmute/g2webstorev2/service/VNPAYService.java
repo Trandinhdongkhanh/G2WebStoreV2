@@ -10,4 +10,5 @@ import java.io.UnsupportedEncodingException;
 public interface VNPAYService {
     PaymentResponse createPayment(int reqAmount, String bankCode, String language, HttpServletRequest req) throws UnsupportedEncodingException;
     VNPayTransactionQueryRes getTransactionInfoFromVNPay(String orderId, String transDate, HttpServletRequest req) throws IOException;
+    boolean isValidSignValue(String vnp_SecureHash, HttpServletRequest req);
 }

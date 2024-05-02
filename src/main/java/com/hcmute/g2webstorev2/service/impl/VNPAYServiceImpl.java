@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -22,8 +24,9 @@ public class VNPAYServiceImpl implements VNPAYService {
     private VNPAYUtil vnpayUtil;
     @Autowired
     private VNPAYConfig vnpayConfig;
+
     private Map<String, String> getVNPayParams(long amount, String bankCode, String vnp_TxnRef, String vnp_IpAddr,
-                                               String vnp_Command, String locate){
+                                               String vnp_Command, String locate) {
         Map<String, String> vnp_Params = new HashMap<>();
         vnp_Params.put("vnp_Version", vnpayConfig.getVnp_Version());
         vnp_Params.put("vnp_Command", vnp_Command);
@@ -36,7 +39,7 @@ public class VNPAYServiceImpl implements VNPAYService {
         }
 
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
+        vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang: " + vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", "other");
 
         if (locate != null && !locate.isEmpty()) {
@@ -59,6 +62,7 @@ public class VNPAYServiceImpl implements VNPAYService {
 
         return vnp_Params;
     }
+
     @Override
     public PaymentResponse createPayment(int reqAmount, String bankCode, String language, HttpServletRequest req) throws UnsupportedEncodingException {
         Map<String, String> vnp_Params = getVNPayParams(
@@ -76,6 +80,7 @@ public class VNPAYServiceImpl implements VNPAYService {
                 .status(HttpStatus.OK)
                 .message("success")
                 .paymentUrl(paymentUrl)
+                .vnp_TxnRef(vnp_Params.get("vnp_TxnRef"))
                 .build();
     }
 
@@ -90,10 +95,10 @@ public class VNPAYServiceImpl implements VNPAYService {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
 
-        String hash_Data= String.join("|", vnp_RequestId, vnpayConfig.getVnp_Version(), vnp_Command,
+        String hash_Data = String.join("|", vnp_RequestId, vnpayConfig.getVnp_Version(), vnp_Command,
                 vnpayConfig.getVnp_TmnCode(), orderId, transDate, vnp_CreateDate, vnp_IpAddr, vnp_OrderInfo);
 
-        VNPayTransactionQueryRequest transactionReq = VNPayTransactionQueryRequest.builder()
+        VNPayTransactionQueryRequest queryReq = VNPayTransactionQueryRequest.builder()
                 .vnp_RequestId(vnp_RequestId)
                 .vnp_Version(vnpayConfig.getVnp_Version())
                 .vnp_Command(vnp_Command)
@@ -108,6 +113,24 @@ public class VNPAYServiceImpl implements VNPAYService {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        return restTemplate.postForObject(vnpayConfig.getVnp_ApiUrl(), transactionReq, VNPayTransactionQueryRes.class);
+        return restTemplate.postForObject(vnpayConfig.getVnp_ApiUrl(), queryReq, VNPayTransactionQueryRes.class);
+    }
+
+    @Override
+    public boolean isValidSignValue(String vnp_SecureHash, HttpServletRequest req) {
+        Map<String, String> fields = new HashMap<>();
+        for (Enumeration<String> params = req.getParameterNames(); params.hasMoreElements(); ) {
+            String fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII);
+            String fieldValue = URLEncoder.encode(req.getParameter(fieldName), StandardCharsets.US_ASCII);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                fields.put(fieldName, fieldValue);
+            }
+        }
+
+        fields.remove("vnp_SecureHashType");
+        fields.remove("vnp_SecureHash");
+
+        String signValue = vnpayUtil.hashAllFields(fields);
+        return signValue.equals(vnp_SecureHash);
     }
 }

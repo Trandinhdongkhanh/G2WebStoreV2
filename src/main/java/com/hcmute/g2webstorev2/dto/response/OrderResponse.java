@@ -2,6 +2,7 @@ package com.hcmute.g2webstorev2.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
+import com.hcmute.g2webstorev2.enums.PaymentType;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -20,8 +21,8 @@ public class OrderResponse {
     private OrderStatus orderStatus;
     @JsonProperty("created_date")
     private LocalDateTime createdDate;
-    @JsonProperty("cur_date")
-    private LocalDateTime curDate;
+    @JsonProperty("payed_date")
+    private LocalDateTime payedDate;
     @JsonProperty("delivered_date")
     private LocalDateTime deliveredDate;
     @JsonProperty("customer_id")
@@ -30,8 +31,6 @@ public class OrderResponse {
     private Integer shopId;
     @JsonProperty("shop_name")
     private String shopName;
-    @JsonProperty("products_price_total")
-    private Integer productsPriceTotal;
     @JsonProperty("fee_ship")
     private Integer feeShip;
     @JsonProperty("g2_voucher_price_reduce")
@@ -42,5 +41,7 @@ public class OrderResponse {
     private Integer pointSpent;
     private Integer total;
     private List<OrderItemResponse> items;
+    @JsonProperty("payment_type")
+    private PaymentType paymentType;
     private AddressResponse address;
 }

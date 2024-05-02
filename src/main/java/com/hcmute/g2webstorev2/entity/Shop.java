@@ -3,7 +3,6 @@ package com.hcmute.g2webstorev2.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 
 @Getter
 @Setter
@@ -25,4 +24,5 @@ public class Shop {
     private Integer districtId;
     private String ward;
     private String street;
+    private Long balance;
 }

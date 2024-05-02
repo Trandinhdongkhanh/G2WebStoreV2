@@ -6,6 +6,7 @@ import com.hcmute.g2webstorev2.entity.ShopCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +17,6 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
 
     @Query("select p from Product p order by rand(:seed)")
     Page<Product> findRandomProducts(Integer seed, Pageable pageable);
-
     Page<Product> findAllByShop(Shop shop, Pageable pageable);
 //    @Query(nativeQuery = true, value = """
 //            WITH recursive cte AS (

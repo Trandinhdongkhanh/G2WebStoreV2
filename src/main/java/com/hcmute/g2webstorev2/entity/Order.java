@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.entity;
 
 import com.hcmute.g2webstorev2.enums.OrderStatus;
+import com.hcmute.g2webstorev2.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,7 +23,7 @@ public class Order {
     @Enumerated(value = EnumType.STRING)
     private OrderStatus orderStatus;
     private LocalDateTime createdDate;
-    private LocalDateTime curDate;
+    private LocalDateTime payedDate;
     private LocalDateTime deliveredDate;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
@@ -32,12 +33,14 @@ public class Order {
     private Shop shop;
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
-    private Integer productsPriceTotal;
     private Integer feeShip;
+    private Integer feeShipReduce;
     private Integer g2VoucherPriceReduce;
     private Integer shopVoucherPriceReduce;
     private Integer pointSpent;
     private Integer total;
+    @Enumerated(value = EnumType.STRING)
+    private PaymentType paymentType;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id")
     private Address address;

@@ -43,6 +43,9 @@ public class Seller implements UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shop_id")
     private Shop shop;
+    private String bankAccSeriesNum;
+    private String bankName;
+    private String bankAccHolderName;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
