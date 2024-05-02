@@ -57,6 +57,48 @@ public class EmailServiceImpl implements EmailService {
     @Override
     @Async
     public void sendOrderConfirmation(Order order) {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
 
+        try {
+            int discount = 0;
+            if (order.getG2VoucherPriceReduce() != null) discount += order.getG2VoucherPriceReduce();
+            if (order.getShopVoucherPriceReduce() != null) discount += order.getShopVoucherPriceReduce();
+            if (order.getFeeShipReduce() != null) discount += order.getFeeShipReduce();
+
+            helper.setFrom(fromEmail);
+            helper.setSubject("G2Store xác nhận đơn hàng số #" + order.getOrderId());
+            helper.setTo(order.getCustomer().getEmail());
+
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("email", order.getCustomer().getEmail());
+            properties.put("fullName", order.getCustomer().getFullName());
+            properties.put("order", order);
+            properties.put("receiverName", order.getAddress().getReceiverName());
+            properties.put("district", order.getAddress().getDistrict());
+            properties.put("province", order.getAddress().getProvince());
+            properties.put("ward", order.getAddress().getWard());
+            properties.put("address", order.getAddress().getOrderReceiveAddress());
+            properties.put("phoneNo", order.getCustomer().getPhoneNo());
+            properties.put("shopName", order.getShop().getName());
+            properties.put("deliveredDate", order.getDeliveredDate());
+            properties.put("orderItems", order.getOrderItems());
+            properties.put("total", order.getTotal());
+            properties.put("feeShip", order.getFeeShip());
+            properties.put("discount", discount);
+            properties.put("finalTotal", order.getTotal() + order.getFeeShip() - discount);
+            properties.put("paymentType", order.getPaymentType());
+
+            Context context = new Context();
+            context.setVariables(properties);
+
+            String template = templateEngine.process("order_confirmation", context);
+
+            helper.setText(template, true);
+            mailSender.send(mimeMessage);
+
+        } catch (MessagingException e) {
+            throw new EmailException(e.getMessage());
+        }
     }
 }

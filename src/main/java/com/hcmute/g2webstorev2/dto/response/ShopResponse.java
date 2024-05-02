@@ -19,4 +19,5 @@ public class ShopResponse {
     private Integer districtId;
     private String ward;
     private String street;
+    private Long balance;
 }

@@ -1,7 +1,6 @@
 package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.response.*;
-import com.hcmute.g2webstorev2.entity.VNPAYTransaction;
 import com.hcmute.g2webstorev2.service.OrderService;
 import com.hcmute.g2webstorev2.service.VNPAYService;
 import com.hcmute.g2webstorev2.util.VNPAYUtil;

@@ -14,20 +14,21 @@ import com.hcmute.g2webstorev2.exception.ProductNotSufficientException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.*;
+import com.hcmute.g2webstorev2.service.EmailService;
 import com.hcmute.g2webstorev2.service.OrderService;
 import com.hcmute.g2webstorev2.service.VNPAYService;
-import com.hcmute.g2webstorev2.util.VNPAYUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -38,23 +39,17 @@ import static com.hcmute.g2webstorev2.enums.PaymentType.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
-    @Autowired
-    private ProductRepo productRepo;
-    @Autowired
-    private OrderRepo orderRepo;
-    @Autowired
-    private CartItemRepo cartItemRepo;
-    @Autowired
-    private CustomerRepo customerRepo;
-    @Autowired
-    private ShopRepo shopRepo;
-    @Autowired
-    private AddressRepo addressRepo;
-    @Autowired
-    private VNPAYService vnpayService;
-    @Autowired
-    private VNPayTransRepo vnPayTransRepo;
+    private final ProductRepo productRepo;
+    private final OrderRepo orderRepo;
+    private final CartItemRepo cartItemRepo;
+    private final CustomerRepo customerRepo;
+    private final ShopRepo shopRepo;
+    private final AddressRepo addressRepo;
+    private final VNPAYService vnpayService;
+    private final VNPayTransRepo vnPayTransRepo;
+    private final EmailService emailService;
 
     private void checkDataIntegrity(CartItemResponse item) {
         Product product = productRepo.findById(item.getProductId())
@@ -181,8 +176,18 @@ public class OrderServiceImpl implements OrderService {
             orders.add(result);
         }
 
-        if (body.getPaymentType().equals(VNPAY)) {
-            PaymentResponse paymentResponse = vnpayService.createPayment(ordersTotal, null, null, req);
+        if (!body.getPaymentType().equals(COD)) processOnlPayment(body.getPaymentType(), ordersTotal, req, res, orders);
+        else orders.forEach(emailService::sendOrderConfirmation);
+
+        return orders.stream()
+                .map(Mapper::toOrderResponse)
+                .collect(Collectors.toList());
+    }
+
+    private void processOnlPayment(PaymentType paymentType, int total, HttpServletRequest req, HttpServletResponse res,
+                                   List<Order> orders) throws IOException {
+        if (paymentType.equals(VNPAY)) {
+            PaymentResponse paymentResponse = vnpayService.createPayment(total, null, null, req);
             log.info(paymentResponse.getPaymentUrl());
 
             orders.forEach(order ->
@@ -195,19 +200,20 @@ public class OrderServiceImpl implements OrderService {
 
             res.sendRedirect(paymentResponse.getPaymentUrl());
         }
-
-        return orders.stream()
-                .map(Mapper::toOrderResponse)
-                .collect(Collectors.toList());
     }
 
     @Override
-    public List<OrderResponse> getMyOrders() {
+    public Page<OrderResponse> getMyOrders(OrderStatus orderStatus, int pageNumber, int pageSize) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return orderRepo.findAllByCustomerOrderByOrderIdDesc(customer)
-                .stream().map(Mapper::toOrderResponse)
-                .collect(Collectors.toList());
+        if (orderStatus == null)
+            return orderRepo
+                    .findAllByCustomerOrderByOrderIdDesc(customer, PageRequest.of(pageNumber, pageSize))
+                    .map(Mapper::toOrderResponse);
+
+        return orderRepo
+                .findAllByCustomerAndOrderStatusOrderByOrderIdDesc(customer, orderStatus, PageRequest.of(pageNumber, pageSize))
+                .map(Mapper::toOrderResponse);
     }
 
     @Override
@@ -243,6 +249,13 @@ public class OrderServiceImpl implements OrderService {
 
         order.setOrderStatus(status);
         log.info("Order status of order with ID = " + id + " have been updated to '" + status + "' successfully");
+
+        if (status.equals(RECEIVED)) {
+            Shop shop = order.getShop();
+            shop.setBalance(shop.getBalance() + order.getTotal());
+            shopRepo.save(shop);
+        }
+
         return Mapper.toOrderResponse(order);
     }
 
@@ -256,7 +269,21 @@ public class OrderServiceImpl implements OrderService {
             Order order = vnpayTransaction.getOrder();
             order.setOrderStatus(ORDERED);
             orderRepo.save(order);
+            emailService.sendOrderConfirmation(order);
         });
+    }
+
+    @Override
+    public Page<OrderResponse> getShopOrders(OrderStatus orderStatus, int pageNumber, int pageSize) {
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (orderStatus == null)
+            return orderRepo
+                    .findAllByShopOrderByOrderIdDesc(seller.getShop(), PageRequest.of(pageNumber, pageSize))
+                    .map(Mapper::toOrderResponse);
+        return orderRepo
+                .findAllByShopAndOrderStatusOrderByOrderIdDesc(seller.getShop(), orderStatus, PageRequest.of(pageNumber, pageSize))
+                .map(Mapper::toOrderResponse);
     }
 
     private boolean isSevenDaysPassed(LocalDateTime deliveredDate, LocalDateTime curDate) {

@@ -1,10 +1,369 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "https://www.w3.org/TR/html4/strict.dtd">
+<html lang="vi">
 
+<head>
+  <meta http-equiv=Content-Type content="text/html; charset=UTF-8">
+  <style type="text/css" nonce="zhRaj8b01lxcKrUu8m0gEw">
+    body,
+    td,
+    div,
+    p,
+    a,
+    input {
+      font-family: arial, sans-serif;
+    }
+
+  </style>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="shortcut icon" href="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" type="image/x-icon">
+  <title th:text="'Gmail - G2Store đã nhận đơn hàng ' + ${order.orderId}"></title>
+  <style type="text/css" nonce="zhRaj8b01lxcKrUu8m0gEw">
+    body,
+    td {
+      font-size: 13px
+    }
+
+    a:link,
+    a:active {
+      color: #1155CC;
+      text-decoration: none
+    }
+
+    a:hover {
+      text-decoration: underline;
+      cursor: pointer
+    }
+
+    a:visited {
+      color: ##6611CC
+    }
+
+    img {
+      border: 0px
+    }
+
+    pre {
+      white-space: pre;
+      white-space: -moz-pre-wrap;
+      white-space: -o-pre-wrap;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-width: 800px;
+      overflow: auto;
+    }
+
+    .logo {
+      left: -7px;
+      position: relative;
+    }
+
+  </style>
+
+<body>
+<div class="bodycontainer">
+  <table width=100% cellpadding=0 cellspacing=0 border=0>
+    <tr height=14px>
+      <td width=143><img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_server_1x.png" width=143 height=59 alt="Gmail" class="logo">
+      </td>
+      <td align=right><font size=-1 color=#777><b th:text="${fullName} + ' - ' + ${email}"></b></font>
+      </td>
+    </tr>
+  </table>
+  <hr>
+  <div class="maincontent">
+    <table width=100% cellpadding=0 cellspacing=0 border=0>
+      <tr>
+        <td><font size=+1><b th:text="'G2Store đã nhận đơn hàng #' + ${order.orderId}"></b></font>
+        </td>
+      </tr>
+    </table>
+    <hr>
+    <table width=100% cellpadding=0 cellspacing=0 border=0 class="message">
+      <tr>
+        <td><font size=-1><b th:text="'G2Store Vietnam - noreply@support.g2storehcmute.com'"></font>
+        </td>
+      <tr>
+        <td colspan=2 style="padding-bottom: 4px;"><font size=-1 class="recipient"><div th:text="'Đến: ' + ${email}"></div></font>
+      <tr>
+        <td colspan=2>
+          <table width=100% cellpadding=12 cellspacing=0 border=0>
+            <tr>
+              <td>
+                <div style="overflow: hidden;"><font size=-1>
+                  <u></u>
+                  <div style="margin:0px;padding:0px;color:rgb(32,32,32);font-size:14px;font-weight:normal;font-family:Helvetica,Arial,sans-serif!important;line-height:150%!important">
+                    <div style="display:none!important;opacity:0;color:transparent;height:0;width:0">Your order request has been received</div>
+                    <div class="m_844231252143128636main-content" align="center">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:730px">
+                        <tr>
+                          <td colspan="2"></td>
+                          <td bgcolor="#E8E8E8" colspan="3" height="1px"></td>
+                          <td colspan="3"></td>
+                        </tr>
+                        <tr>
+                          <td bgcolor="#F8F8F8" width="1px"></td>
+                          <td bgcolor="#E8E8E8" width="1px"></td>
+                          <td bgcolor="#D1D1D1" width="1px"></td>
+                          <td bgcolor="#FFF">
+                            <div class="m_844231252143128636header" style="margin-bottom:15px">
+                              <div><table class="m_844231252143128636header" lang="header" cellpadding="0" cellspacing="0" width="100%" border="0" style="width:100%">
+                                <tr>
+                                  <td width="100%" height="70" valign="top" bgcolor="#FFFFFF" style="padding-top:30px;background:#ffffff;height:70px">
+                                    <table cellpadding="0" cellspacing="0" width="100%" height="70" border="0" style="width:100%;height:70px">
+                                      <tr>
+                                        <td style="width:20px" width="20"><div lang="space40"></div></td>
+                                        <td valign="middle" align="center">
+                                          <div style="font-size:5px;line-height:5px;height:5px">  </div>
+                                          <a href="http://localhost:8002" style="text-decoration:none" target="_blank" data-saferedirecturl="http://localhost:8002">
+                                            <img src="https://logowik.com/content/uploads/images/g2-esport6091.jpg" width="209" style="display:block;max-width:209px;border:none">
+                                          </a>
+                                          <div style="font-size:5px;line-height:5px;height:5px">  </div>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </table></div>
+                            </div>
+                            <div class="m_844231252143128636section" style="padding-top:0px">
+                              <div class="m_844231252143128636header-title" style="color:#0f146d;text-align:center">Cám ơn bạn đã đặt hàng tại G2Store!</div>
+                              <div class="m_844231252143128636section-content">
+                                <h2 th:text="'Xin chào ' + ${email}"></h2>
+                                <p>G2Store đã nhận được yêu cầu đặt hàng của bạn và đang xử lý nhé. Bạn sẽ nhận được thông báo tiếp theo khi đơn hàng đã sẵn sàng được giao.</p>
+                                <div class="m_844231252143128636two_col" align="center" style="padding-top:10px">
+                                  <div>
+                                    <a href="https://c.lazada.vn/t/c.VkePT?sub_id1=Trade&amp;sub_id2=VN_VOYAGER_OrderConfirmation_COD&amp;sub_id3=20240415&amp;sub_id4=main&amp;url=https%3A%2F%2Fmy.lazada.vn%2Fcustomer%2Forder%2Fview%2F%3FtradeOrderId%3D469060008619216%26buyerEmail%3Dquaivatdianguc117@gmail.com" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://c.lazada.vn/t/c.VkePT?sub_id1%3DTrade%26sub_id2%3DVN_VOYAGER_OrderConfirmation_COD%26sub_id3%3D20240415%26sub_id4%3Dmain%26url%3Dhttps%253A%252F%252Fmy.lazada.vn%252Fcustomer%252Forder%252Fview%252F%253FtradeOrderId%253D469060008619216%2526buyerEmail%253Dquaivatdianguc117@gmail.com&amp;source=gmail&amp;ust=1714209283156000&amp;usg=AOvVaw0Wux2XVqSegeiW3wktB816">
+                                      <img src="https://ci3.googleusercontent.com/meips/ADKq_NYVaPakFqAiVY0nV0ofSouvN9L1z5IPXEMnXGI7cDC2QzODNqWZbtxPiVtknKQTDcngkmkS0VgcnEczKmq2VcvjA7rxWbMeLU19p7LjY9ScARIX6-0xLQ=s0-d-e1-ft#https://img.alicdn.com/tfs/TB178CsJeH2gK0jSZFEXXcqMpXa-300-50.jpg" style="max-width:300px" border="0">
+                                    </a>
+                                  </div>
+                                </div>
+                                <p><b>*Lưu ý nhỏ cho bạn:</b> Bạn chỉ nên nhận hàng khi trạng thái đơn hàng là “<b>Đang giao hàng</b>” và nhớ kiểm tra Mã đơn hàng, Thông tin người gửi và Mã vận đơn để nhận đúng kiện hàng nhé.</p>
+                              </div>
+                            </div>
+                            <div class="m_844231252143128636section">
+                              <div class="m_844231252143128636section-header m_844231252143128636section-header--deliveredTo">Đơn hàng được giao đến</div>
+                              <div class="m_844231252143128636section-content">
+                                <table cellpadding="2" cellspacing="0" width="100%">
+                                  <tbody>
+                                  <tr>
+                                    <td width="25%" valign="top" style="color:#0f146d;font-weight:bold">Tên:</td>
+                                    <td width="75%" valign="top" th:text="${receiverName}"></td>
+                                  </tr>
+                                  <tr>
+                                    <td valign="top" style="color:#0f146d;font-weight:bold">Địa chỉ nhà:</td>
+                                    <td valign="top" th:text="${district} + ', ' + ${province} + ', ' + ${ward} + ', ' + ${address}"></td>
+                                  </tr>
+                                  <tr>
+                                    <td valign="top" style="color:#0f146d;font-weight:bold">Điện thoại:</td>
+                                    <td valign="top" th:text="${phoneNo}"></td>
+                                  </tr>
+                                  <tr>
+                                    <td valign="top" style="color:#0f146d;font-weight:bold">Email:</td>
+                                    <td valign="top" th:text="${email}"></a></td>
+                                  </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                            <div class="m_844231252143128636section" style="padding-bottom:0px">
+                              <div class="m_844231252143128636section-content">
+                                <div class="m_844231252143128636section-header m_844231252143128636section-header--yourPackage" th:text="'Kiện Hàng #' + ${order.orderId}"></div>
+                                <p th:text="'Được bán bởi: ' + ${shopName}" style="padding-left:10px;margin-top:0px;margin-bottom:0px;color:#585858">
+                                  <br th:text="'Giao vào: ' + ${deliveredDate}">
+                                </p>
+                                <div class="m_844231252143128636product" style="border-bottom:0px none">
+                                  <table cellpadding="0" cellspacing="0" style="width:100%">
+                                    <tr th:each="orderItem: ${orderItems}">
+                                      <td style="width:40%">
+                                        <div style="padding-right:10px">
+                                          <a href="https://c.lazada.vn/t/c.VkePT?sub_id1=Trade&amp;sub_id2=VN_VOYAGER_OrderConfirmation_COD&amp;sub_id3=20240415&amp;sub_id4=main&amp;url=https%3A%2F%2Fwww.lazada.vn%2Fproducts%2Fi2016232930-s11767479235.html%3FurlFlag%3Dtrue%26mp%3D1" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://c.lazada.vn/t/c.VkePT?sub_id1%3DTrade%26sub_id2%3DVN_VOYAGER_OrderConfirmation_COD%26sub_id3%3D20240415%26sub_id4%3Dmain%26url%3Dhttps%253A%252F%252Fwww.lazada.vn%252Fproducts%252Fi2016232930-s11767479235.html%253FurlFlag%253Dtrue%2526mp%253D1&amp;source=gmail&amp;ust=1714209283157000&amp;usg=AOvVaw181Aw0Xc0BUsHM2s1vsU8M"><img th:src="${orderItem.image}" style="width:100%;max-width:130px"></a>
+                                        </div>
+                                      </td>
+                                      <td style="width:60%">
+                                        <div class="m_844231252143128636product-productInfo-name">
+                                          <a href="https://c.lazada.vn/t/c.VkePT?sub_id1=Trade&amp;sub_id2=VN_VOYAGER_OrderConfirmation_COD&amp;sub_id3=20240415&amp;sub_id4=main&amp;url=https%3A%2F%2Fwww.lazada.vn%2Fproducts%2Fi2016232930-s11767479235.html%3FurlFlag%3Dtrue%26mp%3D1" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://c.lazada.vn/t/c.VkePT?sub_id1%3DTrade%26sub_id2%3DVN_VOYAGER_OrderConfirmation_COD%26sub_id3%3D20240415%26sub_id4%3Dmain%26url%3Dhttps%253A%252F%252Fwww.lazada.vn%252Fproducts%252Fi2016232930-s11767479235.html%253FurlFlag%253Dtrue%2526mp%253D1&amp;source=gmail&amp;ust=1714209283157000&amp;usg=AOvVaw181Aw0Xc0BUsHM2s1vsU8M"><span style="font-size:14px" th:text="${orderItem.name}"></span></a>
+                                        </div>
+                                        <div class="m_844231252143128636product-productInfo-price"><span style="font-size:14px" th:text="'VND ' + ${orderItem.price}"></span></div>
+                                        <div class="m_844231252143128636product-productInfo-subInfo"><span style="font-size:14px" th:text="'Số lượng: ' + ${orderItem.quantity}"></span></div>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="m_844231252143128636section" style="padding-top:0px">
+                              <div class="m_844231252143128636section-content">
+                                <div class="m_844231252143128636checkout">
+                                  <div class="m_844231252143128636two_col">
+                                    <table cellpadding="0" cellspacing="0" class="m_844231252143128636checkout-amount" style="border-bottom:1px solid #d8d8d8">
+                                      <tr>
+                                        <td valign="top" style="color:#585858;width:49%">Thành tiền:</td>
+                                        <td align="right" valign="top">VND</td>
+                                        <td align="right" valign="top" th:text="${total}"></td>
+                                      </tr>
+                                      <tr>
+                                        <td valign="top" style="color:#585858">Phí vận chuyển:</td>
+                                        <td align="right" valign="top">VND</td>
+                                        <td align="right" valign="top" th:text="${feeShip}"></td>
+                                      </tr>
+                                      <tr>
+                                        <td valign="top" style="color:#585858">Giảm giá:</td>
+                                        <td align="right" valign="top">VND</td>
+                                        <td align="right" valign="top" th:text="${discount}"></td>
+                                      </tr>
+                                      <tr>
+                                        <td valign="top" style="color:#585858">Tổng cộng:</td>
+                                        <td align="right" valign="top"><div style="color:#f27c24;font-weight:bold">VND</div></td>
+                                        <td align="right" valign="top"><div style="color:#f27c24;font-weight:bold" th:text="${finalTotal}"></div></td>
+                                      </tr>
+                                    </table>
+                                    <br>
+                                    <table cellpadding="0" cellspacing="0" class="m_844231252143128636checkout-amount">
+                                      <tr>
+                                        <td valign="top" style="color:#585858;width:49%">Tùy chọn vận chuyển:</td>
+                                        <td align="right" valign="top" colspan="2">Giao hàng Tiêu chuẩn</td>
+                                      </tr>
+                                      <tr>
+                                        <td valign="top" style="color:#585858;width:49%">Hình thức thanh toán:</td>
+                                        <td align="right" valign="top" colspan="2" th:text="${paymentType}"></td>
+                                      </tr>
+                                    </table>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="m_844231252143128636section">
+                              <div class="m_844231252143128636section-header m_844231252143128636section-header--notes">Có phải bạn thắc mắc?</div>
+                              <div class="m_844231252143128636section-content">
+                                <p>
+                                  <b>Làm thế nào để thay đổi địa chỉ giao hàng, số điện thoại hoặc thông tin người nhận hàng cho đơn hàng đã đặt? </b><br>
+                                  Nếu địa thông tin liên lạc/ giao hàng chưa chính xác, bạn có thể hủy nếu đơn hàng chưa được chuyển sang trạng thái “Hoàn tất đóng gói” và thử đặt lại đơn hàng mới với thông tin chính xác hơn bạn nhé.
+                                </p>
+                                <div class="m_844231252143128636two_col" align="center">
+                                  <div style="font-size:10px;line-height:20px;height:15px"> </div>
+                                  <a href="https://c.lazada.vn/t/c.VkePT?sub_id1=Trade&amp;sub_id2=VN_VOYAGER_OrderConfirmation_COD&amp;sub_id3=20240415&amp;sub_id4=Help%20Center&amp;url=https%3A%2F%2Fwww.lazada.vn%2Fhelpcenter%2F" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://c.lazada.vn/t/c.VkePT?sub_id1%3DTrade%26sub_id2%3DVN_VOYAGER_OrderConfirmation_COD%26sub_id3%3D20240415%26sub_id4%3DHelp%2520Center%26url%3Dhttps%253A%252F%252Fwww.lazada.vn%252Fhelpcenter%252F&amp;source=gmail&amp;ust=1714209283157000&amp;usg=AOvVaw372KHjwImU9EcLngYbW3Fr"><div style="background:linear-gradient(45deg,#ff7800 10%,#ff00aa 100%);color:#fff;border-radius:10px;padding:12px 25px!important;display:block!important;text-align:center;text-transform:uppercase;min-width:140px;border-bottom:1px solid #8f8f8f;border-right:1px solid #8f8f8f">NẾU CÒN THẮC MẮC, CLICK TẠI ĐÂY ĐỂ TÌM HIỂU THÊM!</div></a>
+                                </div>
+                                <div align="center">
+                                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding-top:1.5rem">
+                                    <tr>
+                                      <td><a href="https://c.lazada.vn/t/c.VkePT?sub_id1=Trade&amp;sub_id2=VN_VOYAGER_OrderConfirmation_COD&amp;sub_id3=20240415&amp;sub_id4=main&amp;url=https%3A%2F%2Fwww.lazada.vn%2Fwow%2Fi%2Fvn%2FLandingPage%2Flazmall" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://c.lazada.vn/t/c.VkePT?sub_id1%3DTrade%26sub_id2%3DVN_VOYAGER_OrderConfirmation_COD%26sub_id3%3D20240415%26sub_id4%3Dmain%26url%3Dhttps%253A%252F%252Fwww.lazada.vn%252Fwow%252Fi%252Fvn%252FLandingPage%252Flazmall&amp;source=gmail&amp;ust=1714209283157000&amp;usg=AOvVaw3aMgAyFNZN_wiv_eIUarz8"><img src="https://g2esports.com/cdn/shop/articles/G2_Premium_Website_Homepage_995bf7c8-ee6d-4f6c-8867-3d620500ce24.jpg?v=1687260157" width="100%" border="0" style="max-width:225px"></a></td>
+                                      <td><a href="https://c.lazada.vn/t/c.VkePT?sub_id1=Trade&amp;sub_id2=VN_VOYAGER_OrderConfirmation_COD&amp;sub_id3=20240415&amp;sub_id4=main&amp;url=https%3A%2F%2Fs.lazada.vn%2Fs.Z2oii" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://c.lazada.vn/t/c.VkePT?sub_id1%3DTrade%26sub_id2%3DVN_VOYAGER_OrderConfirmation_COD%26sub_id3%3D20240415%26sub_id4%3Dmain%26url%3Dhttps%253A%252F%252Fs.lazada.vn%252Fs.Z2oii&amp;source=gmail&amp;ust=1714209283157000&amp;usg=AOvVaw2SIbRIC09V5bpxIo6erhn6"><img src="https://ci3.googleusercontent.com/meips/ADKq_NaZg8mS6CzLp_FDtZ_uETykzW8Cr6Si1kB38Sm7quefTeuA66Z3rpzcXsZJPJ9GUIBQNy0_gf-oQIZHM0ch3CjynjBdjT71P4YKc49PfTkhOrtU7xRNfsc=s0-d-e1-ft#https://img.alicdn.com/tfs/TB1xaYVOGL7gK0jSZFBXXXZZpXa-834-835.jpg" width="100%" border="0" style="max-width:225px"></a></td>
+                                      <td><a href="https://c.lazada.vn/t/c.VkePT?sub_id1=Trade&amp;sub_id2=VN_VOYAGER_OrderConfirmation_COD&amp;sub_id3=20240415&amp;sub_id4=main&amp;url=https%3A%2F%2Fpages.lazada.vn%2Fwow%2Fi%2Fvn%2FLandingPage%2Fflashsale" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://c.lazada.vn/t/c.VkePT?sub_id1%3DTrade%26sub_id2%3DVN_VOYAGER_OrderConfirmation_COD%26sub_id3%3D20240415%26sub_id4%3Dmain%26url%3Dhttps%253A%252F%252Fpages.lazada.vn%252Fwow%252Fi%252Fvn%252FLandingPage%252Fflashsale&amp;source=gmail&amp;ust=1714209283157000&amp;usg=AOvVaw0XM6PyLLp3uWyPT7OYc4Jj"><img src="https://ci3.googleusercontent.com/meips/ADKq_NbkN8l978bJC3ws0QuC28FCdihqYcO_IloVX4uzhYtyjyLARbJrJxZj94TbC1jI5RsU9rLowFTXY3cEfoEZQHTCTQC1WJxIwvb0nqoXZl9xYCXFAP5i4i4=s0-d-e1-ft#https://img.alicdn.com/tfs/TB1YaKMbiDsXe8jSZR0XXXK6FXa-834-835.jpg" width="100%" border="0" style="max-width:225px"></a></td>
+                                    </tr>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="m_844231252143128636header" style="margin-bottom:15px">
+                              <div>
+                              </div>
+                            </div>
+                      <div>
+                        <div>
+                          <table cellpadding="0" cellspacing="0" width="100%" style="min-width:663px" border="0">
+                            <tr>
+                              <td align="center" style="padding:0px 10px 10px 10px;background-color:#ffffff;text-align:center">
+                                <div>
+                                  <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                                    <tr>
+                                      <td style="padding-left:10px">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                          <tr>
+                                            <td style="width:80%">
+                                              <table border="0" cellpadding="0" cellspacing="0" width="30%">
+                                                <tr>
+                                                  <td style="width:25%">
+                                                    <a href="https://instagram.com/lazada_vn/" style="text-decoration:none" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://instagram.com/lazada_vn/&amp;source=gmail&amp;ust=1714209283158000&amp;usg=AOvVaw2az3uvD1qy0scXK1Fo_aO8">
+                                                      <img border="0" src="https://ci3.googleusercontent.com/meips/ADKq_NZRutnepVRAYXyqPiktqpcQfgEcj3QPuAJLhixwQl6I8ZbJ-NFRt0MXRlcx8UThUJm1bXONEPe4CjwhS7bWrf0mmGkjTENW-vhKU0koQbg9qgjqtNCPIgKhoNko0Kj0HLhZGzNKxCGchpJequgi5Ic=s0-d-e1-ft#https://img.alicdn.com/imgextra/i2/O1CN01XpZvYV1E8BvEZzX7i_!!6000000000306-2-tps-20-20.png" style="width:20px!important">
+                                                    </a>
+                                                  </td>
+                                                  <td style="width:25%">
+                                                    <a href="https://www.facebook.com/LazadaVietnam" style="text-decoration:none" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://www.facebook.com/LazadaVietnam&amp;source=gmail&amp;ust=1714209283158000&amp;usg=AOvVaw0KWSUByykD7kZ-ssouG0BP">
+                                                      <img border="0" src="https://ci3.googleusercontent.com/meips/ADKq_NYFix9g58rK4S7NsSpf5N0G1RMXShUurlE-1sFuR-7udwYM49h3iCrgsCsl1FjxqQyOc0iZISKkAB10nYkIu7sCN1pNuT2gVVo76OGJZmeI5EPFsr4AJpCOfrJJJ7ov8MZT1de7Chot09IS3wfoL3E=s0-d-e1-ft#https://img.alicdn.com/imgextra/i4/O1CN01GRDLkj1jwLNnACXFs_!!6000000004612-2-tps-20-20.png" style="width:20px!important">
+                                                    </a>
+                                                  </td>
+                                                  <td style="width:25%">
+                                                    <a href="https://twitter.com/LazadaVN" style="text-decoration:none" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://twitter.com/LazadaVN&amp;source=gmail&amp;ust=1714209283158000&amp;usg=AOvVaw3sBj8_ziq4ys4dSGydtIqz">
+                                                      <img border="0" src="https://ci3.googleusercontent.com/meips/ADKq_NY_xP4h6yxug8cX5iBbtaK7d4NMYeuShkGOFg65z5nAYQCLKJz3icmWyoLJbPq1aK3pOoH7jEEF2_6-vbWBCFBwFckTL7Dl8FPc13It702h3Q1x28wu9b2e_vZQKiVI0Bk9FSdsFdhLR93eFj_i1TU=s0-d-e1-ft#https://img.alicdn.com/imgextra/i2/O1CN01DZSXf81q7EUbqta8l_!!6000000005448-2-tps-20-20.png" style="width:20px!important">
+                                                    </a>
+                                                  </td>
+                                                  <td style="width:25%">
+                                                    <a href="https://www.youtube.com/user/lazadavn" style="text-decoration:none" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://www.youtube.com/user/lazadavn&amp;source=gmail&amp;ust=1714209283158000&amp;usg=AOvVaw3JeP6mM7S844FS7KT9PLDS">
+                                                      <img border="0" src="https://ci3.googleusercontent.com/meips/ADKq_NZEjUuTytmsPzTkRb_bDmhZEzWNfB0m2vFP9OqYbaYU7LZqO5PYhQoFlEKI8mCS2fDU4l7zG0CDz56tIKqtbPQiOG9rbl1qDLIfAzRxXT6o8zi4oosxqbSvSS64quwZgQk1MDKIEHbwnkXSj2s870M=s0-d-e1-ft#https://img.alicdn.com/imgextra/i1/O1CN01I84XOW1XkdsH6Q94n_!!6000000002962-2-tps-20-20.png" style="width:20px!important">
+                                                    </a>
+                                                  </td>
+                                                </tr>
+                                              </table>
+                                            </td>
+                                            <td style="width:12%">
+                                              <p style="font-size:9pt;font-weight:bold;font-family:Arial,Helvetica,sans-serif;color:#0f146d;background-color:#ffffff">
+                                                <a href="http://onelink.to/tts9wm" style="text-decoration:none;font-size:11pt;font-weight:bold;color:#0f146d!important" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=http://onelink.to/tts9wm&amp;source=gmail&amp;ust=1714209283158000&amp;usg=AOvVaw1PwkNAom0kXdR-HHyObo5w">Tải App G2Store</a>
+                                              </p>
+                                            </td>
+                                            <td style="width:8%">
+                                              <a href="http://onelink.to/tts9wm" style="text-decoration:none" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=http://onelink.to/tts9wm&amp;source=gmail&amp;ust=1714209283158000&amp;usg=AOvVaw1PwkNAom0kXdR-HHyObo5w">
+                                                <img align="right" border="0" src="https://play-lh.googleusercontent.com/f3ru6khpBVdN5el9Gku5LS1VrIP1fMkxMTkEmvJQjh-aIQKJdNan7ZtGICQH-siB8A" style="width:60px!important">
+                                              </a>
+                                            </td>
+                                          </tr>
+                                        </table>
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                          <tr>
+                                            <td>
+                                              <div style="font-size:9pt;color:#0f146d;background-color:#ffffff;font-size:9pt;padding:10px 0px 10px 10px;font-family:Helvetica,Arial,sans-serif;border-spacing:0;overflow:hidden;line-height:20px;text-align:center">
+                                                <a href="https://c.lazada.vn/t/c.VkePT?sub_id1=Trade&amp;sub_id2=VN_VOYAGER_OrderConfirmation_COD&amp;sub_id3=20240415&amp;sub_id4=Help%20Center&amp;url=https%3A%2F%2Fwww.lazada.vn%2Fhelpcenter%2F" style="text-decoration:none" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://c.lazada.vn/t/c.VkePT?sub_id1%3DTrade%26sub_id2%3DVN_VOYAGER_OrderConfirmation_COD%26sub_id3%3D20240415%26sub_id4%3DHelp%2520Center%26url%3Dhttps%253A%252F%252Fwww.lazada.vn%252Fhelpcenter%252F&amp;source=gmail&amp;ust=1714209283158000&amp;usg=AOvVaw0tbvAxGQlK6B8M6w5yd7TF">
+                                                  <span style="font-size:12pt;color:#0f146d!important;background-color:#ffffff;font-weight:bold">Trung tâm hỗ trợ</span>
+                                                </a> |
+                                                <a href="https://c.lazada.vn/t/c.VkePT?sub_id1=Trade&amp;sub_id2=VN_VOYAGER_OrderConfirmation_COD&amp;sub_id3=20240415&amp;sub_id4=Contact%20Us&amp;url=https%3A%2F%2Fwww.lazada.vn%2Fhelp%2Fchat" style="text-decoration:none" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=vi&amp;q=https://c.lazada.vn/t/c.VkePT?sub_id1%3DTrade%26sub_id2%3DVN_VOYAGER_OrderConfirmation_COD%26sub_id3%3D20240415%26sub_id4%3DContact%2520Us%26url%3Dhttps%253A%252F%252Fwww.lazada.vn%252Fhelp%252Fchat&amp;source=gmail&amp;ust=1714209283158000&amp;usg=AOvVaw0H5Ndmw2PseS2ZOucex7eT">
+                                                  <span style="font-size:12pt;color:#0f146d!important;background-color:#ffffff;font-weight:bold">Liên hệ</span>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td>
+                                              <div style="font-size:10pt;color:#0f146d;background-color:#ffffff;padding:0px 20px 20px 10px;font-family:Helvetica,Arial,sans-serif;border-spacing:0;overflow:hidden;line-height:20px">
+                                                <div style="color:#0f146d;line-height:14px;text-align:center">
+                                                  <table width="100%" cellspacing="0" cellpadding="0" border="0">
+                                                    <tr>
+                                                      <td width="195"></td>
+                                                      <td align="center" width="150">
+                                                        <img src="https://g2esports.com/cdn/shop/files/G2_Esports_Preview.jpg?v=1682085995" style="max-width:150px">
+                                                      </td>
+                                                      <td width="195"></td>
+                                                    </tr>
+                                                  </table>
+                                                  <p>Đây là thư tự động được tạo từ danh sách đăng ký của chúng tôi. Do đó, xin đừng trả lời thư này.</p>
+                                                </div>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </table>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </div>
+                              </td>
+                            </tr>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <img alt="" src="https://ci3.googleusercontent.com/meips/ADKq_NaTHWAKMBX9SarE7pMYxEXSyPoPDCfup4MZssSGXRXvunaHZtoTkm5pbp-zr0osm6ynS-t9mul8kds7CepbAIdTnXEXy8nfatPcXKpM5a9GFY5x-JKGxudqTrn4glIV9jhEHzTgxu527J6i7xGrpK4jzl2bBpgcYpt6gHDDLsPylP1w1MHTzmihJS8hmxxYEj4oL9VNqfZNKMsLSGF_5gsBMQxTvcwGNQ4q2sv0WRabmVoI5AOqukPBjUL5-0ArWwy9F87uj6H4=s0-d-e1-ft#https://sg.mmstat.com/lzdmailer.letter.open?subscriber_id=033ae04eca0ca9abe224cb0b3349305f&amp;mail_id=8a8b67b5-c8ef-42c8-96cc-b1c3c50315ee&amp;email_type=null&amp;_rnd=466625&amp;venture_id=VN">
+                  </div>
+                </font>
+                </div>
+          </table>
+    </table>
+  </div>
+</div>
+<script type="text/javascript" nonce="dNSZ1E4OYF6aG4-Yy40pow">
+  // <![CDATA[
+  document.body.onload = function () {
+    document.body.offsetHeight;
+    window.print()
+  };
+  // ]]>
+
+</script>
 </body>
-</html>

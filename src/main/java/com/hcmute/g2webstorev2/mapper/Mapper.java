@@ -113,6 +113,7 @@ public class Mapper {
                 .ward(shop.getWard())
                 .districtId(shop.getDistrictId())
                 .province(shop.getProvince())
+                .balance(shop.getBalance())
                 .build();
     }
 
