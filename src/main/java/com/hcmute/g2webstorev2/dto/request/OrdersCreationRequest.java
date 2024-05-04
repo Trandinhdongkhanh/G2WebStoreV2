@@ -21,4 +21,7 @@ public class OrdersCreationRequest {
     private Integer addressId;
     @JsonProperty("payment_type")
     private PaymentType paymentType;
+    @JsonProperty("is_point_spent")
+    @NotNull(message = "Point spent must not be null")
+    private Boolean isPointSpent;
 }

@@ -80,6 +80,7 @@ public class OrderServiceImpl implements OrderService {
 
         for (CartItem cartItem : cartItems) {
             if (!Objects.equals(cartItem.getProduct().getShop().getShopId(), shop.getShopId())) continue;
+
             OrderItem orderItem = OrderItem.builder()
                     .image(cartItem.getProduct().getImages().get(0).getFileUrl())
                     .price(cartItem.getProduct().getPrice())
@@ -88,6 +89,8 @@ public class OrderServiceImpl implements OrderService {
                     .productId(cartItem.getProduct().getProductId())
                     .order(order)
                     .build();
+
+            if (cartItem.getProduct().getSpecialPrice() != null) orderItem.setPrice(cartItem.getProduct().getSpecialPrice());
 
             orderItems.add(orderItem);
 
@@ -134,9 +137,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public List<OrderResponse> createOrders(OrdersCreationRequest body, HttpServletRequest req, HttpServletResponse res) throws IOException {
-        int ordersTotal = 0;
-
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        int ordersTotal = 0;
+        double curPoint = customer.getPoint();
 
         Address address = addressRepo.findById(body.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address with ID = " + body.getAddressId() + " not found"));
@@ -163,6 +166,7 @@ public class OrderServiceImpl implements OrderService {
 
             newOrder.setOrderItems(orderItems);
             newOrder.setTotal(total + order.getFeeShip());
+            if (body.getIsPointSpent()) newOrder.setPointSpent((int) (curPoint / body.getOrders().size()));
 
             ordersTotal += total;
 
@@ -175,6 +179,8 @@ public class OrderServiceImpl implements OrderService {
             log.info("Order with ID = " + result.getOrderId() + " created successfully");
             orders.add(result);
         }
+
+        if (body.getIsPointSpent()) ordersTotal -= curPoint;
 
         if (!body.getPaymentType().equals(COD)) processOnlPayment(body.getPaymentType(), ordersTotal, req, res, orders);
         else orders.forEach(emailService::sendOrderConfirmation);

@@ -1,6 +1,6 @@
 package com.hcmute.g2webstorev2.service.impl;
 
-import com.hcmute.g2webstorev2.dto.request.AddVoucherToProductRequest;
+import com.hcmute.g2webstorev2.dto.request.AddVoucherToProductsReq;
 import com.hcmute.g2webstorev2.dto.request.VoucherRequest;
 import com.hcmute.g2webstorev2.dto.response.VoucherResponse;
 import com.hcmute.g2webstorev2.entity.Product;
@@ -95,17 +95,19 @@ public class VoucherServiceImpl implements VoucherService {
     public List<VoucherResponse> getVouchersByProduct(Integer id) {
         if (!productRepo.existsById(id)) throw new ResourceNotFoundException("Product with ID = " + id + " not found");
         return voucherRepo.findAllByProductId(id)
-                .stream().map(Mapper::toVoucherResponse)
+                .stream().filter(voucher -> voucher.getEndDate().isAfter(LocalDate.now())
+                        && voucher.getStartDate().isBefore(LocalDate.now()))
+                .map(Mapper::toVoucherResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public void addVoucherToProducts(AddVoucherToProductRequest body) {
+    public void addVoucherToProducts(AddVoucherToProductsReq body, String voucherId) {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Voucher voucher = voucherRepo
-                .findById(body.getVoucherId())
-                .orElseThrow(() -> new ResourceNotFoundException("Voucher with ID = " + body.getVoucherId() + " not found"));
+                .findById(voucherId)
+                .orElseThrow(() -> new ResourceNotFoundException("Voucher with ID = " + voucherId + " not found"));
 
         if (voucher.getEndDate().isBefore(LocalDate.now()))
             throw new VoucherException("Voucher is expired");

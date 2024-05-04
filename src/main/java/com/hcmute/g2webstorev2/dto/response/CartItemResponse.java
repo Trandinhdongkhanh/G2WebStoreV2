@@ -12,6 +12,8 @@ public class CartItemResponse {
     private String images;
     private String name;
     private Integer price;
+    @JsonProperty("special_price")
+    private Integer specialPrice;
     private Integer quantity;
     @JsonProperty("customer_id")
     private Integer customerId;

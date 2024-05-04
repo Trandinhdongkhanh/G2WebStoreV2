@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.controller;
 
+import com.hcmute.g2webstorev2.dto.request.AddVoucherToProductsReq;
 import com.hcmute.g2webstorev2.dto.request.VoucherRequest;
 import com.hcmute.g2webstorev2.dto.response.VoucherResponse;
 import com.hcmute.g2webstorev2.service.VoucherService;
@@ -42,5 +43,16 @@ public class VoucherController {
             @PathVariable("id") @NotNull(message = "Product ID must not be null")
             @Min(value = 1, message = "Product ID must not be less than 1") Integer id) {
         return ResponseEntity.ok(voucherService.getVouchersByProduct(id));
+    }
+
+    @PostMapping("/{voucherId}/add-to-products")
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_PROMOTION_ACCESS') or " +
+            "hasAnyAuthority('UPDATE_PROMOTION')")
+    public ResponseEntity<?> addVoucherToProducts(
+            @PathVariable("voucherId") String voucherId,
+            @Valid @RequestBody AddVoucherToProductsReq body
+    ) {
+        voucherService.addVoucherToProducts(body, voucherId);
+        return ResponseEntity.ok("Success");
     }
 }

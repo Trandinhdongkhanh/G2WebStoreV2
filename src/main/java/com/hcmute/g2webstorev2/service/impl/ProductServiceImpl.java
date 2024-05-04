@@ -67,8 +67,9 @@ public class ProductServiceImpl implements ProductService {
             }
         }
     }
+
     private Page<ProductResponse> getDefaultProductsByName(String name, Integer startPrice, Integer endPrice,
-                                                           int pageNumber, int pageSize, int seed){
+                                                           int pageNumber, int pageSize, int seed) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByNameAndPriceBetween(
                     name,
@@ -124,12 +125,12 @@ public class ProductServiceImpl implements ProductService {
                     name,
                     startPrice,
                     endPrice,
-                    PageRequest.of(pageNumber, pageSize, Sort.by("product_id").descending())
+                    PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
             ).map(Mapper::toProductResponse);
 
         return productRepo.findAllByName(
                 name,
-                PageRequest.of(pageNumber, pageSize, Sort.by("product_id").descending())
+                PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
         ).map(Mapper::toProductResponse);
     }
 
@@ -140,12 +141,12 @@ public class ProductServiceImpl implements ProductService {
                     name,
                     startPrice,
                     endPrice,
-                    PageRequest.of(pageNumber, pageSize, Sort.by("sold_quantity").descending())
+                    PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").descending())
             ).map(Mapper::toProductResponse);
 
         return productRepo.findAllByName(
                 name,
-                PageRequest.of(pageNumber, pageSize, Sort.by("sold_quantity").descending())
+                PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").descending())
         ).map(Mapper::toProductResponse);
     }
 
@@ -267,12 +268,12 @@ public class ProductServiceImpl implements ProductService {
                     getPath(id),
                     startPrice,
                     endPrice,
-                    PageRequest.of(pageNumber, pageSize, Sort.by("product_id").descending())
+                    PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
             ).map(Mapper::toProductResponse);
 
         return productRepo.findAllByCategory(
                 getPath(id),
-                PageRequest.of(pageNumber, pageSize, Sort.by("product_id").descending())
+                PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
         ).map(Mapper::toProductResponse);
     }
 
@@ -283,12 +284,12 @@ public class ProductServiceImpl implements ProductService {
                     getPath(id),
                     startPrice,
                     endPrice,
-                    PageRequest.of(pageNumber, pageSize, Sort.by("sold_quantity").descending())
+                    PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").descending())
             ).map(Mapper::toProductResponse);
 
         return productRepo.findAllByCategory(
                 getPath(id),
-                PageRequest.of(pageNumber, pageSize, Sort.by("product_id").descending())
+                PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").descending())
         ).map(Mapper::toProductResponse);
     }
 

@@ -170,6 +170,7 @@ public class Mapper {
                 .images(cartItem.getProduct().getImages().get(0).getFileUrl())
                 .name(cartItem.getProduct().getName())
                 .price(cartItem.getProduct().getPrice())
+                .specialPrice(cartItem.getProduct().getSpecialPrice())
                 .quantity(cartItem.getQuantity())
                 .productId(cartItem.getProduct().getProductId())
                 .customerId(cartItem.getCustomer().getCustomerId())

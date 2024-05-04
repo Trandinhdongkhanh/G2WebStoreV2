@@ -61,8 +61,8 @@ public class OrderController {
         return ResponseEntity.ok(orderService.sellerUpdateOrderStatus(id, status));
     }
 
-    @PutMapping("/shop")
-    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_ORDER_MANAGEMENT') or hasAuthority('UPDATE_ORDER')")
+    @GetMapping("/shop")
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_ORDER_MANAGEMENT') or hasAuthority('READ_ORDER')")
     public ResponseEntity<Page<OrderResponse>> getShopOrders(
             @RequestParam(value = "orderStatus", required = false) OrderStatus orderStatus,
             @RequestParam("page") int pageNumber,
