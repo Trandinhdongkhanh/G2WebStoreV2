@@ -209,6 +209,7 @@ public class OrderServiceImpl implements OrderService {
                             .build())
             );
 
+            res.setStatus(200);
             res.sendRedirect(paymentResponse.getPaymentUrl());
         }
     }
