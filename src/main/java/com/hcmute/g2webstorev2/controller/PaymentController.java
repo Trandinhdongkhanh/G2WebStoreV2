@@ -3,11 +3,11 @@ package com.hcmute.g2webstorev2.controller;
 import com.hcmute.g2webstorev2.dto.response.*;
 import com.hcmute.g2webstorev2.service.OrderService;
 import com.hcmute.g2webstorev2.service.VNPAYService;
-import com.hcmute.g2webstorev2.util.VNPAYUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,10 +22,8 @@ public class PaymentController {
     private VNPAYService vnpayService;
     @Autowired
     private OrderService orderService;
-    @Autowired
-    private VNPAYUtil vnpayUtil;
-
     @GetMapping("/create-payment")
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<PaymentResponse> createPayment(
             @RequestParam("amount") int reqAmount,
             @RequestParam(value = "bankCode", required = false) String bankCode,
@@ -36,6 +34,7 @@ public class PaymentController {
     }
 
     @GetMapping("/query-transaction-from-vnpay")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<VNPayTransactionQueryRes> getTransactionInfoFromVNPay(
             @RequestParam("order_id") String orderId,
             @RequestParam("trans_date") String transDate,

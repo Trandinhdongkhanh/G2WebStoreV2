@@ -1,13 +1,12 @@
 package com.hcmute.g2webstorev2.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,12 +24,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import java.util.Arrays;
 import java.util.List;
 
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/*/me",
@@ -48,19 +47,18 @@ public class SecurityConfig {
             "/webjars/**",
             "/swagger-ui.html"
     };
-    @Autowired
-    private JwtAuthEntryPoint jwtAuthEntryPoint;
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
-    @Autowired
-    private JwtAuthFilter jwtAuthFilter;
-    @Autowired
-    private LogoutHandler logoutHandler;
+    private final JwtAuthEntryPoint jwtAuthEntryPoint;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final LogoutHandler logoutHandler;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:8001",
+                "http://localhost:8002",
+                "http://localhost:8003"));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -108,8 +106,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/*/activate-account").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/*/forgot-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/*/reset-password").permitAll()
-                        //TODO: Fix later
-                        .requestMatchers(HttpMethod.GET, "/api/v1/payments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/payments/return-url").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthEntryPoint))

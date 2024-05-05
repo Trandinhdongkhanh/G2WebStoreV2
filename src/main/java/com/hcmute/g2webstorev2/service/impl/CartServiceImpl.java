@@ -27,7 +27,8 @@ public class CartServiceImpl implements CartService {
 
         cartItemRepo.findAllByCustomer(customer).forEach(item -> {
             Shop shop = item.getProduct().getShop();
-            item.setSubTotal(item.getProduct().getPrice() * item.getQuantity());
+            int price = item.getProduct().getPrice();
+            item.setSubTotal(price * item.getQuantity());
             if (!itemsInShop.containsKey(shop)) {
                 itemsInShop.put(shop, new ArrayList<>(List.of(item)));
                 return;

@@ -22,7 +22,6 @@ public class Product {
     private List<GCPFile> images;
     private String description;
     private Integer price;
-    private Integer specialPrice;
     private Integer stockQuantity;
     private Integer soldQuantity;
     private Float height;

@@ -179,7 +179,6 @@ public class ProductServiceImpl implements ProductService {
                 .name(body.getName())
                 .description(body.getDescription())
                 .price(body.getPrice())
-                .specialPrice(body.getSpecialPrice())
                 .stockQuantity(body.getStockQuantity())
                 .category(category)
                 .shop(seller.getShop())
@@ -230,7 +229,6 @@ public class ProductServiceImpl implements ProductService {
         product.setName(body.getName());
         product.setDescription(body.getDescription());
         product.setPrice(body.getPrice());
-        product.setSpecialPrice(body.getSpecialPrice());
         product.setStockQuantity(body.getStockQuantity());
         product.setCategory(category);
         product.setHeight(body.getHeight());

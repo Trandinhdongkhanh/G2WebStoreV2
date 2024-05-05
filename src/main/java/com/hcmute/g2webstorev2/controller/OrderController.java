@@ -24,7 +24,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @PostMapping("/create-orders")
+    @PostMapping("/me")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<List<OrderResponse>> createOrders(
             @Valid @RequestBody OrdersCreationRequest body,

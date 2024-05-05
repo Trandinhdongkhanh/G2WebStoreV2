@@ -18,8 +18,6 @@ public class ProductResponse {
     private List<GCPFileResponse> images;
     private String description;
     private Integer price;
-    @JsonProperty("special_price")
-    private Integer specialPrice;
     @JsonProperty("stock_quantity")
     private Integer stockQuantity;
     @JsonProperty("sold_quantity")

@@ -64,7 +64,8 @@ public class CartItemServiceImpl implements CartItemService {
             cartItem.setQuantity(cartItem.getQuantity() + body.getQuantity());
         }
 
-        cartItem.setSubTotal(cartItem.getQuantity() * product.getPrice());
+        int price = product.getPrice();
+        cartItem.setSubTotal(cartItem.getQuantity() * price);
         CartItemResponse res = Mapper.toCartItemResponse(cartItem);
         log.info("Add item to cart successfully");
 
@@ -102,8 +103,10 @@ public class CartItemServiceImpl implements CartItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + body.getProductId() +
                         " not existed in customer cart"));
 
+        int price = product.getPrice();
+
         cartItem.setQuantity(body.getQuantity());
-        cartItem.setSubTotal(product.getPrice() * body.getQuantity());
+        cartItem.setSubTotal(price * body.getQuantity());
 
         log.info("Item with ID = " + body.getProductId() + " updated successfully");
         return Mapper.toCartItemResponse(cartItem);

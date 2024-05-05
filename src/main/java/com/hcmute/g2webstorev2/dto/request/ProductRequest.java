@@ -19,9 +19,6 @@ public class ProductRequest {
     @NotNull(message = "Product price cannot be null")
     @Min(value = 0, message = "Product price must be equals or greater than 0")
     private Integer price;
-    @Min(value = 0, message = "Product special price must be equals or greater than 0")
-    @JsonProperty("special_price")
-    private Integer specialPrice;
     @NotNull(message = "Product quantity cannot be null")
     @Min(value = 0, message = "Product quantity must be equals or greater than 0")
     @JsonProperty("stock_quantity")

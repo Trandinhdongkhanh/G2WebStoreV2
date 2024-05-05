@@ -3,7 +3,6 @@ package com.hcmute.g2webstorev2.mapper;
 import com.hcmute.g2webstorev2.dto.response.*;
 import com.hcmute.g2webstorev2.entity.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,7 +79,6 @@ public class Mapper {
                 .images(images)
                 .description(product.getDescription())
                 .price(product.getPrice())
-                .specialPrice(product.getSpecialPrice())
                 .stockQuantity(product.getStockQuantity())
                 .shop(toShopResponse(product.getShop()))
                 .category(toCategoryResponse(product.getCategory()))
@@ -170,7 +168,6 @@ public class Mapper {
                 .images(cartItem.getProduct().getImages().get(0).getFileUrl())
                 .name(cartItem.getProduct().getName())
                 .price(cartItem.getProduct().getPrice())
-                .specialPrice(cartItem.getProduct().getSpecialPrice())
                 .quantity(cartItem.getQuantity())
                 .productId(cartItem.getProduct().getProductId())
                 .customerId(cartItem.getCustomer().getCustomerId())

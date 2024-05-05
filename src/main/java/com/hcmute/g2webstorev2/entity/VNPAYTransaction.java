@@ -17,6 +17,7 @@ public class VNPAYTransaction {
     private Long id;
     private String vnp_TxnRef;
     private String trans_date;
+    private Integer total;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id")
     private Order order;

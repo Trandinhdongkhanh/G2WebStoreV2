@@ -90,8 +90,6 @@ public class OrderServiceImpl implements OrderService {
                     .order(order)
                     .build();
 
-            if (cartItem.getProduct().getSpecialPrice() != null) orderItem.setPrice(cartItem.getProduct().getSpecialPrice());
-
             orderItems.add(orderItem);
 
             Product product = cartItem.getProduct();
@@ -139,7 +137,6 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderResponse> createOrders(OrdersCreationRequest body, HttpServletRequest req, HttpServletResponse res) throws IOException {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         int ordersTotal = 0;
-        double curPoint = customer.getPoint();
 
         Address address = addressRepo.findById(body.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address with ID = " + body.getAddressId() + " not found"));
@@ -164,23 +161,31 @@ public class OrderServiceImpl implements OrderService {
             int total = (int) mapResult.get("total");
             List<OrderItem> orderItems = (List<OrderItem>) mapResult.get("orderItems");
 
-            newOrder.setOrderItems(orderItems);
+            if (body.getIsPointSpent() != null && body.getIsPointSpent()) {
+                newOrder.setPointSpent((int) (customer.getPoint() / body.getOrders().size()));
+                newOrder.setTotal(total + order.getFeeShip() - newOrder.getPointSpent());
+            }
             newOrder.setTotal(total + order.getFeeShip());
-            if (body.getIsPointSpent()) newOrder.setPointSpent((int) (curPoint / body.getOrders().size()));
-
+            newOrder.setOrderItems(orderItems);
             ordersTotal += total;
-
-            customer.setPoint(customer.getPoint() + total * 0.05);
-            customerRepo.save(customer);
-
-            log.info("Point of customer with ID = " + customer.getCustomerId() + " updated successfully");
 
             Order result = orderRepo.save(newOrder);
             log.info("Order with ID = " + result.getOrderId() + " created successfully");
             orders.add(result);
         }
 
-        if (body.getIsPointSpent()) ordersTotal -= curPoint;
+        //Update point process
+        if (body.getIsPointSpent() != null && body.getIsPointSpent()) {
+            if (ordersTotal <= customer.getPoint()) {
+                customer.setPoint(customer.getPoint() - ordersTotal);
+                ordersTotal = 0;
+            } else {
+                ordersTotal -= customer.getPoint();
+                customer.setPoint(0);
+            }
+        }
+        customerRepo.save(customer);
+
 
         if (!body.getPaymentType().equals(COD)) processOnlPayment(body.getPaymentType(), ordersTotal, req, res, orders);
         else orders.forEach(emailService::sendOrderConfirmation);
