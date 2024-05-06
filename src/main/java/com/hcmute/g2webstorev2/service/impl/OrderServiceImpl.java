@@ -4,6 +4,7 @@ import com.hcmute.g2webstorev2.dto.request.OrderCreationRequest;
 import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
 import com.hcmute.g2webstorev2.dto.response.CartItemResponse;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
+import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
 import com.hcmute.g2webstorev2.dto.response.PaymentResponse;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
@@ -134,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public List<OrderResponse> createOrders(OrdersCreationRequest body, HttpServletRequest req, HttpServletResponse res) throws IOException {
+    public OrdersCreationResponse createOrders(OrdersCreationRequest body, HttpServletRequest req, HttpServletResponse res) throws IOException {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         int ordersTotal = 0;
 
@@ -164,10 +165,9 @@ public class OrderServiceImpl implements OrderService {
             if (body.getIsPointSpent() != null && body.getIsPointSpent()) {
                 newOrder.setPointSpent((int) (customer.getPoint() / body.getOrders().size()));
                 newOrder.setTotal(total + order.getFeeShip() - newOrder.getPointSpent());
-            }
-            newOrder.setTotal(total + order.getFeeShip());
+            } else newOrder.setTotal(total + order.getFeeShip());
             newOrder.setOrderItems(orderItems);
-            ordersTotal += total;
+            ordersTotal += newOrder.getTotal();
 
             Order result = orderRepo.save(newOrder);
             log.info("Order with ID = " + result.getOrderId() + " created successfully");
@@ -186,17 +186,18 @@ public class OrderServiceImpl implements OrderService {
         }
         customerRepo.save(customer);
 
-
-        if (!body.getPaymentType().equals(COD)) processOnlPayment(body.getPaymentType(), ordersTotal, req, res, orders);
+        String paymentUrl = null;
+        if (!body.getPaymentType().equals(COD))
+            paymentUrl = processOnlPayment(body.getPaymentType(), ordersTotal, req, orders);
         else orders.forEach(emailService::sendOrderConfirmation);
 
-        return orders.stream()
-                .map(Mapper::toOrderResponse)
-                .collect(Collectors.toList());
+        return OrdersCreationResponse.builder()
+                .orders(orders.stream().map(Mapper::toOrderResponse).collect(Collectors.toList()))
+                .paymentUrl(paymentUrl)
+                .build();
     }
 
-    private void processOnlPayment(PaymentType paymentType, int total, HttpServletRequest req, HttpServletResponse res,
-                                   List<Order> orders) throws IOException {
+    private String processOnlPayment(PaymentType paymentType, int total, HttpServletRequest req, List<Order> orders) throws IOException {
         if (paymentType.equals(VNPAY)) {
             PaymentResponse paymentResponse = vnpayService.createPayment(total, null, null, req);
             log.info(paymentResponse.getPaymentUrl());
@@ -208,10 +209,9 @@ public class OrderServiceImpl implements OrderService {
                             .trans_date(null)
                             .build())
             );
-
-            res.setStatus(200);
-            res.sendRedirect(paymentResponse.getPaymentUrl());
+            return paymentResponse.getPaymentUrl();
         }
+        return null;
     }
 
     @Override

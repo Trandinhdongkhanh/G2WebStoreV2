@@ -2,6 +2,7 @@ package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
+import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import com.hcmute.g2webstorev2.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,12 +27,11 @@ public class OrderController {
 
     @PostMapping("/me")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<List<OrderResponse>> createOrders(
+    public ResponseEntity<OrdersCreationResponse> createOrders(
             @Valid @RequestBody OrdersCreationRequest body,
             HttpServletResponse res,
             HttpServletRequest req) throws IOException {
-        List<OrderResponse> orderResponses = orderService.createOrders(body, req, res);
-        return ResponseEntity.ok(orderResponses);
+        return ResponseEntity.ok(orderService.createOrders(body, req, res));
     }
 
     @GetMapping("/me")
