@@ -22,6 +22,7 @@ public class PaymentController {
     private VNPAYService vnpayService;
     @Autowired
     private OrderService orderService;
+
     @GetMapping("/create-payment")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<PaymentResponse> createPayment(
@@ -61,8 +62,8 @@ public class PaymentController {
             @RequestParam("vnp_TxnRef") String vnp_TxnRef,
             @RequestParam(value = "vnp_SecureHashType", required = false) String vnp_SecureHashType,
             @RequestParam("vnp_SecureHash") String vnp_SecureHash,
-            HttpServletResponse res,
-            HttpServletRequest req
+            HttpServletRequest req,
+            HttpServletResponse res
     ) throws IOException {
         VNPayTransactionRes vnpayTransactionRes = VNPayTransactionRes.builder()
                 .vnp_TmnCode(vnp_TmnCode)
@@ -82,7 +83,7 @@ public class PaymentController {
         if (vnpayService.isValidSignValue(vnp_SecureHash, req)) {
             if ("00".equals(vnp_TransactionStatus)) {
                 orderService.updateUnPaidOrder(vnp_TxnRef);
-//                res.sendRedirect("http://localhost:8002/thanks");
+                res.sendRedirect("http://localhost:8002/thanks");
                 return ResponseEntity.ok(ReturnURLResponse.builder()
                         .vnp_Rsp(vnp_ResponseCode)
                         .message("Success")

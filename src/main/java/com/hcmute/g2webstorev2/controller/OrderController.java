@@ -3,6 +3,7 @@ package com.hcmute.g2webstorev2.controller;
 import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
+import com.hcmute.g2webstorev2.dto.response.PaymentResponse;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import com.hcmute.g2webstorev2.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -32,6 +33,13 @@ public class OrderController {
             HttpServletResponse res,
             HttpServletRequest req) throws IOException {
         return ResponseEntity.ok(orderService.createOrders(body, req, res));
+    }
+    @PostMapping("/{id}/pay-unpaid-order")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<PaymentResponse> payUnPaidOrder(
+            @PathVariable("id") Integer id,
+            HttpServletRequest req) throws UnsupportedEncodingException {
+        return ResponseEntity.ok(orderService.payUnPaidOrder(id, req));
     }
 
     @GetMapping("/me")

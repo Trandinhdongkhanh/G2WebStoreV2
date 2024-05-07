@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -137,7 +138,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrdersCreationResponse createOrders(OrdersCreationRequest body, HttpServletRequest req, HttpServletResponse res) throws IOException {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        int ordersTotal = 0;
+        int ordersTotalPrice = 0;
 
         Address address = addressRepo.findById(body.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address with ID = " + body.getAddressId() + " not found"));
@@ -167,7 +168,7 @@ public class OrderServiceImpl implements OrderService {
                 newOrder.setTotal(total + order.getFeeShip() - newOrder.getPointSpent());
             } else newOrder.setTotal(total + order.getFeeShip());
             newOrder.setOrderItems(orderItems);
-            ordersTotal += newOrder.getTotal();
+            ordersTotalPrice += newOrder.getTotal();
 
             Order result = orderRepo.save(newOrder);
             log.info("Order with ID = " + result.getOrderId() + " created successfully");
@@ -176,11 +177,11 @@ public class OrderServiceImpl implements OrderService {
 
         //Update point process
         if (body.getIsPointSpent() != null && body.getIsPointSpent()) {
-            if (ordersTotal <= customer.getPoint()) {
-                customer.setPoint(customer.getPoint() - ordersTotal);
-                ordersTotal = 0;
+            if (ordersTotalPrice <= customer.getPoint()) {
+                customer.setPoint(customer.getPoint() - ordersTotalPrice);
+                ordersTotalPrice = 0;
             } else {
-                ordersTotal -= customer.getPoint();
+                ordersTotalPrice -= customer.getPoint();
                 customer.setPoint(0);
             }
         }
@@ -188,7 +189,7 @@ public class OrderServiceImpl implements OrderService {
 
         String paymentUrl = null;
         if (!body.getPaymentType().equals(COD))
-            paymentUrl = processOnlPayment(body.getPaymentType(), ordersTotal, req, orders);
+            paymentUrl = processOnlPayment(body.getPaymentType(), ordersTotalPrice, req, orders);
         else orders.forEach(emailService::sendOrderConfirmation);
 
         return OrdersCreationResponse.builder()
@@ -206,7 +207,7 @@ public class OrderServiceImpl implements OrderService {
                     vnPayTransRepo.save(VNPAYTransaction.builder()
                             .order(order)
                             .vnp_TxnRef(paymentResponse.getVnp_TxnRef())
-                            .trans_date(null)
+                            .trans_date(paymentResponse.getVnp_CreateDate())
                             .build())
             );
             return paymentResponse.getPaymentUrl();
@@ -277,12 +278,31 @@ public class OrderServiceImpl implements OrderService {
         List<VNPAYTransaction> vnpayTransactions = vnPayTransRepo.findAllByVnp_TxnRef(vnp_TxnRef);
         if (vnpayTransactions.isEmpty()) throw new ResourceNotFoundException("Transactions not found");
 
-        vnpayTransactions.forEach(vnpayTransaction -> {
-            Order order = vnpayTransaction.getOrder();
+        List<Order> orders = new ArrayList<>();
+        vnpayTransactions.forEach(transaction -> {
+            Order order = transaction.getOrder();
             order.setOrderStatus(ORDERED);
-            orderRepo.save(order);
-            emailService.sendOrderConfirmation(order);
+            orders.add(order);
         });
+        orderRepo.saveAll(orders);
+        orders.forEach(emailService::sendOrderConfirmation);
+    }
+
+    @Override
+    public PaymentResponse payUnPaidOrder(Integer orderId, HttpServletRequest req) throws UnsupportedEncodingException {
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        PaymentResponse paymentResponse = vnpayService.createPayment(order.getTotal(), null, null, req);
+        vnPayTransRepo.deleteAllByOrder(order);
+        vnPayTransRepo.save(VNPAYTransaction.builder()
+                .vnp_TxnRef(paymentResponse.getVnp_TxnRef())
+                .order(order)
+                .total(order.getTotal())
+                .trans_date(paymentResponse.getVnp_CreateDate())
+                .build());
+
+        return paymentResponse;
     }
 
     @Override

@@ -81,6 +81,7 @@ public class VNPAYServiceImpl implements VNPAYService {
                 .message("success")
                 .paymentUrl(paymentUrl)
                 .vnp_TxnRef(vnp_Params.get("vnp_TxnRef"))
+                .vnp_CreateDate(vnp_Params.get("vnp_CreateDate"))
                 .build();
     }
 
