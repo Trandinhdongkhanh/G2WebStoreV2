@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.request.ReviewRequest;
+import com.hcmute.g2webstorev2.dto.response.ProductReviewsRes;
 import com.hcmute.g2webstorev2.dto.response.ReviewResponse;
 import com.hcmute.g2webstorev2.enums.ReviewSortType;
 import com.hcmute.g2webstorev2.service.ReviewService;
@@ -39,9 +40,8 @@ public class ReviewController {
     ) {
         return ResponseEntity.ok(reviewService.addShopFeedBack(reviewId, feedBack));
     }
-
     @GetMapping("/product/{id}")
-    public ResponseEntity<Page<ReviewResponse>> getReviewsByProduct(
+    public ResponseEntity<ProductReviewsRes> getReviewsByProduct(
             @PathVariable("id") @NotNull(message = "Product ID must not be null")
             @Min(value = 1, message = "Product ID must not be less than 1") Integer id,
             @RequestParam(value = "rating", required = false) Integer rating,

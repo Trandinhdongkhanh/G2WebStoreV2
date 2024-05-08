@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.dto.request.ReviewRequest;
+import com.hcmute.g2webstorev2.dto.response.ProductReviewsRes;
 import com.hcmute.g2webstorev2.dto.response.ReviewResponse;
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.GCPFile;
@@ -66,25 +67,41 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Page<ReviewResponse> getReviewsByProduct(Integer id, Integer rating, ReviewSortType sortType,
-                                                    int pageNum, int pageSize) {
+    public ProductReviewsRes getReviewsByProduct(Integer id, Integer rating, ReviewSortType sortType,
+                                                 int pageNum, int pageSize) {
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + id + " not found"));
 
+        Page<Review> reviews = reviewRepo.findAllByProduct(product, PageRequest.of(pageNum, pageSize));
+        long totalRateCount = reviews.getTotalElements();
+        long fiveStarRateCount = reviews.filter(review -> review.getRate() == 5).stream().count();
+        long fourStarRateCount = reviews.filter(review -> review.getRate() == 4).stream().count();
+        long threeStarRateCount = reviews.filter(review -> review.getRate() == 3).stream().count();
+        long twoStarRateCount = reviews.filter(review -> review.getRate() == 2).stream().count();
+        long oneStarRateCount = reviews.filter(review -> review.getRate() == 1).stream().count();
+        long totalRateValue = 0;
+        for (Review review : reviews) totalRateValue += review.getRate();
+        long avgRate = totalRateValue / totalRateCount;
+
+        ProductReviewsRes resp = ProductReviewsRes.builder()
+                .avgRate(avgRate)
+                .totalRateCount(totalRateCount)
+                .fiveStarRateCount(fiveStarRateCount)
+                .fourStarRateCount(fourStarRateCount)
+                .threeStarRateCount(threeStarRateCount)
+                .twoStarRateCount(twoStarRateCount)
+                .oneStarRateCount(oneStarRateCount)
+                .build();
+
         if (sortType != null) {
             switch (sortType) {
-                case RECENTLY -> {
-                   return getProductReviewsByRatingRecently(rating, product, pageNum, pageSize);
-                }
-                case RATING_ASC -> {
-                    return getProductReviewsByRatingAsc(rating, product, pageNum, pageSize);
-                }
-                case RATING_DESC -> {
-                    return getProductReviewsByRatingDesc(rating, product, pageNum, pageSize);
-                }
+                case RECENTLY -> resp.setReviews(getProductReviewsByRatingRecently(rating, product, pageNum, pageSize));
+                case RATING_ASC -> resp.setReviews(getProductReviewsByRatingAsc(rating, product, pageNum, pageSize));
+                case RATING_DESC -> resp.setReviews(getProductReviewsByRatingDesc(rating, product, pageNum, pageSize));
             }
         }
-        return getProductReviewsByRatingRecently(rating, product, pageNum, pageSize);
+        resp.setReviews(getProductReviewsByRatingRecently(rating, product, pageNum, pageSize));
+        return resp;
     }
 
     private Page<ReviewResponse> getProductReviewsByRatingDesc(Integer rating, Product product, int pageNum, int pageSize) {
