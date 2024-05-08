@@ -42,34 +42,28 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed, SortType sortType,
                                                    Integer startPrice, Integer endPrice, Integer districtId) {
-        if (sortType == null)
-            return productRepo
-                    .findAllByName(name, PageRequest.of(pageNumber, pageSize), seed)
-                    .map(Mapper::toProductResponse);
-        switch (sortType) {
-            case NEWEST -> {
-                return getNewestProductsByName(name, startPrice, endPrice, pageNumber, pageSize);
-            }
-            case TOP_SELLER -> {
-                return getTopSellProductsByName(name, startPrice, endPrice, pageNumber, pageSize);
-            }
-            case PRICE_DESC -> {
-                return getProductsByNameAndPriceDesc(name, startPrice, endPrice, pageNumber, pageSize);
-            }
-            case PRICE_ASC -> {
-                return getProductsByNameAndPriceAsc(name, startPrice, endPrice, pageNumber, pageSize);
-            }
-            case DEFAULT -> {
-                return getDefaultProductsByName(name, startPrice, endPrice, pageNumber, pageSize, seed);
-            }
-            default -> {
-                return productRepo.findAllByName(
-                        name,
-                        PageRequest.of(pageNumber, pageSize),
-                        seed
-                ).map(Mapper::toProductResponse);
+        if (sortType != null) {
+            switch (sortType) {
+                case NEWEST -> {
+                    return getNewestProductsByName(name, startPrice, endPrice, pageNumber, pageSize);
+                }
+                case TOP_SELLER -> {
+                    return getTopSellProductsByName(name, startPrice, endPrice, pageNumber, pageSize);
+                }
+                case PRICE_DESC -> {
+                    return getProductsByNameAndPriceDesc(name, startPrice, endPrice, pageNumber, pageSize);
+                }
+                case PRICE_ASC -> {
+                    return getProductsByNameAndPriceAsc(name, startPrice, endPrice, pageNumber, pageSize);
+                }
+                case DEFAULT -> {
+                    return getDefaultProductsByName(name, startPrice, endPrice, pageNumber, pageSize, seed);
+                }
             }
         }
+        return productRepo
+                .findAllByName(name, PageRequest.of(pageNumber, pageSize), seed)
+                .map(Mapper::toProductResponse);
     }
 
     private Page<ProductResponse> getDefaultProductsByName(String name, Integer startPrice, Integer endPrice,
@@ -347,32 +341,28 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductResponse> getProductsByCategory(Integer id, int pageNumber, int pageSize, Integer seed,
                                                        SortType sortType, Integer startPrice, Integer endPrice,
                                                        Integer districtId) {
-        if (sortType == null)
-            return productRepo
-                    .findAllByCategory(getPath(id), PageRequest.of(pageNumber, pageSize), seed)
-                    .map(Mapper::toProductResponse);
-        switch (sortType) {
-            case NEWEST -> {
-                return getNewestProductsByCategory(id, startPrice, endPrice, pageNumber, pageSize);
-            }
-            case TOP_SELLER -> {
-                return getTopSellProductsByCategory(id, startPrice, endPrice, pageNumber, pageSize);
-            }
-            case PRICE_DESC -> {
-                return getProductsByCategoryAndPriceDesc(id, startPrice, endPrice, pageNumber, pageSize);
-            }
-            case PRICE_ASC -> {
-                return getProductsByCategoryAndPriceAsc(id, startPrice, endPrice, pageNumber, pageSize);
-            }
-            case DEFAULT -> {
-                return getDefaultProductsByCategory(id, startPrice, endPrice, pageNumber, pageSize, seed);
-            }
-            default -> {
-                return productRepo
-                        .findAllByCategory(getPath(id), PageRequest.of(pageNumber, pageSize), seed)
-                        .map(Mapper::toProductResponse);
+        if (sortType != null) {
+            switch (sortType) {
+                case NEWEST -> {
+                    return getNewestProductsByCategory(id, startPrice, endPrice, pageNumber, pageSize);
+                }
+                case TOP_SELLER -> {
+                    return getTopSellProductsByCategory(id, startPrice, endPrice, pageNumber, pageSize);
+                }
+                case PRICE_DESC -> {
+                    return getProductsByCategoryAndPriceDesc(id, startPrice, endPrice, pageNumber, pageSize);
+                }
+                case PRICE_ASC -> {
+                    return getProductsByCategoryAndPriceAsc(id, startPrice, endPrice, pageNumber, pageSize);
+                }
+                case DEFAULT -> {
+                    return getDefaultProductsByCategory(id, startPrice, endPrice, pageNumber, pageSize, seed);
+                }
             }
         }
+        return productRepo
+                .findAllByCategory(getPath(id), PageRequest.of(pageNumber, pageSize), seed)
+                .map(Mapper::toProductResponse);
     }
 
     @Override

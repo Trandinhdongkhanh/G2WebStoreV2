@@ -9,7 +9,7 @@ import com.hcmute.g2webstorev2.dto.response.VNPayTransactionRefundRes;
 import com.hcmute.g2webstorev2.service.VNPAYService;
 import com.hcmute.g2webstorev2.util.VNPAYUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,11 +21,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class VNPAYServiceImpl implements VNPAYService {
-    @Autowired
-    private VNPAYUtil vnpayUtil;
-    @Autowired
-    private VNPAYConfig vnpayConfig;
+    private final VNPAYUtil vnpayUtil;
+    private final VNPAYConfig vnpayConfig;
 
     private Map<String, String> getVNPayParams(long amount, String bankCode, String vnp_TxnRef, String vnp_IpAddr,
                                                String vnp_Command, String locate) {

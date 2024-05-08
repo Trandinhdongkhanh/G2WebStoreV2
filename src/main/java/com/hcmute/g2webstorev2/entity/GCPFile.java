@@ -21,6 +21,9 @@ public class GCPFile {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     private Product product;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "review_id")
+    private Review review;
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     private Customer customer;

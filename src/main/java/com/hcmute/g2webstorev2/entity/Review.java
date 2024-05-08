@@ -3,6 +3,8 @@ package com.hcmute.g2webstorev2.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -17,7 +19,8 @@ public class Review {
     @Column(name = "review_id")
     private Integer id;
     private String content;
-    private String images;
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
+    private List<GCPFile> files;
     private Integer rate;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")

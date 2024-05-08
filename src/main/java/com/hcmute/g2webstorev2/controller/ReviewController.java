@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,11 +22,22 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping("/me")
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<ReviewResponse> createReview(@Valid @RequestBody ReviewRequest body) {
+    @PreAuthorize("hasRole('CUSTOMER') or hasAnyAuthority('CREATE_REVIEW')")
+    public ResponseEntity<ReviewResponse> createReview(
+            @Valid @ModelAttribute ReviewRequest body,
+            @RequestParam(value = "files", required = false) MultipartFile[] files) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(reviewService.createReview(body));
+                .body(reviewService.createReview(body, files));
+    }
+
+    @PutMapping("/{reviewId}/shop-feedback")
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'JUNIOR_CHAT_AGENT') or hasAnyAuthority('UPDATE_REVIEW')")
+    public ResponseEntity<ReviewResponse> updateShopFeedBack(
+            @PathVariable("reviewId") Integer reviewId,
+            @RequestParam("feedBack") String feedBack
+    ) {
+        return ResponseEntity.ok(reviewService.addShopFeedBack(reviewId, feedBack));
     }
 
     @GetMapping("/product/{id}")

@@ -203,7 +203,7 @@ public class Mapper {
         return ReviewResponse.builder()
                 .reviewId(review.getId())
                 .content(review.getContent())
-                .images(review.getImages())
+                .files(review.getFiles().stream().map(Mapper::toGCPFileResponse).collect(Collectors.toList()))
                 .rate(review.getRate())
                 .customerName(review.getCustomer().getFullName())
                 .productId(review.getProduct().getProductId())

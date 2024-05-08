@@ -3,6 +3,8 @@ package com.hcmute.g2webstorev2.dto.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -12,7 +14,7 @@ public class ReviewResponse {
     @JsonProperty("review_id")
     private Integer reviewId;
     private String content;
-    private String images;
+    private List<GCPFileResponse> files;
     private Integer rate;
     @JsonProperty("customer_name")
     private String customerName;
