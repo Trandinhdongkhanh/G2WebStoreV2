@@ -61,9 +61,7 @@ public class ProductServiceImpl implements ProductService {
                 }
             }
         }
-        return productRepo
-                .findAllByName(name, PageRequest.of(pageNumber, pageSize), seed)
-                .map(Mapper::toProductResponse);
+        return getDefaultProductsByName(name, startPrice, endPrice, pageNumber, pageSize, seed);
     }
 
     private Page<ProductResponse> getDefaultProductsByName(String name, Integer startPrice, Integer endPrice,
@@ -360,9 +358,7 @@ public class ProductServiceImpl implements ProductService {
                 }
             }
         }
-        return productRepo
-                .findAllByCategory(getPath(id), PageRequest.of(pageNumber, pageSize), seed)
-                .map(Mapper::toProductResponse);
+        return getDefaultProductsByCategory(id, startPrice, endPrice, pageNumber, pageSize, seed);
     }
 
     @Override

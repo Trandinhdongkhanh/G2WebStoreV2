@@ -6,6 +6,7 @@ import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.GCPFile;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.entity.Review;
+import com.hcmute.g2webstorev2.enums.ReviewSortType;
 import com.hcmute.g2webstorev2.exception.ProductReviewedException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
@@ -15,14 +16,15 @@ import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -64,12 +66,68 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewResponse> getReviewByProduct(Integer id) {
+    public Page<ReviewResponse> getReviewsByProduct(Integer id, Integer rating, ReviewSortType sortType,
+                                                    int pageNum, int pageSize) {
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + id + " not found"));
-        return reviewRepo.findAllByProduct(product)
-                .stream().map(Mapper::toReviewResponse)
-                .collect(Collectors.toList());
+
+        if (sortType != null) {
+            switch (sortType) {
+                case RECENTLY -> {
+                   return getProductReviewsByRatingRecently(rating, product, pageNum, pageSize);
+                }
+                case RATING_ASC -> {
+                    return getProductReviewsByRatingAsc(rating, product, pageNum, pageSize);
+                }
+                case RATING_DESC -> {
+                    return getProductReviewsByRatingDesc(rating, product, pageNum, pageSize);
+                }
+            }
+        }
+        return getProductReviewsByRatingRecently(rating, product, pageNum, pageSize);
+    }
+
+    private Page<ReviewResponse> getProductReviewsByRatingDesc(Integer rating, Product product, int pageNum, int pageSize) {
+        if (rating != null)
+            return reviewRepo
+                    .findAllByProductAndRate(
+                            product,
+                            rating,
+                            PageRequest.of(pageNum, pageSize, Sort.by("rate").descending()))
+                    .map(Mapper::toReviewResponse);
+
+        return reviewRepo
+                .findAllByProduct(product, PageRequest.of(pageNum, pageSize, Sort.by("rate").descending()))
+                .map(Mapper::toReviewResponse);
+    }
+
+    private Page<ReviewResponse> getProductReviewsByRatingAsc(Integer rating, Product product, int pageNum, int pageSize) {
+        if (rating != null)
+            return reviewRepo
+                    .findAllByProductAndRate(
+                            product,
+                            rating,
+                            PageRequest.of(pageNum, pageSize, Sort.by("rate").ascending()))
+                    .map(Mapper::toReviewResponse);
+
+        return reviewRepo
+                .findAllByProduct(product, PageRequest.of(pageNum, pageSize, Sort.by("rate").ascending()))
+                .map(Mapper::toReviewResponse);
+    }
+
+    private Page<ReviewResponse> getProductReviewsByRatingRecently(Integer rating, Product product,
+                                                                   int pageNum, int pageSize) {
+        if (rating != null)
+            return reviewRepo
+                    .findAllByProductAndRate(
+                            product,
+                            rating,
+                            PageRequest.of(pageNum, pageSize, Sort.by("id").descending()))
+                    .map(Mapper::toReviewResponse);
+
+        return reviewRepo
+                .findAllByProduct(product, PageRequest.of(pageNum, pageSize, Sort.by("id").descending()))
+                .map(Mapper::toReviewResponse);
     }
 
     @Override
