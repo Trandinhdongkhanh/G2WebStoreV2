@@ -29,7 +29,8 @@ public class AddressServiceImpl implements AddressService {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         return addressRepo.findAllByCustomer(customer)
-                .stream().map(Mapper::toAddressResponse)
+                .stream().filter(address -> !address.isDeleted())
+                .map(Mapper::toAddressResponse)
                 .collect(Collectors.toList());
     }
 
@@ -77,6 +78,7 @@ public class AddressServiceImpl implements AddressService {
                         .receiverPhoneNo(body.getReceiverPhoneNo())
                         .receiverName(body.getReceiverName())
                         .isDefault(body.isDefault())
+                        .isDeleted(false)
                         .build()
         ));
 
@@ -90,7 +92,7 @@ public class AddressServiceImpl implements AddressService {
         Address address = addressRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Address with ID = " + id + " not found"));
 
-        addressRepo.delete(address);
+        address.setDeleted(true);
         log.info("Address with ID = " + id + " deleted successfully");
     }
 }

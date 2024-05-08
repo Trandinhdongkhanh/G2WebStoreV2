@@ -26,4 +26,5 @@ public class Address {
     private String receiverName;
     private String receiverPhoneNo;
     private boolean isDefault;
+    private boolean isDeleted;
 }

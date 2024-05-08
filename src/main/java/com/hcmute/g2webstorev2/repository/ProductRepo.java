@@ -52,9 +52,18 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "order by rand(:seed)")
     Page<Product> findAllByName(String name, Pageable pageable, Integer seed);
 
+    @Query("select p from Product p " +
+            "where p.name like :name%")
     Page<Product> findAllByName(String name, Pageable pageable);
 
+    @Query("select p from Product p " +
+            "where p.name like :name% " +
+            "and p.price between :startPrice and :endPrice")
     Page<Product> findAllByNameAndPriceBetween(String name, Integer startPrice, Integer endPrice, Pageable pageable);
+    @Query("select p from Product p " +
+            "where p.name like :name% " +
+            "and p.price between :startPrice and :endPrice " +
+            "order by rand(:seed)")
     Page<Product> findAllByNameAndPriceBetween(String name, Integer startPrice, Integer endPrice, Pageable pageable, Integer seed);
 
     Page<Product> findAllByShopCategory(ShopCategory shopCategory, Pageable pageable);

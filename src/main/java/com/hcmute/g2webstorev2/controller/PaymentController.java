@@ -34,6 +34,22 @@ public class PaymentController {
         return ResponseEntity.ok(vnpayService.createPayment(reqAmount, bankCode, language, req));
     }
 
+    @GetMapping("/refund")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<VNPayTransactionRefundRes> refund(
+            @RequestParam("vnp_CreateBy") String vnp_CreateBy,
+            @RequestParam("vnp_TransactionDate") String vnp_TransactionDate,
+            @RequestParam("vnp_TxnRef") String vnp_TxnRef,
+//        02: Giao dịch hoàn trả toàn phần (vnp_TransactionType=02)
+//        03: Giao dịch hoàn trả một phần (vnp_TransactionType=03)
+            @RequestParam("vnp_TransactionType") String vnp_TransactionType,
+            @RequestParam("reqAmount") int reqAmount,
+            HttpServletRequest req
+    ) {
+        return ResponseEntity.ok(vnpayService.refund(
+                reqAmount, vnp_TxnRef, req, vnp_TransactionType, vnp_TransactionDate, vnp_CreateBy));
+    }
+
     @GetMapping("/query-transaction-from-vnpay")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<VNPayTransactionQueryRes> getTransactionInfoFromVNPay(

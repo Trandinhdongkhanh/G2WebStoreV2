@@ -42,6 +42,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed, SortType sortType,
                                                    Integer startPrice, Integer endPrice, Integer districtId) {
+        if (sortType == null)
+            return productRepo
+                    .findAllByName(name, PageRequest.of(pageNumber, pageSize), seed)
+                    .map(Mapper::toProductResponse);
         switch (sortType) {
             case NEWEST -> {
                 return getNewestProductsByName(name, startPrice, endPrice, pageNumber, pageSize);
@@ -343,6 +347,10 @@ public class ProductServiceImpl implements ProductService {
     public Page<ProductResponse> getProductsByCategory(Integer id, int pageNumber, int pageSize, Integer seed,
                                                        SortType sortType, Integer startPrice, Integer endPrice,
                                                        Integer districtId) {
+        if (sortType == null)
+            return productRepo
+                    .findAllByCategory(getPath(id), PageRequest.of(pageNumber, pageSize), seed)
+                    .map(Mapper::toProductResponse);
         switch (sortType) {
             case NEWEST -> {
                 return getNewestProductsByCategory(id, startPrice, endPrice, pageNumber, pageSize);
