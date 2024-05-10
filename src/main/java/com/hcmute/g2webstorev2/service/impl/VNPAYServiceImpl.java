@@ -145,7 +145,7 @@ public class VNPAYServiceImpl implements VNPAYService {
         String vnp_TmnCode = vnpayConfig.getVnp_TmnCode();
         long amount = reqAmount * 100L;
         String vnp_Amount = String.valueOf(amount);
-        String vnp_OrderInfo = "Hoan tien GD OrderId:" + vnp_TxnRef;
+        String vnp_OrderInfo = "Hoan tien GD OrderId: " + vnp_TxnRef;
         String vnp_TransactionNo = ""; //Assuming value of the parameter "vnp_TransactionNo" does not exist on your system.
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));

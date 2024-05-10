@@ -15,8 +15,8 @@ import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
 import com.hcmute.g2webstorev2.repository.VoucherRepo;
 import com.hcmute.g2webstorev2.service.VoucherService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,13 +33,11 @@ import static com.hcmute.g2webstorev2.enums.DiscountType.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class VoucherServiceImpl implements VoucherService {
-    @Autowired
-    private VoucherRepo voucherRepo;
-    @Autowired
-    private ProductRepo productRepo;
-    @Autowired
-    private ShopRepo shopRepo;
+    private final VoucherRepo voucherRepo;
+    private final ProductRepo productRepo;
+    private final ShopRepo shopRepo;
 
     @Override
     @Transactional

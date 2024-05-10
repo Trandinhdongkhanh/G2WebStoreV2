@@ -3,14 +3,12 @@ package com.hcmute.g2webstorev2.service.impl;
 import com.hcmute.g2webstorev2.dto.request.ReviewRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductReviewsRes;
 import com.hcmute.g2webstorev2.dto.response.ReviewResponse;
-import com.hcmute.g2webstorev2.entity.Customer;
-import com.hcmute.g2webstorev2.entity.GCPFile;
-import com.hcmute.g2webstorev2.entity.Product;
-import com.hcmute.g2webstorev2.entity.Review;
+import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.ReviewSortType;
 import com.hcmute.g2webstorev2.exception.ProductReviewedException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
+import com.hcmute.g2webstorev2.repository.OrderItemRepo;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.repository.ReviewRepo;
 import com.hcmute.g2webstorev2.service.FileService;
@@ -35,16 +33,19 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepo reviewRepo;
     private final ProductRepo productRepo;
     private final FileService fileService;
+    private final OrderItemRepo orderItemRepo;
 
     @Override
     @Transactional
     public ReviewResponse createReview(ReviewRequest body, MultipartFile[] files) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Product product = productRepo.findById(body.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + body.getProductId() + " not found"));
+        OrderItem orderItem = orderItemRepo.findById(body.getOrderItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order Item not found"));
+        Product product = productRepo.findById(orderItem.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Can't create review, product not found"));
 
-        if (reviewRepo.existsByCustomerAndProduct(customer, product))
+        if (orderItem.isReviewed())
             throw new ProductReviewedException("Product reviewed, can't create new review for this product");
 
         Review review = Review.builder()
@@ -63,6 +64,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         ReviewResponse res = Mapper.toReviewResponse(reviewRepo.save(review));
         log.info("Review with ID = " + res.getReviewId() + " created successfully");
+        orderItem.setReviewed(true);
         return res;
     }
 
@@ -99,8 +101,7 @@ public class ReviewServiceImpl implements ReviewService {
                 case RATING_ASC -> resp.setReviews(getProductReviewsByRatingAsc(rating, product, pageNum, pageSize));
                 case RATING_DESC -> resp.setReviews(getProductReviewsByRatingDesc(rating, product, pageNum, pageSize));
             }
-        }
-        resp.setReviews(getProductReviewsByRatingRecently(rating, product, pageNum, pageSize));
+        } else resp.setReviews(getProductReviewsByRatingRecently(rating, product, pageNum, pageSize));
         return resp;
     }
 

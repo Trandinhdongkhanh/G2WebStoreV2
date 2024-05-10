@@ -221,6 +221,7 @@ public class Mapper {
                 .orderId(orderItem.getOrder().getOrderId())
                 .productId(orderItem.getProductId())
                 .subTotal(orderItem.getQuantity() * orderItem.getPrice())
+                .isReviewed(orderItem.isReviewed())
                 .build();
     }
 }

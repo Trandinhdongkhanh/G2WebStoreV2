@@ -25,4 +25,5 @@ public class OrderItem {
     @Transient
     private Integer subTotal;
     private Integer productId;
+    private boolean isReviewed;
 }

@@ -21,4 +21,6 @@ public class OrderItemResponse {
     private Integer productId;
     @JsonProperty("sub_total")
     private Integer subTotal;
+    @JsonProperty("is_reviewed")
+    private boolean isReviewed;
 }

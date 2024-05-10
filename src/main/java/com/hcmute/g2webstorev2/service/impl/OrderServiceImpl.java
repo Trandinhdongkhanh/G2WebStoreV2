@@ -89,6 +89,7 @@ public class OrderServiceImpl implements OrderService {
                     .quantity(cartItem.getQuantity())
                     .name(cartItem.getProduct().getName())
                     .productId(cartItem.getProduct().getProductId())
+                    .isReviewed(false)
                     .order(order)
                     .build();
 
