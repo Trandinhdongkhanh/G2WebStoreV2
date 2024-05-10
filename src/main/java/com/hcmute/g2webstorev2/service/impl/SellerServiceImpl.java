@@ -21,9 +21,9 @@ import com.hcmute.g2webstorev2.service.EmailService;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.SellerService;
 import com.hcmute.g2webstorev2.service.TokenService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,27 +44,18 @@ import static com.hcmute.g2webstorev2.enums.AppRole.SELLER_FULL_ACCESS;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SellerServiceImpl implements SellerService {
-    @Autowired
-    private SellerRepo sellerRepo;
-    @Autowired
-    private ShopRepo shopRepo;
-    @Autowired
-    private RoleRepo roleRepo;
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private AuthenticationManager authManager;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private TokenService tokenService;
-    @Autowired
-    private FileService fileService;
-    @Autowired
-    private OTPRepo otpRepo;
-    @Autowired
-    private EmailService emailService;
+    private final SellerRepo sellerRepo;
+    private final ShopRepo shopRepo;
+    private final RoleRepo roleRepo;
+    private final JwtService jwtService;
+    private final AuthenticationManager authManager;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
+    private final FileService fileService;
+    private final OTPRepo otpRepo;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -78,6 +69,7 @@ public class SellerServiceImpl implements SellerService {
         Shop shop = shopRepo.save(Shop.builder()
                 .image(null)
                 .name(body.getEmail())
+                .balance(0L)
                 .build());
 
         log.info("Shop with ID = " + shop.getShopId() + " created successfully");

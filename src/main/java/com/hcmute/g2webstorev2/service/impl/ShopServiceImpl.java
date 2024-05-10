@@ -10,6 +10,7 @@ import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ShopService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,11 +22,10 @@ import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ShopServiceImpl implements ShopService {
-    @Autowired
-    private ShopRepo shopRepo;
-    @Autowired
-    private FileService fileService;
+    private final ShopRepo shopRepo;
+    private final FileService fileService;
 
     @Override
     public ShopResponse getShopInfo(Integer id) {
