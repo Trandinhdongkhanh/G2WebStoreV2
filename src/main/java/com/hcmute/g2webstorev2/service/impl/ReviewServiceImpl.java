@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 @Service
@@ -81,12 +82,15 @@ public class ReviewServiceImpl implements ReviewService {
         long threeStarRateCount = reviews.filter(review -> review.getRate() == 3).stream().count();
         long twoStarRateCount = reviews.filter(review -> review.getRate() == 2).stream().count();
         long oneStarRateCount = reviews.filter(review -> review.getRate() == 1).stream().count();
+
         long totalRateValue = 0;
+        double avgRate = 0.0;
         for (Review review : reviews) totalRateValue += review.getRate();
-        long avgRate = totalRateValue / totalRateCount;
+        if (totalRateCount != 0) avgRate = (double) totalRateValue / totalRateCount;
+        double roundedAvgRate = Math.round(avgRate * 10.0) / 10.0; // làm tròn đến 1 chữ số thập phân
 
         ProductReviewsRes resp = ProductReviewsRes.builder()
-                .avgRate(avgRate)
+                .avgRate(roundedAvgRate)
                 .totalRateCount(totalRateCount)
                 .fiveStarRateCount(fiveStarRateCount)
                 .fourStarRateCount(fourStarRateCount)

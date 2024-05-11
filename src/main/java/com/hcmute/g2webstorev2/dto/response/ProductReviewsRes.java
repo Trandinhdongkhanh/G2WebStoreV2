@@ -11,7 +11,7 @@ import org.springframework.data.domain.Page;
 @Builder
 public class ProductReviewsRes {
     @JsonProperty("avg_rate")
-    private Long avgRate;
+    private Double avgRate;
     @JsonProperty("total_rate_count")
     private Long totalRateCount;
     @JsonProperty("five_star_rate_count")

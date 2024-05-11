@@ -19,7 +19,6 @@ public class ReviewRequest {
     @Max(value = 5, message = "Star rate must be smaller than 6")
     @NotNull(message = "Star rate cannot be null")
     private Integer rate;
-    @JsonProperty("order_item_id")
     @NotNull(message = "Order Item ID cannot be null")
     @Min(value = 1, message = "Product ID must be greater than 0")
     private Integer orderItemId;
