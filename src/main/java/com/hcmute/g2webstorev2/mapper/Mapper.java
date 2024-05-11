@@ -200,10 +200,13 @@ public class Mapper {
     }
 
     public static ReviewResponse toReviewResponse(Review review) {
+        List<GCPFileResponse> files = null;
+        if (review.getFiles() != null)
+            files = review.getFiles().stream().map(Mapper::toGCPFileResponse).collect(Collectors.toList());
         return ReviewResponse.builder()
                 .reviewId(review.getId())
                 .content(review.getContent())
-                .files(review.getFiles().stream().map(Mapper::toGCPFileResponse).collect(Collectors.toList()))
+                .files(files)
                 .rate(review.getRate())
                 .customerName(review.getCustomer().getFullName())
                 .productId(review.getProduct().getProductId())
