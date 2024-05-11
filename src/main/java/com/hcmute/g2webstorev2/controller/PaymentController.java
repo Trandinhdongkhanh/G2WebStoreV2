@@ -107,6 +107,7 @@ public class PaymentController {
                         .build());
             }
         }
+        res.sendRedirect("http://localhost:8002");
         return ResponseEntity.badRequest().body(ReturnURLResponse.builder()
                 .message("Failed")
                 .vnp_Rsp(vnp_ResponseCode)

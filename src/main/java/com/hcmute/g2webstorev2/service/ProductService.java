@@ -9,12 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 
-
 public interface ProductService {
     Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed,
                                             SortType sortType, Integer startPrice, Integer endPrice, Integer districtId);
 
-    Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed);
+    Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed, SortType sortType,
+                                         Integer startPrice, Integer endPrice, Integer districtId);
 
     ProductResponse getProduct(Integer id);
 

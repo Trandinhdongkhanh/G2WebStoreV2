@@ -35,10 +35,15 @@ public class ProductController {
             @NotNull(message = "Page size must not be null")
             Integer pageSize,
 
-            @RequestParam(value = "seed")
-            Integer seed) {
+            @RequestParam(value = "seed") Integer seed,
+            @RequestParam(value = "sort", required = false) SortType sortType,
+            @RequestParam(value = "startPrice", required = false) Integer startPrice,
+            @RequestParam(value = "endPrice", required = false) Integer endPrice,
+            @RequestParam(value = "districtId", required = false) Integer districtId) {
         //Seed is used to randomize products. Each time a seed change products get randomized
-        return ResponseEntity.ok(productService.getAllProducts(pageNumber, pageSize, seed));
+        return ResponseEntity.ok(productService.getAllProducts(
+                pageNumber, pageSize, seed, sortType,
+                startPrice, endPrice, districtId));
     }
 
     @GetMapping("/shop/{shopId}")

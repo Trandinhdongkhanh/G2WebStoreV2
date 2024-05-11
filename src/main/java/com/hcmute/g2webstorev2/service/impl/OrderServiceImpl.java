@@ -297,6 +297,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public PaymentResponse payUnPaidOrder(Integer orderId, HttpServletRequest req) throws UnsupportedEncodingException {
         Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));

@@ -147,9 +147,89 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed) {
-        return productRepo.findRandomProducts(seed, PageRequest.of(pageNumber, pageSize))
+    public Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed, SortType sortType,
+                                                Integer startPrice, Integer endPrice, Integer districtId) {
+        if (sortType != null) {
+            switch (sortType) {
+                case DEFAULT -> {
+                    return getDefaultProducts(pageNumber, pageSize, seed, startPrice, endPrice, districtId);
+                }
+                case NEWEST -> {
+                    return getNewestProducts(pageNumber, pageSize, startPrice, endPrice, districtId);
+                }
+                case PRICE_ASC -> {
+                    return getProductsByPriceAsc(pageNumber, pageSize, startPrice, endPrice, districtId);
+                }
+                case PRICE_DESC -> {
+                    return getProductsByPriceDesc(pageNumber, pageSize, startPrice, endPrice, districtId);
+                }
+                case TOP_SELLER -> {
+                    return getTopSellProducts(pageNumber, pageSize, startPrice, endPrice, districtId);
+                }
+            }
+        }
+        return getDefaultProducts(pageNumber, pageSize, seed, startPrice, endPrice, districtId);
+    }
+
+    private Page<ProductResponse> getTopSellProducts(int pageNumber, int pageSize, Integer startPrice,
+                                                     Integer endPrice, Integer districtId) {
+        if (startPrice != null && endPrice != null)
+            return productRepo.findAllByPriceBetween(
+                            startPrice,
+                            endPrice,
+                            PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").descending()))
+                    .map(Mapper::toProductResponse);
+
+        return productRepo.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").descending()))
                 .map(Mapper::toProductResponse);
+    }
+
+    private Page<ProductResponse> getProductsByPriceDesc(int pageNumber, int pageSize, Integer startPrice,
+                                                         Integer endPrice, Integer districtId) {
+        if (startPrice != null && endPrice != null)
+            return productRepo.findAllByPriceBetween(
+                            startPrice,
+                            endPrice,
+                            PageRequest.of(pageNumber, pageSize, Sort.by("price").descending()))
+                    .map(Mapper::toProductResponse);
+
+        return productRepo.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("price").descending()))
+                .map(Mapper::toProductResponse);
+    }
+
+    private Page<ProductResponse> getProductsByPriceAsc(int pageNumber, int pageSize, Integer startPrice,
+                                                        Integer endPrice, Integer districtId) {
+        if (startPrice != null && endPrice != null)
+            return productRepo.findAllByPriceBetween(
+                            startPrice,
+                            endPrice,
+                            PageRequest.of(pageNumber, pageSize, Sort.by("price").ascending()))
+                    .map(Mapper::toProductResponse);
+
+        return productRepo.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("price").ascending()))
+                .map(Mapper::toProductResponse);
+    }
+
+    private Page<ProductResponse> getNewestProducts(int pageNumber, int pageSize, Integer startPrice, Integer endPrice,
+                                                    Integer districtId) {
+        if (startPrice != null && endPrice != null)
+            return productRepo.findAllByPriceBetween(
+                            startPrice,
+                            endPrice,
+                            PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending()))
+                    .map(Mapper::toProductResponse);
+
+        return productRepo.findAll(PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending()))
+                .map(Mapper::toProductResponse);
+    }
+
+    private Page<ProductResponse> getDefaultProducts(int pageNumber, int pageSize, Integer seed, Integer startPrice,
+                                                     Integer endPrice, Integer districtId) {
+        if (startPrice != null && endPrice != null)
+            return productRepo.findAllByPriceBetween(startPrice, endPrice, seed, PageRequest.of(pageNumber, pageSize))
+                    .map(Mapper::toProductResponse);
+
+        return productRepo.findAll(seed, PageRequest.of(pageNumber, pageSize)).map(Mapper::toProductResponse);
     }
 
     @Override

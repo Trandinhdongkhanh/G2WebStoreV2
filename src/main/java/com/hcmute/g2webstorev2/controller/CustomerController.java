@@ -50,12 +50,7 @@ public class CustomerController {
                     .status(HttpStatus.CREATED)
                     .body("Please check your email for verification code");
         }
-        customerService.register(body);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("Please check your email for verification code");
-
-//        return ResponseEntity.badRequest().body("Please try again");
+        return ResponseEntity.badRequest().body("Please try again");
     }
 
     @PostMapping("/refresh-token")

@@ -61,6 +61,7 @@ public class GCPDataBucketUtil {
 
             log.debug("Start file uploading process on GCS");
             checkFileExtension(fileName);
+            String formattedFileName = fileName.trim().replaceAll("\\s+", "");  //Remove whitespaces
 
             InputStream inputStream = new ClassPathResource(gcpConfigFile).getInputStream();
 
@@ -71,7 +72,7 @@ public class GCPDataBucketUtil {
             Bucket bucket = storage.get(gcpBucketId, Storage.BucketGetOption.fields());
 
             String id = UUID.randomUUID().toString();
-            String gcpFileName = id + "-" + fileName;
+            String gcpFileName = id + "-" + formattedFileName;
             Blob blob = bucket.create(gcpFileName, multipartFile.getBytes(), contentType);
 
 

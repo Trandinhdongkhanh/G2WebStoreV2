@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -81,7 +82,8 @@ public class ReviewServiceImpl implements ReviewService {
         long threeStarRateCount = reviewRepo.countReviewsByRateAndProduct(3, product.getProductId());
         long twoStarRateCount = reviewRepo.countReviewsByRateAndProduct(2, product.getProductId());
         long oneStarRateCount = reviewRepo.countReviewsByRateAndProduct(1, product.getProductId());
-        long totalRateValue = reviewRepo.sumOfRatesByProduct(product.getProductId());
+        Long totalRateValue = reviewRepo.sumOfRatesByProduct(product.getProductId());
+        if (totalRateValue == null) totalRateValue = 0L;
         double avgRate = 0.0;
         if (totalRateCount != 0) avgRate = (double) totalRateValue / totalRateCount;
         double roundedAvgRate = Math.round(avgRate * 10.0) / 10.0; // làm tròn đến 1 chữ số thập phân

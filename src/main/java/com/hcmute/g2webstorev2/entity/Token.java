@@ -16,7 +16,8 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "token_id")
     private Integer tokenId;
-    @Column(length = 3000)
+    @Lob
+    @Column(columnDefinition = "MEDIUMBLOB")
     private String token;
     private TokenType tokenType;
     private boolean expired;
