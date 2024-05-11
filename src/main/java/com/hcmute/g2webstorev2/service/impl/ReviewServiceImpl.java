@@ -75,17 +75,14 @@ public class ReviewServiceImpl implements ReviewService {
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + id + " not found"));
 
-        Page<Review> reviews = reviewRepo.findAllByProduct(product, PageRequest.of(pageNum, pageSize));
-        long totalRateCount = reviews.getTotalElements();
-        long fiveStarRateCount = reviews.filter(review -> review.getRate() == 5).stream().count();
-        long fourStarRateCount = reviews.filter(review -> review.getRate() == 4).stream().count();
-        long threeStarRateCount = reviews.filter(review -> review.getRate() == 3).stream().count();
-        long twoStarRateCount = reviews.filter(review -> review.getRate() == 2).stream().count();
-        long oneStarRateCount = reviews.filter(review -> review.getRate() == 1).stream().count();
-
-        long totalRateValue = 0;
+        long totalRateCount = reviewRepo.countReviews();
+        long fiveStarRateCount = reviewRepo.countReviewsByRate(5);
+        long fourStarRateCount = reviewRepo.countReviewsByRate(4);
+        long threeStarRateCount = reviewRepo.countReviewsByRate(3);
+        long twoStarRateCount = reviewRepo.countReviewsByRate(2);
+        long oneStarRateCount = reviewRepo.countReviewsByRate(1);
+        long totalRateValue = reviewRepo.sumOfRates();
         double avgRate = 0.0;
-        for (Review review : reviews) totalRateValue += review.getRate();
         if (totalRateCount != 0) avgRate = (double) totalRateValue / totalRateCount;
         double roundedAvgRate = Math.round(avgRate * 10.0) / 10.0; // làm tròn đến 1 chữ số thập phân
 

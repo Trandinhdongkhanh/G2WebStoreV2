@@ -241,6 +241,10 @@ public class OrderServiceImpl implements OrderService {
         if (!Objects.equals(seller.getShop().getShopId(), order.getShop().getShopId()))
             throw new AccessDeniedException("You don't have permission on this order, access denied");
 
+        if (order.getOrderStatus().equals(UN_PAID))
+            throw new AccessDeniedException("Order is UNPAID, can't change status");
+
+
         if (status == RECEIVED && !isSevenDaysPassed(order.getDeliveredDate(), LocalDateTime.now()))
             throw new AccessDeniedException("You don't have permission to update the Order Status to '" + RECEIVED.name() + "'" +
                     ", please update after 7 days from delivered date");
@@ -269,6 +273,9 @@ public class OrderServiceImpl implements OrderService {
             shop.setBalance(shop.getBalance() + order.getTotal());
             shopRepo.save(shop);
         }
+
+        if (status.equals(REFUNDED))
+            throw new AccessDeniedException("Can't update order status to REFUNDED");
 
         return Mapper.toOrderResponse(order);
     }

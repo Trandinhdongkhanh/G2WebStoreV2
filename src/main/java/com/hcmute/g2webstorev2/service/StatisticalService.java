@@ -1,5 +1,7 @@
 package com.hcmute.g2webstorev2.service;
 
-public interface StatisticalService {
+import com.hcmute.g2webstorev2.dto.response.StatisticalRes;
 
+public interface StatisticalService {
+    StatisticalRes getStatistical();
 }
