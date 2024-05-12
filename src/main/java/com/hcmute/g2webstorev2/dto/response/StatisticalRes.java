@@ -11,8 +11,8 @@ public class StatisticalRes {
     private Long dayIncome;
     private Long weekIncome;
     private Long monthIncome;
-    private Integer unHandledOrderCount;
-    private Integer onDeliveredOrderCount;
-    private Integer successOrderCount;
-    private Integer unReviewedOrderCount;
+    private Long unHandledOrderCount;
+    private Long onDeliveredOrderCount;
+    private Long successOrderCount;
+    private Long unReviewedOrderCount;
 }

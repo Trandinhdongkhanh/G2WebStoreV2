@@ -243,6 +243,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (order.getOrderStatus().equals(UN_PAID))
             throw new AccessDeniedException("Order is UNPAID, can't change status");
+        if (status.equals(DELIVERED)) order.setDeliveredDate(LocalDateTime.now());
 
 
         if (status == RECEIVED && !isSevenDaysPassed(order.getDeliveredDate(), LocalDateTime.now()))
