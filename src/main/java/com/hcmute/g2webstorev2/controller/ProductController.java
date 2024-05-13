@@ -17,6 +17,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductController {
@@ -44,6 +46,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts(
                 pageNumber, pageSize, seed, sortType,
                 startPrice, endPrice, districtId));
+    }
+
+    @GetMapping("/top-five/shop/{shopId}")
+    public ResponseEntity<List<ProductResponse>> getTopFivePopularProducts(
+            @PathVariable("shopId")
+            @NotNull(message = "Shop ID must not null")
+            Integer shopId) {
+        return ResponseEntity.ok(productService.getTopFivePopularProductByShop(shopId));
     }
 
     @GetMapping("/shop/{shopId}")
@@ -180,15 +190,16 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('UPDATE_PRODUCT')")
     public ResponseEntity<String> addProductsToShopCate(
             @PathVariable("id") Integer id,
-            @Valid @RequestBody AddProductsToShopCateRequest body){
+            @Valid @RequestBody AddProductsToShopCateRequest body) {
         productService.addProductsToShopCate(id, body);
         return ResponseEntity.ok("Add successfully");
     }
+
     @GetMapping("/shop-category/{id}")
     public ResponseEntity<Page<ProductResponse>> getProductsByShopCate(
             @PathVariable("id") Integer id,
             @RequestParam("page") int pageNumber,
-            @RequestParam("size") int pageSize){
+            @RequestParam("size") int pageSize) {
         return ResponseEntity.ok(productService.getProductsByShopCate(id, pageNumber, pageSize));
     }
 }

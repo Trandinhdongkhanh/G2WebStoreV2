@@ -13,6 +13,9 @@ import com.hcmute.g2webstorev2.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,5 +79,11 @@ public class ShopServiceImpl implements ShopService {
         ShopResponse res = Mapper.toShopResponse(shopRepo.save(shop));
         log.info("Shop with ID = " + res.getShopId() + " upload image successfully");
         return res;
+    }
+
+    @Override
+    public Page<ShopResponse> getAllShops(int pageNum, int pageSize) {
+        return shopRepo.findAll(PageRequest.of(pageNum, pageSize, Sort.by("shopId").descending()))
+                .map(Mapper::toShopResponse);
     }
 }

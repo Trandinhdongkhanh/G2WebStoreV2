@@ -1,6 +1,5 @@
 package com.hcmute.g2webstorev2.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcmute.g2webstorev2.config.JwtService;
 import com.hcmute.g2webstorev2.dto.request.AuthRequest;
 import com.hcmute.g2webstorev2.dto.response.AdminResponse;
@@ -14,12 +13,9 @@ import com.hcmute.g2webstorev2.repository.AdminRepo;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
 import com.hcmute.g2webstorev2.service.AdminService;
 import com.hcmute.g2webstorev2.service.TokenService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,25 +25,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-
 import static com.hcmute.g2webstorev2.enums.AppRole.ADMIN;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
-    @Autowired
-    private AdminRepo adminRepo;
-    @Autowired
-    private RoleRepo roleRepo;
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private AuthenticationManager authManager;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private TokenService tokenService;
+    private final AdminRepo adminRepo;
+    private final RoleRepo roleRepo;
+    private final JwtService jwtService;
+    private final AuthenticationManager authManager;
+    private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
     @Override
     @Transactional

@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorRes> handleOTPExpiredException(OTPExpiredException e){
         ErrorRes err = ErrorRes.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .code(HttpStatus.BAD_REQUEST.value())
+                .code(2)    //Error code '2': OTP expired;
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorRes> handleAccountNotActivatedException(AccountNotActivatedException e){
         ErrorRes err = ErrorRes.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .code(HttpStatus.BAD_REQUEST.value())
+                .code(1)    //Error code '1': User account not activated
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();

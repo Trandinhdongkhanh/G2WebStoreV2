@@ -4,6 +4,7 @@ import com.hcmute.g2webstorev2.dto.response.StatisticalRes;
 import com.hcmute.g2webstorev2.entity.Seller;
 import com.hcmute.g2webstorev2.repository.OrderItemRepo;
 import com.hcmute.g2webstorev2.repository.OrderRepo;
+import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.service.StatisticalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,8 @@ public class StatisticalServiceImpl implements StatisticalService {
     private final OrderRepo orderRepo;
     private final OrderItemRepo orderItemRepo;
 
+    private final ProductRepo productRepo;
+
     @Override
     public StatisticalRes getStatistical() {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -35,7 +38,7 @@ public class StatisticalServiceImpl implements StatisticalService {
         LocalDateTime startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay();
         LocalDateTime endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX);
 
-        LocalDateTime startOfMonth =  today.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay();
+        LocalDateTime startOfMonth = today.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay();
         LocalDateTime endOfMonth = today.with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX);
 
         Long dayIncome = orderRepo.getShopIncome(seller.getShop().getShopId(), startOfDay, endOfDay);
@@ -49,13 +52,9 @@ public class StatisticalServiceImpl implements StatisticalService {
         long deliveringOrderCount = orderRepo.countDeliveringOrder(seller.getShop().getShopId());
         long unHandledOrderCount = orderRepo.countUnHandledOrder(seller.getShop().getShopId());
         long successOrderCount = orderRepo.countSuccessOrder(seller.getShop().getShopId());
-
-        log.info(startOfDay.toString());
-        log.info(endOfDay.toString());
-        log.info(startOfWeek.toString());
-        log.info(endOfWeek.toString());
-        log.info(startOfMonth.toString());
-        log.info(endOfMonth.toString());
+        long canceledOrderCount = orderRepo.countCanceledOrder(seller.getShop().getShopId());
+        long onSaleProductCount = productRepo.countOnSaleProduct(seller.getShop().getShopId());
+        long outOfStockProductCount = productRepo.countOutOfStockProduct(seller.getShop().getShopId());
 
         return StatisticalRes.builder()
                 .dayIncome(dayIncome)
@@ -65,6 +64,9 @@ public class StatisticalServiceImpl implements StatisticalService {
                 .onDeliveredOrderCount(deliveringOrderCount)
                 .successOrderCount(successOrderCount)
                 .unReviewedOrderCount(unReviewedOrderCount)
+                .canceledOrderCount(canceledOrderCount)
+                .onSaleProductCount(onSaleProductCount)
+                .outOfStockProductCount(outOfStockProductCount)
                 .build();
     }
 }

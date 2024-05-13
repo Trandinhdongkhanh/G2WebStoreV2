@@ -24,4 +24,7 @@ public class CartItem {
     private Integer quantity;
     @Transient
     private Integer subTotal;
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
 }

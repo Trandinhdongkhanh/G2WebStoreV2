@@ -36,4 +36,7 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
             "o.orderStatus = 'CONFIRMED' or " +
             "o.orderStatus = 'PACKED')")
     long countUnHandledOrder(Integer shopId);
+    @Query("select count(*) from Order o where o.shop.shopId = :shopId " +
+            "and o.orderStatus = 'CANCELED'")
+    long countCanceledOrder(Integer shopId);
 }

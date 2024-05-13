@@ -323,7 +323,7 @@ public class ProductServiceImpl implements ProductService {
 
         productRepo.delete(product);
 
-        log.info("Product with ID = " + id + "deleted successfully");
+        log.info("Product with ID = " + id + " deleted successfully");
     }
 
     @Override
@@ -467,6 +467,18 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepo.findAllByShopCategory(shopCategory, PageRequest.of(pageNumber, pageSize))
                 .map(Mapper::toProductResponse);
+    }
+
+    @Override
+    public List<ProductResponse> getTopFivePopularProductByShop(Integer shopId) {
+        Shop shop = shopRepo.findById(shopId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop not found"));
+
+        return productRepo.findAllByShop(shop, PageRequest.of(
+                        0,
+                        5,
+                        Sort.by("soldQuantity").descending()))
+                .map(Mapper::toProductResponse).getContent();
     }
 
     private String getPath(Integer id) {

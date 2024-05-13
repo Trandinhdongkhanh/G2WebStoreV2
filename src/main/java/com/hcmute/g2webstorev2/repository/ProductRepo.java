@@ -9,9 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ProductRepo extends JpaRepository<Product, Integer> {
-
     boolean existsByNameAndShop(String name, Shop shop);
     @Query("select p from Product p " +
             "where p.price between :startPrice and :endPrice " +
@@ -70,4 +71,10 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     Page<Product> findAllByNameAndPriceBetween(String name, Integer startPrice, Integer endPrice, Pageable pageable, Integer seed);
 
     Page<Product> findAllByShopCategory(ShopCategory shopCategory, Pageable pageable);
+    @Query("select count(*) from Product p " +
+            "where p.shop.shopId = :shopId")
+    long countOnSaleProduct(Integer shopId);
+    @Query("select count(*) from Product p " +
+            "where p.shop.shopId = :shopId and p.stockQuantity = 0")
+    long countOutOfStockProduct(Integer shopId);
 }

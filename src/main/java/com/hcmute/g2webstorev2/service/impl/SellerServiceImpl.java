@@ -90,7 +90,7 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = AccountNotActivatedException.class)
     public AuthResponse authenticate(AuthRequest body) {
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -219,7 +219,7 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = OTPExpiredException.class)
     public void activateAccount(String verificationCode) {
         OTP otp = otpRepo.findByVerificationCode(verificationCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid OTP"));
@@ -249,7 +249,7 @@ public class SellerServiceImpl implements SellerService {
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = OTPExpiredException.class)
     public void resetPassword(ResetPasswordRequest body) {
         OTP otp = otpRepo.findByVerificationCode(body.getCode())
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid OTP"));
