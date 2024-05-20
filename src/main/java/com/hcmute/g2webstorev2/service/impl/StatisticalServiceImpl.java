@@ -24,7 +24,6 @@ import java.time.temporal.TemporalAdjusters;
 public class StatisticalServiceImpl implements StatisticalService {
     private final OrderRepo orderRepo;
     private final OrderItemRepo orderItemRepo;
-
     private final ProductRepo productRepo;
 
     @Override

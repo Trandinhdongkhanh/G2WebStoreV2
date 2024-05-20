@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -41,6 +42,8 @@ public class Product {
     private List<Voucher> vouchers;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
     private List<CartItem> items;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
+    private Set<ShopItem> shopItems;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
     private List<Review> reviews;
 }

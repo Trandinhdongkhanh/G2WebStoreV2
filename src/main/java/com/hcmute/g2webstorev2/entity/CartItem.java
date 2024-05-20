@@ -12,7 +12,7 @@ import lombok.*;
 @Table(name = "cart_item")
 public class CartItem {
     @EmbeddedId
-    private CustomerProductCompositeKey customerProductCompositeKey;
+    private CartItemCompositeKey cartItemCompositeKey;
     @ManyToOne
     @MapsId("customerId")
     @JoinColumn(name = "customer_id")
@@ -24,7 +24,4 @@ public class CartItem {
     private Integer quantity;
     @Transient
     private Integer subTotal;
-    @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
 }

@@ -4,7 +4,7 @@ import com.hcmute.g2webstorev2.dto.request.CartItemRequest;
 import com.hcmute.g2webstorev2.dto.response.CartItemResponse;
 import com.hcmute.g2webstorev2.entity.CartItem;
 import com.hcmute.g2webstorev2.entity.Customer;
-import com.hcmute.g2webstorev2.entity.CustomerProductCompositeKey;
+import com.hcmute.g2webstorev2.entity.CartItemCompositeKey;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
@@ -54,7 +54,7 @@ public class CartItemServiceImpl implements CartItemService {
 
         if (cartItem == null) {
             cartItem = cartItemRepo.save(CartItem.builder()
-                    .customerProductCompositeKey(new CustomerProductCompositeKey(customer.getCustomerId(), product.getProductId()))
+                    .cartItemCompositeKey(new CartItemCompositeKey(customer.getCustomerId(), product.getProductId()))
                     .quantity(body.getQuantity())
                     .customer(customer)
                     .product(product)

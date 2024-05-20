@@ -4,6 +4,7 @@ import com.hcmute.g2webstorev2.dto.response.*;
 import com.hcmute.g2webstorev2.entity.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -225,6 +226,35 @@ public class Mapper {
                 .productId(orderItem.getProductId())
                 .subTotal(orderItem.getQuantity() * orderItem.getPrice())
                 .isReviewed(orderItem.isReviewed())
+                .build();
+    }
+
+    public static CartItemV2Res toCartItemv2Res(CartItemV2 cartItemV2) {
+        Set<ShopItemRes> shopItemResSet = null;
+        Set<VoucherResponse> voucherResponseSet = null;
+        if (cartItemV2.getShopItems() != null)
+            shopItemResSet = cartItemV2.getShopItems().stream().map(Mapper::toShopItemRes).collect(Collectors.toSet());
+        if (cartItemV2.getVouchers() != null)
+            voucherResponseSet = cartItemV2.getVouchers().stream().map(Mapper::toVoucherResponse).collect(Collectors.toSet());
+        return CartItemV2Res.builder()
+                .cartItemId(cartItemV2.getCartItemId())
+                .customerId(cartItemV2.getCustomer().getCustomerId())
+                .shopName(cartItemV2.getShop().getName())
+                .shopId(cartItemV2.getShop().getShopId())
+                .shopItems(shopItemResSet)
+                .vouchers(voucherResponseSet)
+                .shopSubTotal(cartItemV2.getShopSubTotal())
+                .build();
+    }
+    public static ShopItemRes toShopItemRes(ShopItem shopItem){
+        return ShopItemRes.builder()
+                .shopItemId(shopItem.getShopItemId())
+                .cartItemV2Id(shopItem.getCartItemV2().getCartItemId())
+                .price(Long.valueOf(shopItem.getProduct().getPrice()))
+                .name(shopItem.getProduct().getName())
+                .quantity(shopItem.getQuantity())
+                .productId(shopItem.getProduct().getProductId())
+                .subTotal(shopItem.getSubTotal())
                 .build();
     }
 }

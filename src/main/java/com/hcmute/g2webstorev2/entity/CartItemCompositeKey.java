@@ -12,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CustomerProductCompositeKey implements Serializable {
+public class CartItemCompositeKey implements Serializable {
     @Column(name = "customer_id")
     private Integer customerId;
     @Column(name = "product_id")
