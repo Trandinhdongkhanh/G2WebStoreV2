@@ -1,16 +1,15 @@
 package com.hcmute.g2webstorev2.service.impl;
 
+import com.hcmute.g2webstorev2.dto.request.AddVoucherToCartItemReq;
 import com.hcmute.g2webstorev2.dto.request.CartItemRequest;
 import com.hcmute.g2webstorev2.dto.response.CartItemV2Res;
-import com.hcmute.g2webstorev2.entity.CartItemV2;
-import com.hcmute.g2webstorev2.entity.Customer;
-import com.hcmute.g2webstorev2.entity.Product;
-import com.hcmute.g2webstorev2.entity.ShopItem;
+import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CartItemV2Repo;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.repository.ShopItemRepo;
+import com.hcmute.g2webstorev2.repository.VoucherRepo;
 import com.hcmute.g2webstorev2.service.CartItemV2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,6 +27,7 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
     private final CartItemV2Repo cartItemV2Repo;
     private final ProductRepo productRepo;
     private final ShopItemRepo shopItemRepo;
+    private final VoucherRepo voucherRepo;
 
     @Override
     @Transactional
@@ -48,8 +47,6 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
 
             ShopItem shopItem = ShopItem.builder()
                     .cartItemV2(cartItemV2)
-                    .price(Long.valueOf(product.getPrice()))
-                    .name(product.getName())
                     .quantity(body.getQuantity())
                     .product(product)
                     .build();
@@ -64,8 +61,6 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
             else
                 shopItem = ShopItem.builder()
                         .cartItemV2(cartItemV2)
-                        .price(Long.valueOf(product.getPrice()))
-                        .name(product.getName())
                         .quantity(body.getQuantity())
                         .product(product)
                         .build();
@@ -81,30 +76,21 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
     }
 
     @Override
-    @Transactional
     public Set<CartItemV2Res> getCartItems() {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return cartItemV2Repo.findAllByCustomer(customer)
+                .stream().map(Mapper::toCartItemv2Res)
+                .collect(Collectors.toSet());
+    }
 
-        Set<ShopItem> shopItems = new HashSet<>();
-        Set<CartItemV2> cartItemV2Set = cartItemV2Repo.findAllByCustomer(customer);
+    @Override
+    public CartItemV2Res addVoucher(AddVoucherToCartItemReq body) {
+        Voucher voucher = voucherRepo.findById(body.getVoucherId())
+                .orElseThrow(() -> new ResourceNotFoundException("Voucher not found"));
 
-        if (cartItemV2Set != null && !cartItemV2Set.isEmpty()) {
-            cartItemV2Set.forEach(cartItemV2 -> {
-                Long shopSubTotal = 0L;
-                for (ShopItem shopItem : cartItemV2.getShopItems()){
-                    Product product = shopItem.getProduct();
-                    shopItem.setName(product.getName());
-                    shopItem.setPrice(Long.valueOf(product.getPrice()));
-                    shopSubTotal += shopItem.getSubTotal();
-                    shopItems.add(shopItem);
-                }
-                cartItemV2.setShopSubTotal(shopSubTotal);
-            });
+        CartItemV2 cartItemV2 = cartItemV2Repo.findById(body.getCartItemV2Id())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart Item not found"));
 
-            shopItemRepo.saveAll(shopItems);
-            cartItemV2Repo.saveAll(cartItemV2Set);
-            return cartItemV2Set.stream().map(Mapper::toCartItemv2Res).collect(Collectors.toSet());
-        }
         return null;
     }
 }

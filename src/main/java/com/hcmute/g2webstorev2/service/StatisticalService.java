@@ -3,5 +3,5 @@ package com.hcmute.g2webstorev2.service;
 import com.hcmute.g2webstorev2.dto.response.StatisticalRes;
 
 public interface StatisticalService {
-    StatisticalRes getStatistical();
+    StatisticalRes getStatistical(Integer year);
 }

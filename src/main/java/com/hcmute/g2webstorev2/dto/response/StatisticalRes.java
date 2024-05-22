@@ -8,9 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class StatisticalRes {
-    private Long dayIncome;
-    private Long weekIncome;
-    private Long monthIncome;
+    private DayStatisticalRes dayStatistical;
+    private MonthStatisticalRes monthStatisticalRes;
     private Long successOrderCount;
     private Long onDeliveredOrderCount;
     private Long unHandledOrderCount;

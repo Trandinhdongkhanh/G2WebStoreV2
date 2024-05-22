@@ -18,8 +18,6 @@ public class ShopItem {
     @ManyToOne
     @JoinColumn(name = "cart_item_v2_id")
     private CartItemV2 cartItemV2;
-    private Long price;
-    private String name;
     private Integer quantity;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
