@@ -30,13 +30,13 @@ public class StatisticalServiceImpl implements StatisticalService {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer shopId = seller.getShop().getShopId();
 
-        long unReviewedOrderCount = orderItemRepo.countUnReviewedItems(seller.getShop().getShopId());
-        long deliveringOrderCount = orderRepo.countDeliveringOrder(seller.getShop().getShopId());
-        long unHandledOrderCount = orderRepo.countUnHandledOrder(seller.getShop().getShopId());
-        long successOrderCount = orderRepo.countSuccessOrder(seller.getShop().getShopId());
-        long canceledOrderCount = orderRepo.countCanceledOrder(seller.getShop().getShopId());
-        long onSaleProductCount = productRepo.countOnSaleProduct(seller.getShop().getShopId());
-        long outOfStockProductCount = productRepo.countOutOfStockProduct(seller.getShop().getShopId());
+        long unReviewedOrderCount = orderItemRepo.countUnReviewedItems(shopId);
+        long deliveringOrderCount = orderRepo.countDeliveringOrder(shopId);
+        long unHandledOrderCount = orderRepo.countUnHandledOrder(shopId);
+        long successOrderCount = orderRepo.countSuccessOrder(shopId);
+        long canceledOrderCount = orderRepo.countCanceledOrder(shopId);
+        long onSaleProductCount = productRepo.countOnSaleProduct(shopId);
+        long outOfStockProductCount = productRepo.countOutOfStockProduct(shopId);
 
         return StatisticalRes.builder()
                 .dayStatistical(getDayStatistical(LocalDate.now(), shopId))

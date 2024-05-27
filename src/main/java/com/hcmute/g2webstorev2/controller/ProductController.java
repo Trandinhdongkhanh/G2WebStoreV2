@@ -3,6 +3,7 @@ package com.hcmute.g2webstorev2.controller;
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
+import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
 import com.hcmute.g2webstorev2.service.ProductService;
 import jakarta.validation.Valid;
@@ -71,8 +72,9 @@ public class ProductController {
             @RequestParam(value = "size")
             @Min(value = 0, message = "Page size must not be less than 1")
             @NotNull(message = "Page size must not be null")
-            Integer pageSize) {
-        return ResponseEntity.ok(productService.getAllProductsByShop(id, pageNumber, pageSize));
+            Integer pageSize,
+            @RequestParam(value = "shopProductSortType", required = false) ShopProductsSortType sortType) {
+        return ResponseEntity.ok(productService.getAllProductsByShop(id, pageNumber, pageSize, sortType));
     }
 
     @GetMapping("/{id}")

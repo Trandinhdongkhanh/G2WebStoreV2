@@ -32,5 +32,13 @@ public class CartItemV2 {
             inverseJoinColumns = @JoinColumn(name = "voucher_id")
     )
     private Set<Voucher> vouchers;
+    @Transient
     public Long shopSubTotal;
+    public Long getShopSubTotal() {
+        if (shopItems != null && !shopItems.isEmpty())
+            return shopItems.stream()
+                    .map(ShopItem::getSubTotal)
+                    .reduce(0L, Long::sum);
+        return 0L;
+    }
 }

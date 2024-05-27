@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.controller;
 
 
+import com.hcmute.g2webstorev2.dto.request.AddVoucherToCartItemReq;
 import com.hcmute.g2webstorev2.dto.request.CartItemRequest;
 import com.hcmute.g2webstorev2.dto.response.CartItemV2Res;
 import com.hcmute.g2webstorev2.service.CartItemV2Service;
@@ -29,5 +30,14 @@ public class CartItemV2Controller {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(cartItemV2Service.addItem(body));
+    }
+    @DeleteMapping("/{cartItemId}")
+    public ResponseEntity<String> delCartItem(@PathVariable("cartItemId") Long cartItemId){
+        cartItemV2Service.delItem(cartItemId);
+        return ResponseEntity.ok("Cart item deleted");
+    }
+    @PutMapping
+    public ResponseEntity<CartItemV2Res> addVoucherToCartItem(@RequestBody @Valid AddVoucherToCartItemReq body){
+        return ResponseEntity.ok(cartItemV2Service.addVoucher(body));
     }
 }

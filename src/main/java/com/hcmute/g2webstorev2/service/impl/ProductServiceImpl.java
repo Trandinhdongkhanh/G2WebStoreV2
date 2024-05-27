@@ -4,6 +4,7 @@ import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.entity.*;
+import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
@@ -327,12 +328,49 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getAllProductsByShop(Integer id, Integer pageNumber, Integer pageSize) {
+    public Page<ProductResponse> getAllProductsByShop(Integer id, Integer pageNumber, Integer pageSize,
+                                                      ShopProductsSortType sortType) {
         Shop shop = shopRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop with ID = " + id + " not found"));
 
-        return productRepo.findAllByShop(shop, PageRequest.of(pageNumber, pageSize))
-                .map(Mapper::toProductResponse);
+        if (sortType != null) {
+            switch (sortType) {
+                case DEFAULT -> {
+                    return productRepo.findAllByShop(
+                            shop,
+                            PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
+                    ).map(Mapper::toProductResponse);
+                }
+                case STOCK_QUANTITY_DESC -> {
+                    return productRepo.findAllByShop(
+                            shop,
+                            PageRequest.of(pageNumber, pageSize, Sort.by("stockQuantity").descending())
+                    ).map(Mapper::toProductResponse);
+                }
+                case STOCK_QUANTITY_ASC -> {
+                    return productRepo.findAllByShop(
+                            shop,
+                            PageRequest.of(pageNumber, pageSize, Sort.by("stockQuantity").ascending())
+                    ).map(Mapper::toProductResponse);
+                }
+                case SOLD_QUANTITY_ASC -> {
+                    return productRepo.findAllByShop(
+                            shop,
+                            PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").ascending())
+                    ).map(Mapper::toProductResponse);
+                }
+                case SOLD_QUANTITY_DESC -> {
+                    return productRepo.findAllByShop(
+                            shop,
+                            PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").descending())
+                    ).map(Mapper::toProductResponse);
+                }
+            }
+        }
+        return productRepo.findAllByShop(
+                shop,
+                PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
+        ).map(Mapper::toProductResponse);
     }
 
     private Page<ProductResponse> getNewestProductsByCategory(Integer id, Integer startPrice, Integer endPrice,

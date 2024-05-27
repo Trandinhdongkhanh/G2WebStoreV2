@@ -28,6 +28,17 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseEntity.internalServerError().body(err);
     }
+    @ExceptionHandler(InvalidVoucherException.class)
+    public ResponseEntity<ErrorRes> handleInvalidVoucherException(InvalidVoucherException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
     @ExceptionHandler(InvalidFileTypeException.class)
     public ResponseEntity<ErrorRes> handleInvalidFileTypeException(InvalidFileTypeException e){
         ErrorRes err = ErrorRes.builder()
