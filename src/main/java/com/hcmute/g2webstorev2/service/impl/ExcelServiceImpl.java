@@ -25,12 +25,14 @@ public class ExcelServiceImpl implements ExcelService {
     private final XSSFSheet sheet;
     private final XSSFWorkbook workbook;
     private final ProductRepo productRepo;
+
     @Autowired
-    public ExcelServiceImpl(ProductRepo productRepo){
+    public ExcelServiceImpl(ProductRepo productRepo) {
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet("Products");
         this.productRepo = productRepo;
     }
+
     private void writeHeaderLine() {
         Row header = sheet.createRow(0);
 
@@ -67,15 +69,18 @@ public class ExcelServiceImpl implements ExcelService {
         int rowCount = 1;
 
         CellStyle style = workbook.createCellStyle();
+        CellStyle productIdCellStyle = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setFontHeight(14);
         style.setFont(font);
+        productIdCellStyle.setFont(font);
+        productIdCellStyle.setLocked(true);
 
         for (Product product : products) {
             Row row = sheet.createRow(rowCount++);
             int col = 0;
 
-            createCell(row, col++, product.getProductId(), style);
+            createCell(row, col++, product.getProductId(), productIdCellStyle);
             createCell(row, col++, product.getName(), style);
             createCell(row, col++, product.getDescription(), style);
             createCell(row, col++, product.getPrice(), style);
@@ -99,6 +104,8 @@ public class ExcelServiceImpl implements ExcelService {
             products.sort(Comparator.comparing(Product::getProductId));
         }
 
+        sheet.createFreezePane(0, 1);
+        sheet.protectSheet("password");
         writeHeaderLine();
         writeDataLines(products);
 
