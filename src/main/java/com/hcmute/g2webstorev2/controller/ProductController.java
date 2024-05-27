@@ -1,30 +1,53 @@
 package com.hcmute.g2webstorev2.controller;
 
+import com.hcmute.g2webstorev2.dto.request.AddProductsToExportExcelReq;
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
+import com.hcmute.g2webstorev2.service.ExcelService;
 import com.hcmute.g2webstorev2.service.ProductService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/products")
+@RequiredArgsConstructor
 public class ProductController {
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+    private final ExcelService excelService;
+
+    @PostMapping("/export/excel")
+    @PreAuthorize("hasAnyRole(" +
+            "'SELLER_READ_ONLY'," +
+            "'SELLER_FULL_ACCESS'," +
+            "'SELLER_PRODUCT_ACCESS') or hasAuthority('READ_PRODUCT')")
+    public void exportExcel(HttpServletResponse res,
+                            @RequestBody @Valid AddProductsToExportExcelReq body) throws IOException {
+        String fileName = "products.xlsx";
+        res.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=" + fileName;
+        res.setHeader(headerKey, headerValue);
+
+        excelService.exportProductsData(res, body);
+    }
 
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
