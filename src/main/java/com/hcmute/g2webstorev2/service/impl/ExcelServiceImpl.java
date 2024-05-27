@@ -2,6 +2,8 @@ package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.dto.request.AddProductsToExportExcelReq;
 import com.hcmute.g2webstorev2.entity.Product;
+import com.hcmute.g2webstorev2.exception.InvalidFileTypeException;
+import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.service.ExcelService;
 import jakarta.servlet.ServletOutputStream;
@@ -15,6 +17,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -114,5 +118,50 @@ public class ExcelServiceImpl implements ExcelService {
         workbook.close();
 
         outputStream.close();
+    }
+
+    @Override
+    @Transactional
+    public List<Product> readProductsData(MultipartFile file) throws IOException {
+        if (!isValidExcelFile(file)) throw new InvalidFileTypeException("File type must be excel");
+
+        List<Product> products = new ArrayList<>();
+        XSSFWorkbook inputWorkBook = new XSSFWorkbook(file.getInputStream());
+        XSSFSheet inputSheet = inputWorkBook.getSheetAt(0);
+
+        for (Row row : inputSheet) {
+            Integer productId = (int) row.getCell(0).getNumericCellValue();
+            String name = row.getCell(1).getStringCellValue();
+            String description = row.getCell(2).getStringCellValue();
+            Integer price = (int) row.getCell(3).getNumericCellValue();
+            Integer stockQuantity = (int) row.getCell(4).getNumericCellValue();
+            Float height = (float) row.getCell(5).getNumericCellValue();
+            Float width = (float) row.getCell(6).getNumericCellValue();
+            Float length = (float) row.getCell(7).getNumericCellValue();
+            Float weight = (float) row.getCell(8).getNumericCellValue();
+
+            Product product = productRepo.findById(productId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+            product.setName(name);
+            product.setDescription(description);
+            product.setPrice(price);
+            product.setStockQuantity(stockQuantity);
+            product.setHeight(height);
+            product.setWidth(width);
+            product.setLength(length);
+            product.setWeight(weight);
+            products.add(product);
+        }
+
+        return products;
+    }
+
+    private boolean isValidExcelFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        String fileName = file.getOriginalFilename();
+
+        return (contentType != null && (contentType.equals("application/vnd.ms-excel") ||
+                contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) &&
+                (fileName != null && (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")));
     }
 }

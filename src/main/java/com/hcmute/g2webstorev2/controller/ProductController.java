@@ -4,6 +4,7 @@ import com.hcmute.g2webstorev2.dto.request.AddProductsToExportExcelReq;
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
+import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
 import com.hcmute.g2webstorev2.service.ExcelService;
@@ -31,6 +32,15 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
     private final ExcelService excelService;
+    @PutMapping("/update-batch")
+    @PreAuthorize("hasAnyRole(" +
+            "'SELLER_FULL_ACCESS'," +
+            "'SELLER_PRODUCT_ACCESS') or hasAuthority('READ_PRODUCT')")
+    public ResponseEntity<String> updateProductsFromExcel(@RequestParam("file") MultipartFile file) throws IOException {
+        List<Product> products = excelService.readProductsData(file);
+        productService.updateProducts(products);
+        return ResponseEntity.ok("Update products successfully");
+    }
 
     @PostMapping("/export/excel")
     @PreAuthorize("hasAnyRole(" +
@@ -45,6 +55,7 @@ public class ProductController {
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=" + fileName;
         res.setHeader(headerKey, headerValue);
+        res.setStatus(HttpStatus.OK.value());
 
         excelService.exportProductsData(res, body);
     }
