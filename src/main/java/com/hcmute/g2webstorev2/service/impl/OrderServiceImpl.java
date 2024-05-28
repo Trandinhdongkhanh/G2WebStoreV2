@@ -328,6 +328,13 @@ public class OrderServiceImpl implements OrderService {
                 .map(Mapper::toOrderResponse);
     }
 
+    @Override
+    public OrderResponse getOrderById(Integer orderId) {
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        return Mapper.toOrderResponse(order);
+    }
+
     private boolean isSevenDaysPassed(LocalDateTime deliveredDate, LocalDateTime curDate) {
         return (ChronoUnit.DAYS.between(deliveredDate, curDate) >= 7);
     }

@@ -27,7 +27,7 @@ import static com.hcmute.g2webstorev2.enums.VoucherType.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class    CartItemV2ServiceImpl implements CartItemV2Service {
+public class CartItemV2ServiceImpl implements CartItemV2Service {
     private final CartItemV2Repo cartItemV2Repo;
     private final ProductRepo productRepo;
     private final VoucherRepo voucherRepo;

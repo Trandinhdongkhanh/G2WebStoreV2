@@ -13,7 +13,6 @@ import com.hcmute.g2webstorev2.repository.CategoryRepo;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.repository.ShopCateRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
-import com.hcmute.g2webstorev2.service.ExcelService;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -41,7 +39,6 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepo categoryRepo;
     private final FileService fileService;
     private final ShopCateRepo shopCateRepo;
-    private final ExcelService excelService;
 
     @Override
     @Transactional
@@ -526,6 +523,13 @@ public class ProductServiceImpl implements ProductService {
                         5,
                         Sort.by("soldQuantity").descending()))
                 .map(Mapper::toProductResponse).getContent();
+    }
+
+    @Override
+    public ProductResponse getProductById(Integer productId) {
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        return Mapper.toProductResponse(product);
     }
 
     private String getPath(Integer id) {

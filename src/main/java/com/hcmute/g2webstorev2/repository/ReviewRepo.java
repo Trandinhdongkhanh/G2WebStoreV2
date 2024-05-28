@@ -1,6 +1,5 @@
 package com.hcmute.g2webstorev2.repository;
 
-import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.entity.Review;
 import org.springframework.data.domain.Page;
@@ -9,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 
 @Repository
 public interface ReviewRepo extends JpaRepository<Review, Integer> {
@@ -21,4 +19,13 @@ public interface ReviewRepo extends JpaRepository<Review, Integer> {
     Long countReviewsByProduct(Integer productId);
     @Query("SELECT SUM(r.rate) FROM Review r where r.product.productId = :productId")
     Long sumOfRatesByProduct(Integer productId);
+    @Query("select r from Review r " +
+            "where r.shopFeedBack is null and " +
+            "r.product.shop.shopId = :shopId")
+    Page<Review> findAllUnFeedbackReviewByShop(Integer shopId, Pageable pageable);
+    @Query("select r from Review r " +
+            "where r.shopFeedBack is null and " +
+            "r.product.shop.shopId = :shopId and " +
+            "r.rate = :rate")
+    Page<Review> findAllUnFeedbackReviewByShopAndRate(Integer shopId, Integer rate, Pageable pageable);
 }

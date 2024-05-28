@@ -2,8 +2,10 @@ package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.dto.request.AddProductsToExportExcelReq;
 import com.hcmute.g2webstorev2.entity.Product;
+import com.hcmute.g2webstorev2.entity.Seller;
 import com.hcmute.g2webstorev2.exception.InvalidFileTypeException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
+import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.service.ExcelService;
 import jakarta.servlet.ServletOutputStream;
@@ -16,6 +18,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -124,6 +127,7 @@ public class ExcelServiceImpl implements ExcelService {
     @Transactional
     public List<Product> readProductsData(MultipartFile file) throws IOException {
         if (!isValidExcelFile(file)) throw new InvalidFileTypeException("File type must be excel");
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<Product> products = new ArrayList<>();
         XSSFWorkbook inputWorkBook = new XSSFWorkbook(file.getInputStream());
@@ -142,6 +146,11 @@ public class ExcelServiceImpl implements ExcelService {
 
             Product product = productRepo.findById(productId)
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+            if (!Objects.equals(name, product.getName()) &&
+                    productRepo.existsByNameAndShop(name, seller.getShop()))
+                throw new ResourceNotUniqueException("Duplicate product name");
+
             product.setName(name);
             product.setDescription(description);
             product.setPrice(price);

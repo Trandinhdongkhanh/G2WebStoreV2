@@ -25,6 +25,14 @@ import java.io.UnsupportedEncodingException;
 public class OrderController {
     @Autowired
     private OrderService orderService;
+    @GetMapping("/{orderId}")
+    @PreAuthorize("hasAnyRole(" +
+            "'SELLER_FULL_ACCESS'," +
+            "'SELLER_ORDER_MANAGEMENT'," +
+            "'SELLER_READ_ONLY') or hasAuthority('READ_ORDER')")
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable("orderId") Integer orderId){
+        return ResponseEntity.ok(orderService.getOrderById(orderId));
+    }
 
     @PostMapping("/me")
     @PreAuthorize("hasRole('CUSTOMER')")

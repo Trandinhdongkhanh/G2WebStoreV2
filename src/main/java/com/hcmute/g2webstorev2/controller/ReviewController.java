@@ -32,6 +32,16 @@ public class ReviewController {
                 .body(reviewService.createReview(body, files));
     }
 
+    @GetMapping
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'JUNIOR_CHAT_AGENT') or hasAnyAuthority('READ_REVIEW')")
+    public ResponseEntity<Page<ReviewResponse>> getUnFeedbackReviewsByShop(
+            @RequestParam("page") int page,
+            @RequestParam("size") int size,
+            @RequestParam(value = "star", required = false) Integer star
+    ) {
+        return ResponseEntity.ok(reviewService.getUnFeedbackReviewsByShop(page, size, star));
+    }
+
     @PutMapping("/{reviewId}/shop-feedback")
     @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'JUNIOR_CHAT_AGENT') or hasAnyAuthority('UPDATE_REVIEW')")
     public ResponseEntity<ReviewResponse> updateShopFeedBack(
@@ -40,6 +50,7 @@ public class ReviewController {
     ) {
         return ResponseEntity.ok(reviewService.addShopFeedBack(reviewId, feedBack));
     }
+
     @GetMapping("/product/{id}")
     public ResponseEntity<ProductReviewsRes> getReviewsByProduct(
             @PathVariable("id") @NotNull(message = "Product ID must not be null")

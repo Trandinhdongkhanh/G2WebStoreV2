@@ -157,4 +157,21 @@ public class ReviewServiceImpl implements ReviewService {
         review.setShopFeedBack(shopFeedBack);
         return Mapper.toReviewResponse(review);
     }
+
+    @Override
+    public Page<ReviewResponse> getUnFeedbackReviewsByShop(int page, int size, Integer star) {
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (star != null)
+            return reviewRepo.findAllUnFeedbackReviewByShopAndRate(
+                            seller.getShop().getShopId(),
+                            star,
+                            PageRequest.of(page, size, Sort.by("id").descending()))
+                    .map(Mapper::toReviewResponse);
+
+        return reviewRepo.findAllUnFeedbackReviewByShop(
+                        seller.getShop().getShopId(),
+                        PageRequest.of(page, size, Sort.by("id").descending()))
+                .map(Mapper::toReviewResponse);
+    }
 }

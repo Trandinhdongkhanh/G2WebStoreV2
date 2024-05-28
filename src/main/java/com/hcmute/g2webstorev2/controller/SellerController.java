@@ -10,7 +10,7 @@ import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
 import com.hcmute.g2webstorev2.service.SellerService;
 import com.hcmute.g2webstorev2.util.CaptchaValidator;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,17 +22,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/sellers")
+@RequiredArgsConstructor
 public class SellerController {
-    @Autowired
-    private SellerService sellerService;
-    @Autowired
-    private CaptchaValidator captchaValidator;
+    private final SellerService sellerService;
+    private final CaptchaValidator captchaValidator;
 
     @GetMapping("/me")
     public ResponseEntity<SellerResponse> getInfo() {
         return ResponseEntity.ok(sellerService.getInfo());
     }
-
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest body) {
         AuthResponse res = sellerService.authenticate(body);

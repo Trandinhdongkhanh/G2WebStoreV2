@@ -26,6 +26,14 @@ public class ShopController {
             @Min(value = 1, message = "Shop ID must be equals or greater than 1") Integer id) {
         return ResponseEntity.ok(shopService.getShopInfo(id));
     }
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<ShopResponse>> getShops(
+            @RequestParam("page") int page,
+            @RequestParam("size") int size
+    ){
+        return ResponseEntity.ok(shopService.getAllShops(page, size));
+    }
 
     @PutMapping
     @PreAuthorize("hasRole('SELLER_FULL_ACCESS')")
@@ -37,12 +45,5 @@ public class ShopController {
     @PreAuthorize("hasRole('SELLER_FULL_ACCESS')")
     public ResponseEntity<ShopResponse> uploadShopImage(@RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(shopService.uploadShopImage(file));
-    }
-
-    @GetMapping
-    public ResponseEntity<Page<ShopResponse>> getAllShops(
-            @RequestParam("page") int page,
-            @RequestParam("size") int size) {
-        return ResponseEntity.ok(shopService.getAllShops(page, size));
     }
 }

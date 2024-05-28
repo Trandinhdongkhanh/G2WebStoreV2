@@ -32,6 +32,7 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
     private final ExcelService excelService;
+
     @PutMapping("/update-batch")
     @PreAuthorize("hasAnyRole(" +
             "'SELLER_FULL_ACCESS'," +
@@ -40,6 +41,11 @@ public class ProductController {
         List<Product> products = excelService.readProductsData(file);
         productService.updateProducts(products);
         return ResponseEntity.ok("Update products successfully");
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable("productId") Integer productId) {
+        return ResponseEntity.ok(productService.getProductById(productId));
     }
 
     @PostMapping("/export/excel")
