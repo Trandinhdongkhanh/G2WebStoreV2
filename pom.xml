@@ -114,10 +114,11 @@
             <artifactId>google-cloud-storage</artifactId>
             <version>2.37.0</version>
         </dependency>
+        <!-- export to excel-->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>4.1.0</version>
+            <version>4.1.2</version>
         </dependency>
     </dependencies>
 

@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ExcelService {
-    void exportProductsData(HttpServletResponse res, AddProductsToExportExcelReq body)
-            throws IOException;
+    void exportToExcel(HttpServletResponse response, AddProductsToExportExcelReq body) throws IOException;
+
     List<Product> readProductsData(MultipartFile file) throws IOException;
 }

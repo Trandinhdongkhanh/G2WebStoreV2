@@ -17,7 +17,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +35,7 @@ public class ProductController {
     @PutMapping("/update-batch")
     @PreAuthorize("hasAnyRole(" +
             "'SELLER_FULL_ACCESS'," +
-            "'SELLER_PRODUCT_ACCESS') or hasAuthority('READ_PRODUCT')")
+            "'SELLER_PRODUCT_ACCESS') or hasAuthority('UPDATE_PRODUCT')")
     public ResponseEntity<String> updateProductsFromExcel(@RequestParam("file") MultipartFile file) throws IOException {
         List<Product> products = excelService.readProductsData(file);
         productService.updateProducts(products);
@@ -53,17 +52,8 @@ public class ProductController {
             "'SELLER_READ_ONLY'," +
             "'SELLER_FULL_ACCESS'," +
             "'SELLER_PRODUCT_ACCESS') or hasAuthority('READ_PRODUCT')")
-    public void exportExcel(HttpServletResponse res,
-                            @RequestBody @Valid AddProductsToExportExcelReq body) throws IOException {
-        String fileName = "products.xlsx";
-        res.setContentType(String.valueOf(MediaType.APPLICATION_OCTET_STREAM));
-
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=" + fileName;
-        res.setHeader(headerKey, headerValue);
-        res.setStatus(HttpStatus.OK.value());
-
-        excelService.exportProductsData(res, body);
+    public void exportToExcel(HttpServletResponse res, @RequestBody @Valid AddProductsToExportExcelReq body) throws IOException {
+        excelService.exportToExcel(res, body);
     }
 
     @GetMapping

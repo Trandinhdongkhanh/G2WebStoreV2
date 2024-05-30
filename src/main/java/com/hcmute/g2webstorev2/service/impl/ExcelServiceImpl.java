@@ -10,130 +10,148 @@ import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.service.ExcelService;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ExcelServiceImpl implements ExcelService {
-    private final XSSFSheet sheet;
-    private final XSSFWorkbook workbook;
+    private XSSFWorkbook workbook;
+    private XSSFSheet sheet;
     private final ProductRepo productRepo;
 
-    @Autowired
-    public ExcelServiceImpl(ProductRepo productRepo) {
+    private void newReportExcel() {
         workbook = new XSSFWorkbook();
-        sheet = workbook.createSheet("Products");
-        this.productRepo = productRepo;
     }
 
-    private void writeHeaderLine() {
-        Row header = sheet.createRow(0);
+    private void writeTableHeaderExcel(String sheetName, String[] headers) {
 
+        // sheet
+        sheet = workbook.createSheet(sheetName);
+        sheet.createFreezePane(0, 1);
+
+        //header style
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setBold(true);
         font.setFontHeight(16);
         style.setFont(font);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setLocked(true);
 
-        createCell(header, 0, "Product ID", style);
-        createCell(header, 1, "Product Name", style);
-        createCell(header, 2, "Description", style);
-        createCell(header, 3, "Price", style);
-        createCell(header, 4, "Stock Quantity", style);
-        createCell(header, 5, "Height", style);
-        createCell(header, 6, "Width", style);
-        createCell(header, 7, "Length", style);
-        createCell(header, 8, "Weight", style);
-    }
-
-    private void createCell(Row row, int col, Object value, CellStyle style) {
-        sheet.autoSizeColumn(col);
-        Cell cell = row.createCell(col);
-        if (value instanceof Double) cell.setCellValue((Double) value);
-        if (value instanceof Boolean) cell.setCellValue((Boolean) value);
-        if (value instanceof String) cell.setCellValue((String) value);
-        if (value instanceof Date) cell.setCellValue((Date) value);
-        if (value instanceof Integer) cell.setCellValue((Integer) value);
-        if (value instanceof Long) cell.setCellValue((Long) value);
-        cell.setCellStyle(style);
-    }
-
-    private void writeDataLines(List<Product> products) {
-        int rowCount = 1;
-
-        CellStyle style = workbook.createCellStyle();
-        CellStyle productIdCellStyle = workbook.createCellStyle();
-        XSSFFont font = workbook.createFont();
-        font.setFontHeight(14);
-        style.setFont(font);
-        productIdCellStyle.setFont(font);
-        productIdCellStyle.setLocked(true);
-
-        for (Product product : products) {
-            Row row = sheet.createRow(rowCount++);
-            int col = 0;
-
-            createCell(row, col++, product.getProductId(), productIdCellStyle);
-            createCell(row, col++, product.getName(), style);
-            createCell(row, col++, product.getDescription(), style);
-            createCell(row, col++, product.getPrice(), style);
-            createCell(row, col++, product.getStockQuantity(), style);
-            createCell(row, col++, product.getHeight(), style);
-            createCell(row, col++, product.getWidth(), style);
-            createCell(row, col++, product.getLength(), style);
-            createCell(row, col++, product.getWeight(), style);
-
+        // header
+        Row row = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            createCell(row, i, headers[i], style);
         }
     }
 
-    @Override
-    public void exportProductsData(HttpServletResponse res, AddProductsToExportExcelReq body) throws IOException {
+    private CellStyle getFontContentExcel() {
+        CellStyle style = workbook.createCellStyle();
+        XSSFFont font = workbook.createFont();
+        font.setFontHeight(14);
+        style.setFont(font);
+        return style;
+    }
+
+    private void createCell(Row row, int columnCount, Object value, CellStyle style) {
+        sheet.autoSizeColumn(columnCount);
+        Cell cell = row.createCell(columnCount);
+        if (value instanceof Integer) {
+            cell.setCellValue((Integer) value);
+        } else if (value instanceof Double) {
+            cell.setCellValue((Double) value);
+        } else if (value instanceof Boolean) {
+            cell.setCellValue((Boolean) value);
+        } else if (value instanceof Long) {
+            cell.setCellValue((Long) value);
+        } else if (value instanceof Float) {
+            cell.setCellValue((Float) value);
+        } else if (value instanceof String)
+            cell.setCellValue((String) value);
+        cell.setCellStyle(style);
+    }
+
+    private HttpServletResponse initResponseForExportExcel(HttpServletResponse response, String fileName) {
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+        String headerKey = HttpHeaders.CONTENT_DISPOSITION;
+        String headerValue = "attachment; filename=" + fileName + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+        return response;
+    }
+
+    private boolean isValidExcelFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        String fileName = file.getOriginalFilename();
+
+        return (contentType != null && (contentType.equals("application/vnd.ms-excel") ||
+                contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) &&
+                (fileName != null && (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")));
+    }
+
+    private void writeTableData(AddProductsToExportExcelReq body) {
+        // data
         List<Product> products;
         if (body.isAllProducts()) products = productRepo.findAll();
         else {
             if (body.getProductIds() == null || body.getProductIds().isEmpty())
-                throw new NullPointerException("Products IDs must not be empty or null");
+                throw new NullPointerException("Product Ids must not null or empty");
             products = productRepo.findAllById(body.getProductIds());
-            products.sort(Comparator.comparing(Product::getProductId));
         }
 
-        sheet.createFreezePane(0, 1);
-        sheet.protectSheet("password");
-        writeHeaderLine();
-        writeDataLines(products);
+        // font style content
+        CellStyle unlockedStyle = getFontContentExcel();
+        CellStyle lockedStyle = getFontContentExcel();
+        lockedStyle.setLocked(true);
+        unlockedStyle.setLocked(false);
 
-        ServletOutputStream outputStream = res.getOutputStream();
-        workbook.write(outputStream);
-        workbook.close();
+        // starting write on row
+        int startRow = 1;
 
-        outputStream.close();
+        // write content
+        for (Product product : products) {
+            Row row = sheet.createRow(startRow++);
+            int columnCount = 0;
+            createCell(row, columnCount++, product.getProductId(), lockedStyle);
+            createCell(row, columnCount++, product.getName(), unlockedStyle);
+            createCell(row, columnCount++, product.getDescription(), unlockedStyle);
+            createCell(row, columnCount++, product.getPrice(), unlockedStyle);
+            createCell(row, columnCount++, product.getStockQuantity(), unlockedStyle);
+            createCell(row, columnCount++, product.getHeight(), unlockedStyle);
+            createCell(row, columnCount++, product.getWidth(), unlockedStyle);
+            createCell(row, columnCount++, product.getLength(), unlockedStyle);
+            createCell(row, columnCount++, product.getWeight(), unlockedStyle);
+        }
     }
 
     @Override
-    @Transactional
     public List<Product> readProductsData(MultipartFile file) throws IOException {
         if (!isValidExcelFile(file)) throw new InvalidFileTypeException("File type must be excel");
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<Product> products = new ArrayList<>();
-        XSSFWorkbook inputWorkBook = new XSSFWorkbook(file.getInputStream());
-        XSSFSheet inputSheet = inputWorkBook.getSheetAt(0);
+        XSSFWorkbook reqWorkbook = new XSSFWorkbook(file.getInputStream());
+        XSSFSheet reqSheet = reqWorkbook.getSheetAt(0);
 
-        for (Row row : inputSheet) {
+        for (int i = 1; i < reqSheet.getPhysicalNumberOfRows(); i++) {
+            Row row = reqSheet.getRow(i);
+
             Integer productId = (int) row.getCell(0).getNumericCellValue();
             String name = row.getCell(1).getStringCellValue();
             String description = row.getCell(2).getStringCellValue();
@@ -161,16 +179,35 @@ public class ExcelServiceImpl implements ExcelService {
             product.setWeight(weight);
             products.add(product);
         }
-
         return products;
     }
 
-    private boolean isValidExcelFile(MultipartFile file) {
-        String contentType = file.getContentType();
-        String fileName = file.getOriginalFilename();
+    public void exportToExcel(HttpServletResponse response, AddProductsToExportExcelReq body) throws IOException {
+        newReportExcel();
 
-        return (contentType != null && (contentType.equals("application/vnd.ms-excel") ||
-                contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))) &&
-                (fileName != null && (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")));
+        // response  writer to excel
+        HttpServletResponse excelResponse = initResponseForExportExcel(response, "products");
+        ServletOutputStream outputStream = excelResponse.getOutputStream();
+
+        // write sheet & header
+        String[] headers = new String[]{
+                "Product ID",
+                "Product Name",
+                "Description",
+                "Price",
+                "Stock Quantity",
+                "Height",
+                "Width",
+                "Length",
+                "Weight"};
+        writeTableHeaderExcel("Products", headers);
+
+        // write content row
+        writeTableData(body);
+        sheet.protectSheet("password");
+
+        workbook.write(outputStream);
+        workbook.close();
+        outputStream.close();
     }
 }
