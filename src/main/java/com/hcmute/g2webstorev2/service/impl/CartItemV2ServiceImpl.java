@@ -70,6 +70,7 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
 
         Set<CartItemV2> cartItemV2Set = cartItemV2Repo.findAllByCustomer(customer);
         delInvalidVouchers(cartItemV2Set);
+        cartItemV2Repo.saveAll(cartItemV2Set);
         return cartItemV2Set.stream().map(Mapper::toCartItemv2Res).collect(Collectors.toSet());
     }
 
