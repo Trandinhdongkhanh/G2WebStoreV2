@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,11 +64,19 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
     }
 
     @Override
+    @Transactional
     public Set<CartItemV2Res> getCartItems() {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return cartItemV2Repo.findAllByCustomer(customer)
-                .stream().map(Mapper::toCartItemv2Res)
-                .collect(Collectors.toSet());
+
+        Set<CartItemV2> cartItemV2Set = cartItemV2Repo.findAllByCustomer(customer);
+        delInvalidVouchers(cartItemV2Set);
+        return cartItemV2Set.stream().map(Mapper::toCartItemv2Res).collect(Collectors.toSet());
+    }
+
+    private void delInvalidVouchers(Set<CartItemV2> cartItemV2Set) {
+        for (CartItemV2 cartItemV2 : cartItemV2Set)
+            cartItemV2.getVouchers().removeIf(voucher -> cartItemV2.getShopSubTotal() < voucher.getMinSpend() ||
+                    voucher.getEndDate().isBefore(LocalDate.now()));
     }
 
     @Override
