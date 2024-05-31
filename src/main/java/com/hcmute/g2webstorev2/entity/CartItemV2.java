@@ -3,7 +3,11 @@ package com.hcmute.g2webstorev2.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.Set;
+
+import static com.hcmute.g2webstorev2.enums.VoucherType.*;
+import static com.hcmute.g2webstorev2.enums.DiscountType.*;
 
 @Getter
 @Setter
@@ -32,13 +36,50 @@ public class CartItemV2 {
             inverseJoinColumns = @JoinColumn(name = "voucher_id")
     )
     private Set<Voucher> vouchers;
+
     @Transient
-    public Long shopSubTotal;
+    private Long shopReduce;
+
+    public Long getShopReduce() {
+        if (vouchers == null || vouchers.isEmpty()) return 0L;
+        long shopReduce = 0L;
+        for (Voucher voucher : getVouchers()) {
+            if (Objects.equals(SHOP_VOUCHER, voucher.getVoucherType())) {
+                if (Objects.equals(PRICE, voucher.getDiscountType())) {
+                    shopReduce += voucher.getReducePrice();
+                    continue;
+                }
+                shopReduce += shopReduce * (voucher.getReducePercent() / 100);
+            }
+        }
+        return shopReduce;
+    }
+
+    @Transient
+    private Long feeShipReduce;
+
+    public Long getFeeShipReduce() {
+        if (vouchers == null || vouchers.isEmpty()) return 0L;
+        long feeShipReduce = 0L;
+        for (Voucher voucher : getVouchers()) {
+            if (Objects.equals(FREE_SHIP_VOUCHER, voucher.getVoucherType())) {
+                if (Objects.equals(PRICE, voucher.getDiscountType())) {
+                    feeShipReduce += voucher.getReducePrice();
+                    continue;
+                }
+                feeShipReduce += feeShipReduce * (voucher.getReducePercent() / 100);
+            }
+        }
+        return feeShipReduce;
+    }
+
+    @Transient
+    private Long shopSubTotal;
+
     public Long getShopSubTotal() {
-        if (shopItems != null && !shopItems.isEmpty())
-            return shopItems.stream()
-                    .map(ShopItem::getSubTotal)
-                    .reduce(0L, Long::sum);
-        return 0L;
+        if (shopItems == null || shopItems.isEmpty()) return 0L;
+        return shopItems.stream()
+                .map(ShopItem::getSubTotal)
+                .reduce(0L, Long::sum);
     }
 }

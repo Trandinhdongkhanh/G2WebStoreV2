@@ -244,6 +244,8 @@ public class Mapper {
                 .shopItems(shopItemResSet)
                 .vouchers(voucherResponseSet)
                 .shopSubTotal(cartItemV2.getShopSubTotal())
+                .shopVoucherReduce(cartItemV2.getShopReduce())
+                .shopFreeShipReduce(cartItemV2.getFeeShipReduce())
                 .build();
     }
     public static ShopItemRes toShopItemRes(ShopItem shopItem){

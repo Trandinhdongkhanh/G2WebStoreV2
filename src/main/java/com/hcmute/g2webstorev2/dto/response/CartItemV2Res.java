@@ -24,4 +24,8 @@ public class CartItemV2Res {
     private Set<VoucherResponse> vouchers;
     @JsonProperty("shop_subtotal")
     public Long shopSubTotal;
+    @JsonProperty("shop_voucher_reduce")
+    public Long shopVoucherReduce;
+    @JsonProperty("shop_free_ship_reduce")
+    public Long shopFreeShipReduce;
 }
