@@ -22,20 +22,6 @@ public class ShopItemServiceImpl implements ShopItemService {
     private final CartItemV2Repo cartItemV2Repo;
     @Override
     @Transactional
-    public ShopItem addItem(CartItemV2 cartItemV2, Product product, Integer quantity) {
-        ShopItem shopItem = shopItemRepo.findByCartItemV2AndProduct(cartItemV2, product).orElse(null);
-        if (shopItem != null) shopItem.setQuantity(shopItem.getQuantity() + quantity);
-        else shopItem = ShopItem.builder()
-                .quantity(quantity)
-                .product(product)
-                .cartItemV2(cartItemV2)
-                .build();
-
-        return shopItemRepo.save(shopItem);
-    }
-
-    @Override
-    @Transactional
     public void delItem(Long shopItemId) {
         ShopItem shopItem = shopItemRepo.findById(shopItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop item not found"));

@@ -6,8 +6,6 @@ import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.entity.ShopItem;
 
 public interface ShopItemService {
-    ShopItem addItem(CartItemV2 cartItemV2, Product product, Integer quantity);
-
     void delItem(Long shopItemId);
 
     ShopItemRes updateQuantity(Long shopItemId, Integer quantity);

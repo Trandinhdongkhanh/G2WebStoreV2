@@ -26,10 +26,11 @@ public class CartItemV2Controller {
     }
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<CartItemV2Res> addItem(@RequestBody @Valid CartItemRequest body){
+    public ResponseEntity<String> addItem(@RequestBody @Valid CartItemRequest body){
+        cartItemV2Service.addItem(body);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(cartItemV2Service.addItem(body));
+                .body("Cart Item added successfully");
     }
     @DeleteMapping("/{cartItemId}")
     public ResponseEntity<String> delCartItem(@PathVariable("cartItemId") Long cartItemId){

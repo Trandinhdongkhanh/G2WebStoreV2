@@ -41,10 +41,13 @@ public class ProductController {
         productService.updateProducts(products);
         return ResponseEntity.ok("Update products successfully");
     }
-
-    @GetMapping("/{productId}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable("productId") Integer productId) {
-        return ResponseEntity.ok(productService.getProductById(productId));
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProduct(
+            @PathVariable("id")
+            @NotNull(message = "Product ID cannot be null")
+            @Min(value = 1, message = "Product ID must be greater than 0")
+            Integer id) {
+        return ResponseEntity.ok(productService.getProduct(id));
     }
 
     @PostMapping("/export/excel")
@@ -107,14 +110,6 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProductsByShop(id, pageNumber, pageSize, sortType));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProduct(
-            @PathVariable("id")
-            @NotNull(message = "Product ID cannot be null")
-            @Min(value = 1, message = "Product ID must be greater than 0")
-            Integer id) {
-        return ResponseEntity.ok(productService.getProduct(id));
-    }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('CREATE_PRODUCT')")

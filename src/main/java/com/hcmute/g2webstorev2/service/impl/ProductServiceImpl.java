@@ -524,14 +524,6 @@ public class ProductServiceImpl implements ProductService {
                         Sort.by("soldQuantity").descending()))
                 .map(Mapper::toProductResponse).getContent();
     }
-
-    @Override
-    public ProductResponse getProductById(Integer productId) {
-        Product product = productRepo.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-        return Mapper.toProductResponse(product);
-    }
-
     private String getPath(Integer id) {
         Category category = categoryRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with ID = " + id + " not found"));

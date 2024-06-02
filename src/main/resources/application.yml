@@ -14,7 +14,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -55,8 +55,6 @@ vnp:
   tmn-code: 9279QT0C
   secret-key: RIPBIASTCZTZNUAOQYTKVZDTBLAKOMOR
   version: 2.1.0
-
-
 
 captcha:
   secret: 6Lcdz8cpAAAAAPYumczXzpVgiX_5G_vHzcrQo7rC

@@ -9,9 +9,9 @@ import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CartItemV2Repo;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
+import com.hcmute.g2webstorev2.repository.ShopItemRepo;
 import com.hcmute.g2webstorev2.repository.VoucherRepo;
 import com.hcmute.g2webstorev2.service.CartItemV2Service;
-import com.hcmute.g2webstorev2.service.ShopItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,11 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.hcmute.g2webstorev2.enums.DiscountType.*;
-import static com.hcmute.g2webstorev2.enums.VoucherType.*;
 
 @Service
 @Slf4j
@@ -32,11 +30,11 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
     private final CartItemV2Repo cartItemV2Repo;
     private final ProductRepo productRepo;
     private final VoucherRepo voucherRepo;
-    private final ShopItemService shopItemService;
+    private final ShopItemRepo shopItemRepo;
 
     @Override
     @Transactional
-    public CartItemV2Res addItem(CartItemRequest body) {
+    public void addItem(CartItemRequest body) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Product product = productRepo.findById(body.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -51,16 +49,36 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
                     .shopItems(null)
                     .vouchers(null)
                     .build();
+
+            ShopItem shopItem = ShopItem.builder()
+                    .cartItemV2(cartItemV2)
+                    .quantity(body.getQuantity())
+                    .product(product)
+                    .build();
+
+            cartItemV2.setShopItems(Set.of(shopItem));
+            cartItemV2Repo.save(cartItemV2);
+            log.info("Cart item saved successfully");
+            return;
         }
 
-        ShopItem shopItem = shopItemService.addItem(cartItemV2, product, body.getQuantity());
-        if (cartItemV2.getShopItems() != null && !cartItemV2.getShopItems().isEmpty())
-            cartItemV2.getShopItems().add(shopItem);
-        else cartItemV2.setShopItems(Set.of(shopItem));
+        ShopItem shopItem = cartItemV2.getShopItems().stream()
+                .filter(item -> Objects.equals(item.getProduct().getProductId(), product.getProductId()))
+                .findFirst().orElse(null);
 
-        CartItemV2Res res = Mapper.toCartItemv2Res(cartItemV2Repo.save(cartItemV2));
-        log.info("Cart item saved successfully");
-        return res;
+        if (shopItem == null) {
+            shopItem = ShopItem.builder()
+                    .cartItemV2(cartItemV2)
+                    .quantity(body.getQuantity())
+                    .product(product)
+                    .build();
+            cartItemV2.getShopItems().add(shopItem);
+            cartItemV2Repo.save(cartItemV2);
+            log.info("Cart item saved successfully");
+            return;
+        }
+        shopItem.setQuantity(shopItem.getQuantity() + body.getQuantity());
+        shopItemRepo.save(shopItem);
     }
 
     @Override
