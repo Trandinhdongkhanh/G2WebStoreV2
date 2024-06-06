@@ -62,11 +62,11 @@ public class VoucherController {
     @GetMapping("/shop")
     @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_PROMOTION_ACCESS') or hasAuthority('READ_PROMOTION')")
     public ResponseEntity<Page<VoucherResponse>> getShopVouchers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "ALL") VoucherStatus voucherStatus,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String voucherId
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "5", name = "size") int size,
+            @RequestParam(defaultValue = "ALL", name = "status") VoucherStatus voucherStatus,
+            @RequestParam(required = false, name = "name") String name,
+            @RequestParam(required = false, name = "voucherId") String voucherId
     ) {
         return ResponseEntity.ok(voucherService.getShopVouchers(name, voucherId, voucherStatus, page, size));
     }

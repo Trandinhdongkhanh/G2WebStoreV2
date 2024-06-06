@@ -156,8 +156,9 @@ public class VoucherServiceImpl implements VoucherService {
                     return getVouchersAfterPaginate(startedVouchers, page, size);
                 }
                 case PAUSED -> {
-                    return voucherRepo.findAllByShopAndIsPausedIsTrue(seller.getShop(), PageRequest.of(page, size))
-                            .map(Mapper::toVoucherResponse);
+                    List<Voucher> pausedVouchers = vouchers.stream()
+                            .filter(Voucher::getIsPaused).toList();
+                    return getVouchersAfterPaginate(pausedVouchers, page, size);
                 }
                 case ALL -> {
                     return getVouchersAfterPaginate(vouchers, page, size);
