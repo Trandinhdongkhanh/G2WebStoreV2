@@ -34,4 +34,6 @@ public class VoucherResponse {
     private Integer maxUsePerCus;
     @JsonProperty("shop_id")
     private Integer shopId;
+    @JsonProperty("is_paused")
+    private Boolean isPaused;
 }

@@ -146,6 +146,7 @@ public class Mapper {
                 .quantity(voucher.getQuantity())
                 .maxUsePerCus(voucher.getMaxUsePerCus())
                 .shopId(voucher.getShop().getShopId())
+                .isPaused(voucher.getIsPaused())
                 .build();
     }
 

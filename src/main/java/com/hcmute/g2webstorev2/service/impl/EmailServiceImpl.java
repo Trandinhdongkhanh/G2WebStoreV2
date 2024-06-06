@@ -72,14 +72,13 @@ public class EmailServiceImpl implements EmailService {
 
             Map<String, Object> properties = new HashMap<>();
             properties.put("email", order.getCustomer().getEmail());
-            properties.put("fullName", order.getCustomer().getFullName());
             properties.put("order", order);
             properties.put("receiverName", order.getAddress().getReceiverName());
             properties.put("district", order.getAddress().getDistrict());
             properties.put("province", order.getAddress().getProvince());
             properties.put("ward", order.getAddress().getWard());
             properties.put("address", order.getAddress().getOrderReceiveAddress());
-            properties.put("phoneNo", order.getCustomer().getPhoneNo());
+            properties.put("phoneNo", order.getAddress().getReceiverPhoneNo());
             properties.put("shopName", order.getShop().getName());
             properties.put("deliveredDate", order.getDeliveredDate());
             properties.put("orderItems", order.getOrderItems());

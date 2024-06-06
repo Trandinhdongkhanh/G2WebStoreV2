@@ -41,4 +41,5 @@ public class Voucher {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shop_id")
     private Shop shop;
+    private Boolean isPaused;
 }

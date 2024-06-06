@@ -7,6 +7,7 @@ import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.entity.Seller;
 import com.hcmute.g2webstorev2.entity.Shop;
 import com.hcmute.g2webstorev2.entity.Voucher;
+import com.hcmute.g2webstorev2.enums.VoucherStatus;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.exception.VoucherException;
@@ -17,6 +18,7 @@ import com.hcmute.g2webstorev2.repository.VoucherRepo;
 import com.hcmute.g2webstorev2.service.VoucherService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,9 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.hcmute.g2webstorev2.enums.DiscountType.*;
@@ -59,6 +61,9 @@ public class VoucherServiceImpl implements VoucherService {
         if (body.getStartDate().isAfter(body.getEndDate()))
             throw new VoucherException("Start date can't be after end date");
 
+        if (body.getStartDate().isBefore(LocalDate.now()))
+            throw new VoucherException("Start date must be after current time");
+
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Shop shop = shopRepo.findById(seller.getShop().getShopId())
@@ -77,6 +82,7 @@ public class VoucherServiceImpl implements VoucherService {
                 .quantity(body.getQuantity())
                 .maxUsePerCus(body.getMaxUsePerCus())
                 .shop(shop)
+                .isPaused(false)
                 .build()));
 
         log.info("Voucher with ID = " + res.getId() + " created successfully");
@@ -93,8 +99,7 @@ public class VoucherServiceImpl implements VoucherService {
     public List<VoucherResponse> getVouchersByProduct(Integer id) {
         if (!productRepo.existsById(id)) throw new ResourceNotFoundException("Product with ID = " + id + " not found");
         return voucherRepo.findAllByProductId(id)
-                .stream().filter(voucher -> voucher.getEndDate().isAfter(LocalDate.now())
-                        && voucher.getStartDate().isBefore(LocalDate.now()))
+                .stream().filter(voucher -> voucher.getEndDate().isAfter(LocalDate.now()))
                 .map(Mapper::toVoucherResponse)
                 .collect(Collectors.toList());
     }
@@ -124,5 +129,58 @@ public class VoucherServiceImpl implements VoucherService {
 
         voucher.setProducts(products);
         log.info("Add voucher to products successfully");
+    }
+
+    @Override
+    public Page<VoucherResponse> getShopVouchers(String name, String voucherId, VoucherStatus status, int page, int size) {
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        List<Voucher> vouchers = filterVouchers(seller.getShop(), name, voucherId);
+        LocalDate now = LocalDate.now();
+        if (status != null)
+            switch (status) {
+                case NOT_STARTED -> {
+                    List<Voucher> notStartedVouchers = vouchers.stream()
+                            .filter(voucher -> voucher.getStartDate().isAfter(now)).toList();
+                    return getVouchersAfterPaginate(notStartedVouchers, page, size);
+                }
+                case EXPIRED -> {
+                    List<Voucher> expiredVouchers = vouchers.stream()
+                            .filter(voucher -> voucher.getEndDate().isBefore(now)).toList();
+                    return getVouchersAfterPaginate(expiredVouchers, page, size);
+                }
+                case STARTED -> {
+                    List<Voucher> startedVouchers = vouchers.stream()
+                            .filter(voucher -> voucher.getStartDate().isBefore(now)
+                                    && voucher.getEndDate().isAfter(now)).toList();
+                    return getVouchersAfterPaginate(startedVouchers, page, size);
+                }
+                case PAUSED -> {
+                    return voucherRepo.findAllByShopAndIsPausedIsTrue(seller.getShop(), PageRequest.of(page, size))
+                            .map(Mapper::toVoucherResponse);
+                }
+                case ALL -> {
+                    return getVouchersAfterPaginate(vouchers, page, size);
+                }
+            }
+        return getVouchersAfterPaginate(vouchers, page, size);
+    }
+
+    private List<Voucher> filterVouchers(Shop shop, String name, String voucherId) {
+        if (name != null && voucherId == null) return voucherRepo.findAllByShopAndNameStartingWith(shop, name);
+        if (name == null && voucherId != null) return voucherRepo.findAllByShopAndId(shop, voucherId);
+        return voucherRepo.findAllByShop(shop);
+    }
+
+    private Page<VoucherResponse> getVouchersAfterPaginate(List<Voucher> vouchers, int page, int size) {
+        Collections.reverse(vouchers);
+        Pageable pageRequest = PageRequest.of(page, size);
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start + pageRequest.getPageSize()), vouchers.size());
+
+        List<VoucherResponse> pageContent = vouchers.subList(start, end)
+                .stream().map(Mapper::toVoucherResponse).toList();
+
+        return new PageImpl<>(pageContent, pageRequest, vouchers.size());
     }
 }

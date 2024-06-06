@@ -141,7 +141,6 @@ public class OrderServiceImpl implements OrderService {
             paymentUrl = processOnlPayment(body.getPaymentType(), ordersTotalPrice, req, orders);
         else orders.forEach(emailService::sendOrderConfirmation);
 
-
         return OrdersCreationResponse.builder()
                 .orders(result.stream().map(Mapper::toOrderResponse).collect(Collectors.toList()))
                 .paymentUrl(paymentUrl)

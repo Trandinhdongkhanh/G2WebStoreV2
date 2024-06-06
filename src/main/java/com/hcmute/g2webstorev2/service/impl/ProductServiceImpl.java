@@ -8,6 +8,7 @@ import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
+import com.hcmute.g2webstorev2.exception.SellFunctionLockedException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CategoryRepo;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
@@ -251,6 +252,8 @@ public class ProductServiceImpl implements ProductService {
         log.info("Beginning add product...");
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        if (!seller.getShop().getIsAllowedToSell())
+            throw new SellFunctionLockedException("Your shop is currently banned from selling products");
         if (productRepo.existsByNameAndShop(body.getName(), seller.getShop()))
             throw new ResourceNotUniqueException("Duplicate product name");
 

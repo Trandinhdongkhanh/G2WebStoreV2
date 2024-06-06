@@ -109,14 +109,14 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
                 .orElseThrow(() -> new ResourceNotFoundException("Cart Item not found"));
 
         if (cartItemV2.getShopSubTotal() < voucher.getMinSpend())
-            throw new InvalidVoucherException("Tổng chi tiêu chưa đủ để áp dụng voucher");
+            throw new InvalidVoucherException("Min spend isn't enough to apply voucher");
 
         Voucher voucherInCart = cartItemV2.getVouchers().stream()
                 .filter(v -> v.getId().equals(voucher.getId()))
                 .findFirst()
                 .orElse(null);
 
-        if (voucherInCart != null) throw new InvalidVoucherException("Voucher đã được áp dụng");
+        if (voucherInCart != null) throw new InvalidVoucherException("Voucher is already applied");
         cartItemV2.getVouchers().add(voucher);
         return Mapper.toCartItemv2Res(cartItemV2Repo.save(cartItemV2));
     }

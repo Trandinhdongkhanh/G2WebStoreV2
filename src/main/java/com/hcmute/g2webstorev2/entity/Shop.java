@@ -25,5 +25,5 @@ public class Shop {
     private String ward;
     private String street;
     private Long balance;
-    private Boolean isAvailable;
+    private Boolean isAllowedToSell;
 }

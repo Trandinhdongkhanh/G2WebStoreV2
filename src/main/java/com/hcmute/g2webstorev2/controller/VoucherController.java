@@ -3,18 +3,21 @@ package com.hcmute.g2webstorev2.controller;
 import com.hcmute.g2webstorev2.dto.request.AddVoucherToProductsReq;
 import com.hcmute.g2webstorev2.dto.request.VoucherRequest;
 import com.hcmute.g2webstorev2.dto.response.VoucherResponse;
+import com.hcmute.g2webstorev2.enums.VoucherStatus;
 import com.hcmute.g2webstorev2.service.VoucherService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/vouchers")
@@ -48,11 +51,23 @@ public class VoucherController {
     @PostMapping("/{voucherId}/add-to-products")
     @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_PROMOTION_ACCESS') or " +
             "hasAnyAuthority('UPDATE_PROMOTION')")
-    public ResponseEntity<?> addVoucherToProducts(
+    public ResponseEntity<String> addVoucherToProducts(
             @PathVariable("voucherId") String voucherId,
             @Valid @RequestBody AddVoucherToProductsReq body
     ) {
         voucherService.addVoucherToProducts(body, voucherId);
         return ResponseEntity.ok("Success");
+    }
+
+    @GetMapping("/shop")
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_PROMOTION_ACCESS') or hasAuthority('READ_PROMOTION')")
+    public ResponseEntity<Page<VoucherResponse>> getShopVouchers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "ALL") VoucherStatus voucherStatus,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String voucherId
+    ) {
+        return ResponseEntity.ok(voucherService.getShopVouchers(name, voucherId, voucherStatus, page, size));
     }
 }
