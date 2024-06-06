@@ -102,6 +102,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/*/forgot-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/*/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/payments/return-url").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/vouchers/product/*").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthEntryPoint))

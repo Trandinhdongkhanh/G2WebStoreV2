@@ -78,6 +78,7 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
             return;
         }
         shopItem.setQuantity(shopItem.getQuantity() + body.getQuantity());
+        cartItemV2.getShopItems().add(shopItem);
         shopItemRepo.save(shopItem);
     }
 

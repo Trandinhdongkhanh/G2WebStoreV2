@@ -37,6 +37,8 @@ public class OrderResponse {
     private Integer g2VoucherPriceReduce;
     @JsonProperty("shop_voucher_price_reduce")
     private Integer shopVoucherPriceReduce;
+    @JsonProperty("fee_ship_reduce")
+    private Integer feeShipReduce;
     @JsonProperty("point_spent")
     private Integer pointSpent;
     private Integer total;

@@ -194,6 +194,7 @@ public class Mapper {
                 .feeShip(order.getFeeShip())
                 .g2VoucherPriceReduce(order.getG2VoucherPriceReduce())
                 .shopVoucherPriceReduce(order.getShopVoucherPriceReduce())
+                .feeShipReduce(order.getFeeShipReduce())
                 .pointSpent(order.getPointSpent())
                 .total(order.getTotal())
                 .address(Mapper.toAddressResponse(order.getAddress()))
@@ -255,8 +256,9 @@ public class Mapper {
                 .price(Long.valueOf(shopItem.getProduct().getPrice()))
                 .name(shopItem.getProduct().getName())
                 .quantity(shopItem.getQuantity())
-                .productId(shopItem.getProduct().getProductId())
+                .image(shopItem.getProduct().getImages().get(0).getFileUrl())
                 .subTotal(shopItem.getSubTotal())
+                .productId(shopItem.getProduct().getProductId())
                 .build();
     }
 }

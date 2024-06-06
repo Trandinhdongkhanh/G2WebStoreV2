@@ -1,9 +1,6 @@
 package com.hcmute.g2webstorev2.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hcmute.g2webstorev2.entity.CartItemV2;
-import com.hcmute.g2webstorev2.entity.Product;
-import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -19,6 +16,7 @@ public class ShopItemRes {
     private Long price;
     private String name;
     private Integer quantity;
+    private String image;
     @JsonProperty("product_id")
     private Integer productId;
     @JsonProperty("subtotal")

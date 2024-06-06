@@ -1,8 +1,8 @@
 package com.hcmute.g2webstorev2.service.impl;
 
+import com.hcmute.g2webstorev2.dto.request.CheckShopItemReq;
 import com.hcmute.g2webstorev2.dto.request.OrderCreationRequest;
 import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
-import com.hcmute.g2webstorev2.dto.response.CartItemResponse;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
 import com.hcmute.g2webstorev2.dto.response.PaymentResponse;
@@ -45,15 +45,15 @@ import static com.hcmute.g2webstorev2.enums.PaymentType.*;
 public class OrderServiceImpl implements OrderService {
     private final ProductRepo productRepo;
     private final OrderRepo orderRepo;
-    private final CartItemRepo cartItemRepo;
-    private final CustomerRepo customerRepo;
     private final ShopRepo shopRepo;
     private final AddressRepo addressRepo;
     private final VNPAYService vnpayService;
     private final VNPayTransRepo vnPayTransRepo;
     private final EmailService emailService;
+    private final CartItemV2Repo cartItemV2Repo;
+    private final CustomerRepo customerRepo;
 
-    private void checkDataIntegrity(CartItemResponse item) {
+    private void checkDataIntegrity(CheckShopItemReq item) {
         Product product = productRepo.findById(item.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Product with ID = " + item.getProductId() + " not found"));
@@ -75,50 +75,16 @@ public class OrderServiceImpl implements OrderService {
                     " sufficient, please adjust your quantity");
     }
 
-    private Map<String, Object> handleOrderItemCreationProcess(List<CartItem> cartItems, Shop shop, Order order) {
-        Map<String, Object> map = new HashMap<>();
-        List<OrderItem> orderItems = new ArrayList<>();
-        int total = 0;
-
-        for (CartItem cartItem : cartItems) {
-            if (!Objects.equals(cartItem.getProduct().getShop().getShopId(), shop.getShopId())) continue;
-
-            OrderItem orderItem = OrderItem.builder()
-                    .image(cartItem.getProduct().getImages().get(0).getFileUrl())
-                    .price(cartItem.getProduct().getPrice())
-                    .quantity(cartItem.getQuantity())
-                    .name(cartItem.getProduct().getName())
-                    .productId(cartItem.getProduct().getProductId())
-                    .isReviewed(false)
-                    .order(order)
-                    .build();
-
-            orderItems.add(orderItem);
-
-            Product product = cartItem.getProduct();
-
-            product.setSoldQuantity(product.getSoldQuantity() + orderItem.getQuantity());
-            product.setStockQuantity(product.getStockQuantity() - orderItem.getQuantity());
-
-            productRepo.save(product);
-            log.info("Product with ID = " + product.getProductId() + " updated successfully");
-
-            total += orderItem.getPrice() * orderItem.getQuantity();
-
-            cartItemRepo.delete(cartItem);
-        }
-
-        map.put("total", total);
-        map.put("orderItems", orderItems);
-        return map;
-    }
-
-    private Order setUpOrder(PaymentType paymentType, Customer customer, Shop shop, Address address, Integer feeShip) {
+    private Order setUpOrder(PaymentType paymentType, Customer customer, CartItemV2 cartItemV2, Address address, Integer feeShip) {
         Order order = Order.builder()
                 .createdDate(LocalDateTime.now())
                 .customer(customer)
-                .shop(shop)
+                .shop(cartItemV2.getShop())
                 .feeShip(feeShip)
+                .feeShipReduce(Math.toIntExact(cartItemV2.getFeeShipReduce()))
+                .shopVoucherPriceReduce(Math.toIntExact(cartItemV2.getShopReduce()))
+                .total(Math.toIntExact(cartItemV2.getShopSubTotal()))
+                .pointSpent(0)
                 .address(address)
                 .build();
 
@@ -139,64 +105,73 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrdersCreationResponse createOrders(OrdersCreationRequest body, HttpServletRequest req, HttpServletResponse res) throws IOException {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        int ordersTotalPrice = 0;
 
         Address address = addressRepo.findById(body.getAddressId())
-                .orElseThrow(() -> new ResourceNotFoundException("Address with ID = " + body.getAddressId() + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
 
-        List<CartItem> cartItems = cartItemRepo.findAllByCustomer(customer);
+        Set<CartItemV2> cartItemV2Set = cartItemV2Repo.findAllByCustomer(customer);
         List<Order> orders = new ArrayList<>();
-
-        if (cartItems.isEmpty())
-            throw new ResourceNotFoundException("There are no items in cart, please add some products");
-
-        log.info("Perform checking data integrity...");
+        int ordersTotalPrice = 0;
 
         for (OrderCreationRequest order : body.getOrders()) {
             order.getItems().forEach(this::checkDataIntegrity);
-
-            Shop shop = shopRepo.findById(order.getShopId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Shop with ID = " + order.getShopId() + " not found"));
-
-            Order newOrder = setUpOrder(body.getPaymentType(), customer, shop, address, order.getFeeShip());
-
-            Map<String, Object> mapResult = handleOrderItemCreationProcess(cartItems, shop, newOrder);
-            int total = (int) mapResult.get("total");
-            List<OrderItem> orderItems = (List<OrderItem>) mapResult.get("orderItems");
-
-            if (body.getIsPointSpent() != null && body.getIsPointSpent()) {
-                newOrder.setPointSpent((int) (customer.getPoint() / body.getOrders().size()));
-                newOrder.setTotal(total + order.getFeeShip() - newOrder.getPointSpent());
-            } else newOrder.setTotal(total + order.getFeeShip());
-            newOrder.setOrderItems(orderItems);
-            ordersTotalPrice += newOrder.getTotal();
-
-            Order result = orderRepo.save(newOrder);
-            log.info("Order with ID = " + result.getOrderId() + " created successfully");
-            orders.add(result);
-        }
-
-        //Update point process
-        if (body.getIsPointSpent() != null && body.getIsPointSpent()) {
-            if (ordersTotalPrice <= customer.getPoint()) {
-                customer.setPoint(customer.getPoint() - ordersTotalPrice);
-                ordersTotalPrice = 0;
-            } else {
-                ordersTotalPrice -= customer.getPoint();
-                customer.setPoint(0);
+            Order newOrder = null;
+            for (CartItemV2 cartItemV2 : cartItemV2Set) {
+                newOrder = setUpOrder(body.getPaymentType(), customer, cartItemV2, address, order.getFeeShip());
+                List<OrderItem> orderItems = handleOrderItemCreationProcess(cartItemV2, newOrder);
+                newOrder.setOrderItems(orderItems);
+            }
+            if (newOrder != null) {
+                if (body.getIsPointSpent()) {
+                    Integer pointSpent = (int) (customer.getPoint() / cartItemV2Set.size());
+                    newOrder.setPointSpent(pointSpent);
+                    customer.setPoint(0);
+                    customerRepo.save(customer);
+                }
+                ordersTotalPrice += newOrder.getTotal() + newOrder.getFeeShip() - newOrder.getShopVoucherPriceReduce()
+                        - newOrder.getFeeShipReduce() - newOrder.getPointSpent();
+                orders.add(newOrder);
             }
         }
-        customerRepo.save(customer);
+        List<Order> result = orderRepo.saveAll(orders);
+        cartItemV2Repo.deleteAll(cartItemV2Set);
 
         String paymentUrl = null;
         if (!body.getPaymentType().equals(COD))
             paymentUrl = processOnlPayment(body.getPaymentType(), ordersTotalPrice, req, orders);
         else orders.forEach(emailService::sendOrderConfirmation);
 
+
         return OrdersCreationResponse.builder()
-                .orders(orders.stream().map(Mapper::toOrderResponse).collect(Collectors.toList()))
+                .orders(result.stream().map(Mapper::toOrderResponse).collect(Collectors.toList()))
                 .paymentUrl(paymentUrl)
                 .build();
+    }
+
+    private List<OrderItem> handleOrderItemCreationProcess(CartItemV2 cartItemV2, Order order) {
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (ShopItem shopItem : cartItemV2.getShopItems()) {
+            OrderItem orderItem = OrderItem.builder()
+                    .image(shopItem.getProduct().getImages().get(0).getFileUrl())
+                    .price(shopItem.getProduct().getPrice())
+                    .quantity(shopItem.getQuantity())
+                    .name(shopItem.getProduct().getName())
+                    .productId(shopItem.getProduct().getProductId())
+                    .isReviewed(false)
+                    .order(order)
+                    .build();
+
+            orderItems.add(orderItem);
+
+            Product product = shopItem.getProduct();
+
+            product.setSoldQuantity(product.getSoldQuantity() + orderItem.getQuantity());
+            product.setStockQuantity(product.getStockQuantity() - orderItem.getQuantity());
+
+            productRepo.save(product);
+            log.info("Product with ID = " + product.getProductId() + " updated successfully");
+        }
+        return orderItems;
     }
 
     private String processOnlPayment(PaymentType paymentType, int total, HttpServletRequest req, List<Order> orders) throws IOException {
