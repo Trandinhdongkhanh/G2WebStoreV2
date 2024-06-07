@@ -242,7 +242,7 @@ public class Mapper {
                 .cartItemId(cartItemV2.getCartItemId())
                 .customerId(cartItemV2.getCustomer().getCustomerId())
                 .shopName(cartItemV2.getShop().getName())
-                .shopId(cartItemV2.getShop().getShopId())
+                .shop(Mapper.toShopResponse(cartItemV2.getShop()))
                 .shopItems(shopItemResSet)
                 .vouchers(voucherResponseSet)
                 .shopSubTotal(cartItemV2.getShopSubTotal())

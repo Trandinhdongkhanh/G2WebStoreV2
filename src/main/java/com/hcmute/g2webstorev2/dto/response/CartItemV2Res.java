@@ -17,8 +17,7 @@ public class CartItemV2Res {
     private Integer customerId;
     @JsonProperty("shop_name")
     private String shopName;
-    @JsonProperty("shop_id")
-    private Integer shopId;
+    private ShopResponse shop;
     @JsonProperty("shop_items")
     private Set<ShopItemRes> shopItems;
     private Set<VoucherResponse> vouchers;

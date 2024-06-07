@@ -26,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -98,8 +96,10 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public List<VoucherResponse> getVouchersByProduct(Integer id) {
         if (!productRepo.existsById(id)) throw new ResourceNotFoundException("Product with ID = " + id + " not found");
+        LocalDate now = LocalDate.now();
         return voucherRepo.findAllByProductId(id)
-                .stream().filter(voucher -> voucher.getEndDate().isAfter(LocalDate.now()))
+                .stream().filter(voucher -> voucher.getEndDate().isAfter(now)
+                && !voucher.getIsPaused() && voucher.getStartDate().isBefore(now))
                 .map(Mapper::toVoucherResponse)
                 .collect(Collectors.toList());
     }

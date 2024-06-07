@@ -61,12 +61,12 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
-            @RequestParam(value = "page")
+            @RequestParam(value = "page", defaultValue = "0")
             @Min(value = 0, message = "Page index must not be less than zero")
             @NotNull(message = "Page index must not be null")
             Integer pageNumber,
 
-            @RequestParam(value = "size")
+            @RequestParam(value = "size", defaultValue = "12")
             @Min(value = 0, message = "Page size must not be less than 1")
             @NotNull(message = "Page size must not be null")
             Integer pageSize,
