@@ -70,6 +70,7 @@ public class SellerServiceImpl implements SellerService {
                 .image(null)
                 .name(body.getEmail())
                 .balance(0L)
+                .isAllowedToSell(true)
                 .build());
 
         log.info("Shop with ID = " + shop.getShopId() + " created successfully");

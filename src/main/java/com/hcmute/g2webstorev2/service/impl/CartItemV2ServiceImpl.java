@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -56,7 +56,7 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
                     .product(product)
                     .build();
 
-            cartItemV2.setShopItems(Set.of(shopItem));
+            cartItemV2.setShopItems(List.of(shopItem));
             cartItemV2Repo.save(cartItemV2);
             log.info("Cart item saved successfully");
             return;
@@ -84,19 +84,19 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
 
     @Override
     @Transactional
-    public Set<CartItemV2Res> getCartItems() {
+    public List<CartItemV2Res> getCartItems() {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Set<CartItemV2> cartItemV2Set = cartItemV2Repo.findAllByCustomer(customer);
-        delInvalidVouchers(cartItemV2Set);
-        cartItemV2Repo.saveAll(cartItemV2Set);
-        return cartItemV2Set.stream().map(Mapper::toCartItemv2Res).collect(Collectors.toSet());
+        List<CartItemV2> cartItemV2List = cartItemV2Repo.findAllByCustomer(customer);
+        delInvalidVouchers(cartItemV2List);
+        List<CartItemV2> result = cartItemV2Repo.saveAll(cartItemV2List);
+        return result.stream().map(Mapper::toCartItemv2Res).toList();
     }
 
-    private void delInvalidVouchers(Set<CartItemV2> cartItemV2Set) {
-        for (CartItemV2 cartItemV2 : cartItemV2Set)
+    private void delInvalidVouchers(List<CartItemV2> cartItemV2List) {
+        for (CartItemV2 cartItemV2 : cartItemV2List)
             cartItemV2.getVouchers().removeIf(voucher -> cartItemV2.getShopSubTotal() < voucher.getMinSpend() ||
-                    voucher.getEndDate().isBefore(LocalDate.now()));
+                    voucher.getEndDate().isBefore(LocalDate.now()) || !voucher.getIsPaused());
     }
 
     @Override

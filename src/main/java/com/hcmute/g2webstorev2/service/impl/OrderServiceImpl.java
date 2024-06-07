@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
         Address address = addressRepo.findById(body.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
 
-        Set<CartItemV2> cartItemV2Set = cartItemV2Repo.findAllByCustomer(customer);
+        List<CartItemV2> cartItemV2Set = cartItemV2Repo.findAllByCustomer(customer);
         List<Order> orders = new ArrayList<>();
         int ordersTotalPrice = 0;
 

@@ -3,6 +3,7 @@ package com.hcmute.g2webstorev2.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ public class CartItemV2 {
     @JoinColumn(name = "shop_id")
     private Shop shop;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "cartItemV2")
-    private Set<ShopItem> shopItems;
+    private List<ShopItem> shopItems;
     @ManyToMany
     @JoinTable(
             name = "cart_item_voucher",

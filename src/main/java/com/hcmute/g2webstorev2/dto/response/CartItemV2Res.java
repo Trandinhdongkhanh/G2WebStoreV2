@@ -3,6 +3,7 @@ package com.hcmute.g2webstorev2.dto.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -19,7 +20,7 @@ public class CartItemV2Res {
     private String shopName;
     private ShopResponse shop;
     @JsonProperty("shop_items")
-    private Set<ShopItemRes> shopItems;
+    private List<ShopItemRes> shopItems;
     private Set<VoucherResponse> vouchers;
     @JsonProperty("shop_subtotal")
     public Long shopSubTotal;

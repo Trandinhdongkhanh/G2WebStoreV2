@@ -33,6 +33,8 @@ public class ShopItemServiceImpl implements ShopItemService {
             cartItemV2Repo.delete(cartItemV2);
             return;
         }
+        shopItem.setCartItemV2(null);
+        cartItemV2.getShopItems().remove(shopItem);
         shopItemRepo.delete(shopItem);
         log.info("Shop item with ID = " + shopItem + " deleted");
     }

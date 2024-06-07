@@ -232,10 +232,10 @@ public class Mapper {
     }
 
     public static CartItemV2Res toCartItemv2Res(CartItemV2 cartItemV2) {
-        Set<ShopItemRes> shopItemResSet = null;
+        List<ShopItemRes> shopItemResSet = null;
         Set<VoucherResponse> voucherResponseSet = null;
         if (cartItemV2.getShopItems() != null)
-            shopItemResSet = cartItemV2.getShopItems().stream().map(Mapper::toShopItemRes).collect(Collectors.toSet());
+            shopItemResSet = cartItemV2.getShopItems().stream().map(Mapper::toShopItemRes).collect(Collectors.toList());
         if (cartItemV2.getVouchers() != null)
             voucherResponseSet = cartItemV2.getVouchers().stream().map(Mapper::toVoucherResponse).collect(Collectors.toSet());
         return CartItemV2Res.builder()
