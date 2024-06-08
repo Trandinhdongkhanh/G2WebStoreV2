@@ -60,6 +60,10 @@ captcha:
   secret: 6Lcdz8cpAAAAAPYumczXzpVgiX_5G_vHzcrQo7rC
   url: https://www.google.com/recaptcha/api/siteverify
 
+ghn:
+  token: da8bac8e-9519-11ee-8bfa-8a2dda8ec551
+  shop-id: 190509
+
 application:
   security:
     jwt:

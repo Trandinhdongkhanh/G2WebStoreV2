@@ -41,6 +41,7 @@ public class ProductController {
         productService.updateProducts(products);
         return ResponseEntity.ok("Update products successfully");
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProduct(
             @PathVariable("id")
@@ -90,13 +91,10 @@ public class ProductController {
         return ResponseEntity.ok(productService.getTopFivePopularProductByShop(shopId));
     }
 
-    @GetMapping("/shop/{shopId}")
-    public ResponseEntity<Page<ProductResponse>> getAllProductsByShop(
-            @PathVariable("shopId")
-            @NotNull(message = "Shop ID cannot be null")
-            @Min(value = 1, message = "Shop ID must be greater than 0")
-            Integer id,
-
+    @GetMapping("/shop/me")
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_PRODUCT_ACCESS', 'SELLER_READ_ONLY') or " +
+            "hasAuthority('READ_PRODUCT')")
+    public ResponseEntity<Page<ProductResponse>> getMyProducts(
             @RequestParam(value = "page")
             @Min(value = 0, message = "Page index must not be less than zero")
             @NotNull(message = "Page index must not be null")
@@ -107,7 +105,34 @@ public class ProductController {
             @NotNull(message = "Page size must not be null")
             Integer pageSize,
             @RequestParam(value = "shopProductSortType", required = false) ShopProductsSortType sortType) {
-        return ResponseEntity.ok(productService.getAllProductsByShop(id, pageNumber, pageSize, sortType));
+        return ResponseEntity.ok(productService.sellerGetAllProductsByShop(pageNumber, pageSize, sortType));
+    }
+
+    @GetMapping("/shop/{shopId}")
+    public ResponseEntity<Page<ProductResponse>> customerGetAllProductsByShop(
+            @PathVariable("shopId") Integer shopId,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "5", name = "size") int size,
+            @RequestParam(defaultValue = "DEFAULT", name = "sort") SortType sortType
+    ) {
+        return ResponseEntity.ok(productService.customerGetAllProductsByShop(shopId, sortType, page, size));
+    }
+
+    @PutMapping("/{id}/enable")
+    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('UPDATE_PRODUCT')")
+    public ResponseEntity<ProductResponse> enableProduct(
+            @PathVariable("id") Integer productId,
+            @RequestParam(defaultValue = "true", name = "isAvailable") boolean isAvailable) {
+        return ResponseEntity.ok(productService.enableProduct(isAvailable, productId));
+    }
+
+    @PutMapping("/{id}/banned")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProductResponse> banProduct(
+            @PathVariable("id") Integer productId,
+            @RequestParam(defaultValue = "true", name = "isBanned") boolean isBanned
+    ) {
+        return ResponseEntity.ok(productService.bannedProduct(isBanned, productId));
     }
 
 

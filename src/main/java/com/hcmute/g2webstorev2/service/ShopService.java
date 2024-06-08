@@ -11,4 +11,6 @@ public interface ShopService {
     void delShop(Integer id);
     ShopResponse uploadShopImage(MultipartFile file);
     Page<ShopResponse> getAllShops(int pageNum, int pageSize);
+
+    ShopResponse lockShop(Integer shopId);
 }

@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -88,15 +87,15 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<CartItemV2> cartItemV2List = cartItemV2Repo.findAllByCustomer(customer);
-        delInvalidVouchers(cartItemV2List);
-        List<CartItemV2> result = cartItemV2Repo.saveAll(cartItemV2List);
+        List<CartItemV2> result = delInvalidVouchers(cartItemV2List);
         return result.stream().map(Mapper::toCartItemv2Res).toList();
     }
 
-    private void delInvalidVouchers(List<CartItemV2> cartItemV2List) {
+    private List<CartItemV2> delInvalidVouchers(List<CartItemV2> cartItemV2List) {
         for (CartItemV2 cartItemV2 : cartItemV2List)
             cartItemV2.getVouchers().removeIf(voucher -> cartItemV2.getShopSubTotal() < voucher.getMinSpend() ||
                     voucher.getEndDate().isBefore(LocalDate.now()) || !voucher.getIsPaused());
+        return cartItemV2Repo.saveAll(cartItemV2List);
     }
 
     @Override

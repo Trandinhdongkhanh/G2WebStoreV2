@@ -14,4 +14,5 @@ public interface CartItemV2Repo extends JpaRepository<CartItemV2, Long> {
     Optional<CartItemV2> findByShopAndCustomer(Shop shop, Customer customer);
 
     List<CartItemV2> findAllByCustomer(Customer customer);
+    int deleteAllByShop(Shop shop);
 }

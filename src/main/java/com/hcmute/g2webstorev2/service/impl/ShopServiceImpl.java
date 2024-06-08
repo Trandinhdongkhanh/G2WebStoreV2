@@ -3,16 +3,18 @@ package com.hcmute.g2webstorev2.service.impl;
 import com.hcmute.g2webstorev2.dto.request.ShopRequest;
 import com.hcmute.g2webstorev2.dto.response.ShopResponse;
 import com.hcmute.g2webstorev2.entity.GCPFile;
+import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.entity.Seller;
 import com.hcmute.g2webstorev2.entity.Shop;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
+import com.hcmute.g2webstorev2.repository.CartItemV2Repo;
+import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,6 +31,8 @@ import java.util.List;
 public class ShopServiceImpl implements ShopService {
     private final ShopRepo shopRepo;
     private final FileService fileService;
+    private final CartItemV2Repo cartItemV2Repo;
+    private final ProductRepo productRepo;
 
     @Override
     public ShopResponse getShopInfo(Integer id) {
@@ -85,5 +89,22 @@ public class ShopServiceImpl implements ShopService {
     public Page<ShopResponse> getAllShops(int pageNum, int pageSize) {
         return shopRepo.findAll(PageRequest.of(pageNum, pageSize, Sort.by("shopId").descending()))
                 .map(Mapper::toShopResponse);
+    }
+
+    @Override
+    @Transactional
+    public ShopResponse lockShop(Integer shopId) {
+        Shop shop = shopRepo.findById(shopId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop not found"));
+
+        shop.setIsAllowedToSell(false);
+        cartItemV2Repo.deleteAllByShop(shop);
+        List<Product> products = productRepo.findAllByShop(shop);
+        products.forEach(product -> {
+            product.setIsBanned(true);
+            product.setIsAvailable(false);
+        });
+        productRepo.saveAll(products);
+        return Mapper.toShopResponse(shop);
     }
 }

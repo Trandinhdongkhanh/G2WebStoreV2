@@ -22,10 +22,13 @@ public interface ProductService {
                                          Integer startPrice, Integer endPrice, Integer districtId);
     ProductResponse getProduct(Integer id);
     ProductResponse addProduct(ProductRequest body, MultipartFile[] files);
+    ProductResponse enableProduct(boolean isAvailable, Integer productId);
+    ProductResponse bannedProduct(boolean isBanned, Integer productId);
     void updateProduct(ProductRequest body, Integer id, MultipartFile[] files);
     void delProduct(Integer id);
-    Page<ProductResponse> getAllProductsByShop(Integer id, Integer pageNumber, Integer pageSize,
+    Page<ProductResponse> sellerGetAllProductsByShop(Integer pageNumber, Integer pageSize,
                                                ShopProductsSortType sortType);
+    Page<ProductResponse> customerGetAllProductsByShop(Integer shopId, SortType sortType, int page, int size);
     Page<ProductResponse> getProductsByCategory(
             Integer id, int pageNumber, int pageSize, Integer seed,
             SortType sortType, Integer startPrice, Integer endPrice, Integer districtId);

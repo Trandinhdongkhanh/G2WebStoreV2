@@ -38,10 +38,10 @@ public class Product {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shop_cate_id")
     private ShopCategory shopCategory;
+    private Boolean isAvailable;
+    private Boolean isBanned;
     @ManyToMany(mappedBy = "products")
     private List<Voucher> vouchers;
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
-    private List<CartItem> items;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
     private Set<ShopItem> shopItems;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")

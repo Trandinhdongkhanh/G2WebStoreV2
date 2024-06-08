@@ -10,10 +10,7 @@ import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.exception.SellFunctionLockedException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
-import com.hcmute.g2webstorev2.repository.CategoryRepo;
-import com.hcmute.g2webstorev2.repository.ProductRepo;
-import com.hcmute.g2webstorev2.repository.ShopCateRepo;
-import com.hcmute.g2webstorev2.repository.ShopRepo;
+import com.hcmute.g2webstorev2.repository.*;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +37,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepo categoryRepo;
     private final FileService fileService;
     private final ShopCateRepo shopCateRepo;
+    private final CartItemV2Repo cartItemV2Repo;
 
     @Override
     @Transactional
@@ -243,6 +241,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse getProduct(Integer id) {
         return Mapper.toProductResponse(productRepo.findById(id)
+                .filter(Product::getIsAvailable)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + id + " not found")));
     }
 
@@ -273,6 +272,8 @@ public class ProductServiceImpl implements ProductService {
                 .weight(body.getWeight())
                 .width(body.getWidth())
                 .length(body.getLength())
+                .isAvailable(true)
+                .isBanned(false)
                 .build();
 
         List<GCPFile> images = fileService.uploadFiles(files);
@@ -284,6 +285,31 @@ public class ProductServiceImpl implements ProductService {
 
         log.info("Product with ID = " + res.getProductId() + " have been created");
         return res;
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse enableProduct(boolean isAvailable, Integer productId) {
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        if (product.getIsBanned())
+            throw new SellFunctionLockedException(
+                    "Product is banned, please adjust your product and wait for admin to review it");
+        if (!isAvailable) cartItemV2Repo.deleteAllByShop(product.getShop());
+        product.setIsAvailable(isAvailable);
+        return Mapper.toProductResponse(product);
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse bannedProduct(boolean isBanned, Integer productId) {
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        if (isBanned) cartItemV2Repo.deleteAllByShop(product.getShop());
+        product.setIsBanned(true);
+        product.setIsAvailable(false);
+        return Mapper.toProductResponse(product);
     }
 
     @Override
@@ -337,49 +363,87 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getAllProductsByShop(Integer id, Integer pageNumber, Integer pageSize,
-                                                      ShopProductsSortType sortType) {
-        Shop shop = shopRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID = " + id + " not found"));
+    public Page<ProductResponse> sellerGetAllProductsByShop(Integer pageNumber, Integer pageSize,
+                                                            ShopProductsSortType sortType) {
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Shop shop = seller.getShop();
 
         if (sortType != null) {
             switch (sortType) {
                 case DEFAULT -> {
-                    return productRepo.findAllByShop(
+                    return productRepo.sellerFindAllByShop(
                             shop,
                             PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
                     ).map(Mapper::toProductResponse);
                 }
                 case STOCK_QUANTITY_DESC -> {
-                    return productRepo.findAllByShop(
+                    return productRepo.sellerFindAllByShop(
                             shop,
                             PageRequest.of(pageNumber, pageSize, Sort.by("stockQuantity").descending())
                     ).map(Mapper::toProductResponse);
                 }
                 case STOCK_QUANTITY_ASC -> {
-                    return productRepo.findAllByShop(
+                    return productRepo.sellerFindAllByShop(
                             shop,
                             PageRequest.of(pageNumber, pageSize, Sort.by("stockQuantity").ascending())
                     ).map(Mapper::toProductResponse);
                 }
                 case SOLD_QUANTITY_ASC -> {
-                    return productRepo.findAllByShop(
+                    return productRepo.sellerFindAllByShop(
                             shop,
                             PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").ascending())
                     ).map(Mapper::toProductResponse);
                 }
                 case SOLD_QUANTITY_DESC -> {
-                    return productRepo.findAllByShop(
+                    return productRepo.sellerFindAllByShop(
                             shop,
                             PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").descending())
                     ).map(Mapper::toProductResponse);
                 }
             }
         }
-        return productRepo.findAllByShop(
+        return productRepo.sellerFindAllByShop(
                 shop,
                 PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
         ).map(Mapper::toProductResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> customerGetAllProductsByShop(Integer shopId, SortType sortType, int page, int size) {
+        Shop shop = shopRepo.findById(shopId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shop not found"));
+
+        switch (sortType) {
+            case DEFAULT -> {
+                return productRepo.customerFindAllByShop(shop, PageRequest.of(page, size))
+                        .map(Mapper::toProductResponse);
+            }
+            case TOP_SELLER -> {
+                return productRepo.customerFindAllByShop(
+                        shop,
+                        PageRequest.of(page, size, Sort.by("soldQuantity").descending())
+                ).map(Mapper::toProductResponse);
+            }
+            case NEWEST -> {
+                return productRepo.customerFindAllByShop(
+                        shop,
+                        PageRequest.of(page, size, Sort.by("productId").descending())
+                ).map(Mapper::toProductResponse);
+            }
+            case PRICE_DESC -> {
+                return productRepo.customerFindAllByShop(
+                        shop,
+                        PageRequest.of(page, size, Sort.by("price").descending())
+                ).map(Mapper::toProductResponse);
+            }
+            case PRICE_ASC -> {
+                return productRepo.customerFindAllByShop(
+                        shop,
+                        PageRequest.of(page, size, Sort.by("price").ascending())
+                ).map(Mapper::toProductResponse);
+            }
+        }
+        return productRepo.customerFindAllByShop(shop, PageRequest.of(page, size)).map(Mapper::toProductResponse);
     }
 
     private Page<ProductResponse> getNewestProductsByCategory(Integer id, Integer startPrice, Integer endPrice,
@@ -521,12 +585,13 @@ public class ProductServiceImpl implements ProductService {
         Shop shop = shopRepo.findById(shopId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop not found"));
 
-        return productRepo.findAllByShop(shop, PageRequest.of(
+        return productRepo.sellerFindAllByShop(shop, PageRequest.of(
                         0,
                         5,
                         Sort.by("soldQuantity").descending()))
                 .map(Mapper::toProductResponse).getContent();
     }
+
     private String getPath(Integer id) {
         Category category = categoryRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with ID = " + id + " not found"));

@@ -26,12 +26,13 @@ public class ShopController {
             @Min(value = 1, message = "Shop ID must be equals or greater than 1") Integer id) {
         return ResponseEntity.ok(shopService.getShopInfo(id));
     }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<ShopResponse>> getShops(
             @RequestParam("page") int page,
             @RequestParam("size") int size
-    ){
+    ) {
         return ResponseEntity.ok(shopService.getAllShops(page, size));
     }
 
@@ -39,6 +40,12 @@ public class ShopController {
     @PreAuthorize("hasRole('SELLER_FULL_ACCESS')")
     public ResponseEntity<ShopResponse> updateShopInfo(@RequestBody @Valid ShopRequest body) {
         return ResponseEntity.ok(shopService.updateShopInfo(body));
+    }
+
+    @PutMapping("/{shopId}/locked")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ShopResponse> lockedShop(@PathVariable("shopId") Integer shopId) {
+        return ResponseEntity.ok(shopService.lockShop(shopId));
     }
 
     @PutMapping("/upload-image")
