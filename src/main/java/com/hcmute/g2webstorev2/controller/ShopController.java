@@ -30,10 +30,11 @@ public class ShopController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<ShopResponse>> getShops(
-            @RequestParam("page") int page,
-            @RequestParam("size") int size
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "5", name = "size") int size,
+            @RequestParam(defaultValue = "false", name = "isReadyToBanned", required = false) boolean isReadyToBanned
     ) {
-        return ResponseEntity.ok(shopService.getAllShops(page, size));
+        return ResponseEntity.ok(shopService.getAllShops(page, size, isReadyToBanned));
     }
 
     @PutMapping

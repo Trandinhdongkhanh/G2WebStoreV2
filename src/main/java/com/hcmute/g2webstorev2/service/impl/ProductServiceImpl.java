@@ -306,9 +306,14 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse bannedProduct(boolean isBanned, Integer productId) {
         Product product = productRepo.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-        if (isBanned) cartItemV2Repo.deleteAllByShop(product.getShop());
-        product.setIsBanned(true);
-        product.setIsAvailable(false);
+        Shop shop = product.getShop();
+        if (isBanned) {
+            cartItemV2Repo.deleteAllByShop(product.getShop());
+            product.setIsAvailable(false);
+            shop.setViolationPoint(shop.getViolationPoint() + 1);
+        }
+        shopRepo.save(shop);
+        product.setIsBanned(isBanned);
         return Mapper.toProductResponse(product);
     }
 

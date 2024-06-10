@@ -86,7 +86,9 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
-    public Page<ShopResponse> getAllShops(int pageNum, int pageSize) {
+    public Page<ShopResponse> getAllShops(int pageNum, int pageSize, boolean isReadyToBanned) {
+        if (isReadyToBanned)
+            return shopRepo.getReadyToBannedShops(PageRequest.of(pageNum, pageSize)).map(Mapper::toShopResponse);
         return shopRepo.findAll(PageRequest.of(pageNum, pageSize, Sort.by("shopId").descending()))
                 .map(Mapper::toShopResponse);
     }

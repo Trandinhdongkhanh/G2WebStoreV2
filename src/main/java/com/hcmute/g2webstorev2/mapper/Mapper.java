@@ -88,6 +88,8 @@ public class Mapper {
                 .width(product.getWidth())
                 .length(product.getLength())
                 .soldQuantity(product.getSoldQuantity())
+                .isAvailable(product.getIsAvailable())
+                .isBanned(product.getIsBanned())
                 .build();
     }
 
@@ -113,6 +115,8 @@ public class Mapper {
                 .districtId(shop.getDistrictId())
                 .province(shop.getProvince())
                 .balance(shop.getBalance())
+                .isAllowedToSell(shop.getIsAllowedToSell())
+                .violationPoint(shop.getViolationPoint())
                 .build();
     }
 

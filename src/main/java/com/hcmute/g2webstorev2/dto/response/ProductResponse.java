@@ -18,6 +18,10 @@ public class ProductResponse {
     private List<GCPFileResponse> images;
     private String description;
     private Integer price;
+    @JsonProperty("is_available")
+    private Boolean isAvailable;
+    @JsonProperty("is_banned")
+    private Boolean isBanned;
     @JsonProperty("stock_quantity")
     private Integer stockQuantity;
     @JsonProperty("sold_quantity")

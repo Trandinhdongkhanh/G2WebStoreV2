@@ -10,7 +10,6 @@ public interface ShopService {
     ShopResponse updateShopInfo(ShopRequest body);
     void delShop(Integer id);
     ShopResponse uploadShopImage(MultipartFile file);
-    Page<ShopResponse> getAllShops(int pageNum, int pageSize);
-
+    Page<ShopResponse> getAllShops(int pageNum, int pageSize, boolean isReadyToBanned);
     ShopResponse lockShop(Integer shopId);
 }

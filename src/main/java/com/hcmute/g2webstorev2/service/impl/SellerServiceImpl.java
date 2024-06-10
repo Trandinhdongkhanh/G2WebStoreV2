@@ -71,6 +71,7 @@ public class SellerServiceImpl implements SellerService {
                 .name(body.getEmail())
                 .balance(0L)
                 .isAllowedToSell(true)
+                .violationPoint(0)
                 .build());
 
         log.info("Shop with ID = " + shop.getShopId() + " created successfully");

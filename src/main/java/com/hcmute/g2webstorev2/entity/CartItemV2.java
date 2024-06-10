@@ -37,22 +37,25 @@ public class CartItemV2 {
             inverseJoinColumns = @JoinColumn(name = "voucher_id")
     )
     private Set<Voucher> vouchers;
-
+    @Transient
+    private Long feeShip;
     @Transient
     private Long shopReduce;
 
     public Long getShopReduce() {
         if (vouchers == null || vouchers.isEmpty()) return 0L;
         long shopReduce = 0L;
-        for (Voucher voucher : getVouchers()) {
+        long shopSubTotal = getShopSubTotal();
+        for (Voucher voucher : vouchers) {
             if (Objects.equals(SHOP_VOUCHER, voucher.getVoucherType())) {
                 if (Objects.equals(PRICE, voucher.getDiscountType())) {
                     shopReduce += voucher.getReducePrice();
                     continue;
                 }
-                shopReduce += shopReduce * (voucher.getReducePercent() / 100);
+                shopReduce += shopSubTotal * (voucher.getReducePercent() / 100);
             }
         }
+        if (shopReduce >= shopSubTotal) return shopSubTotal;
         return shopReduce;
     }
 
@@ -68,9 +71,10 @@ public class CartItemV2 {
                     feeShipReduce += voucher.getReducePrice();
                     continue;
                 }
-                feeShipReduce += feeShipReduce * (voucher.getReducePercent() / 100);
+                feeShipReduce += getFeeShip() * (voucher.getReducePercent() / 100);
             }
         }
+        if (feeShipReduce >= getFeeShip()) return getFeeShip();
         return feeShipReduce;
     }
 

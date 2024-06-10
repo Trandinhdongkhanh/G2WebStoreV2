@@ -20,4 +20,8 @@ public class ShopResponse {
     private String ward;
     private String street;
     private Long balance;
+    @JsonProperty("is_allowed_to_sell")
+    private Boolean isAllowedToSell;
+    @JsonProperty("violation_point")
+    private Integer violationPoint;
 }
