@@ -18,12 +18,12 @@ import com.hcmute.g2webstorev2.repository.VoucherRepo;
 import com.hcmute.g2webstorev2.service.VoucherService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.data.domain.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.time.LocalDate;
 import java.util.*;
@@ -68,7 +68,10 @@ public class VoucherServiceImpl implements VoucherService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Shop with ID = " + seller.getShop().getShopId() + " not found"));
 
+        String voucherId = RandomStringUtils.randomAlphanumeric(10);
+
         VoucherResponse res = Mapper.toVoucherResponse(voucherRepo.save(Voucher.builder()
+                .voucherId(voucherId)
                 .name(body.getName())
                 .startDate(body.getStartDate())
                 .endDate(body.getEndDate())
@@ -99,7 +102,7 @@ public class VoucherServiceImpl implements VoucherService {
         LocalDate now = LocalDate.now();
         return voucherRepo.findAllByProductId(id)
                 .stream().filter(voucher -> voucher.getEndDate().isAfter(now)
-                && !voucher.getIsPaused() && voucher.getStartDate().isBefore(now))
+                        && !voucher.getIsPaused() && voucher.getStartDate().isBefore(now))
                 .map(Mapper::toVoucherResponse)
                 .collect(Collectors.toList());
     }
@@ -169,7 +172,7 @@ public class VoucherServiceImpl implements VoucherService {
 
     private List<Voucher> filterVouchers(Shop shop, String name, String voucherId) {
         if (name != null && voucherId == null) return voucherRepo.findAllByShopAndNameStartingWith(shop, name);
-        if (name == null && voucherId != null) return voucherRepo.findAllByShopAndId(shop, voucherId);
+        if (name == null && voucherId != null) return voucherRepo.findAllByShopAndVoucherId(shop, voucherId);
         return voucherRepo.findAllByShop(shop);
     }
 

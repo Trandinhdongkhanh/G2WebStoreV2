@@ -35,6 +35,7 @@ public class ShopItemServiceImpl implements ShopItemService {
         }
         shopItem.setCartItemV2(null);
         cartItemV2.getShopItems().remove(shopItem);
+//        cartItemV2.getCartItemVouchers().removeIf(cartItemVoucher -> cartItemVoucher.getCartItemV2())
         shopItemRepo.delete(shopItem);
         log.info("Shop item with ID = " + shopItem + " deleted");
     }

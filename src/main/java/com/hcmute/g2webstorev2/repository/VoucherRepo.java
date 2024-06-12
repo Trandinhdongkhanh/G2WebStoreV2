@@ -17,6 +17,6 @@ public interface VoucherRepo extends JpaRepository<Voucher, String> {
     List<Voucher> findAllByProductId(Integer productId);
     List<Voucher> findAllByShop(Shop shop);
     List<Voucher> findAllByShopAndNameStartingWith(Shop shop, String name);
-    List<Voucher> findAllByShopAndId(Shop shop, String id);
+    List<Voucher> findAllByShopAndVoucherId(Shop shop, String id);
     Page<Voucher> findAllByShopAndIsPausedIsTrue(Shop shop, Pageable pageable);
 }
