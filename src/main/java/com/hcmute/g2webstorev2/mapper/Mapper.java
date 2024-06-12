@@ -223,7 +223,7 @@ public class Mapper {
     }
     public static CartItemVoucherRes toCartItemVoucherRes(CartItemVoucher cartItemVoucher){
         return CartItemVoucherRes.builder()
-                .voucherId(cartItemVoucher.getVoucher().getVoucherId())
+                .voucher(Mapper.toVoucherResponse(cartItemVoucher.getVoucher()))
                 .cartItemV2Id(cartItemVoucher.getCartItemV2().getCartItemId())
                 .isEligible(cartItemVoucher.getIsEligible())
                 .isSelected(cartItemVoucher.getIsSelected())

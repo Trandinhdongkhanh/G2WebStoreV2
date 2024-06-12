@@ -9,8 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class CartItemVoucherRes {
-    @JsonProperty("voucher_id")
-    private String voucherId;
+    private VoucherResponse voucher;
     @JsonProperty("cart_item_v2_id")
     private Long cartItemV2Id;
     @JsonProperty("is_selected")
