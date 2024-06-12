@@ -1,4 +1,4 @@
-package com.hcmute.g2webstorev2.util;
+package com.hcmute.g2webstorev2.util.vnpay;
 
 import com.hcmute.g2webstorev2.config.VNPAYConfig;
 import jakarta.servlet.http.HttpServletRequest;

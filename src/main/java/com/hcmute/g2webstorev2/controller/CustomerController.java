@@ -7,6 +7,7 @@ import com.hcmute.g2webstorev2.service.CustomerService;
 import com.hcmute.g2webstorev2.util.CaptchaValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -108,5 +109,22 @@ public class CustomerController {
     public ResponseEntity<String> updatePhoneNo(@RequestBody @Valid PhoneNoUpdateRequest body) {
         customerService.updatePhoneNo(body);
         return ResponseEntity.ok("Phone No updated successfully");
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<CustomerResponse>> getCustomers(
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "5", name = "size") int size
+    ) {
+        return ResponseEntity.ok(customerService.getCustomers(page, size));
+    }
+
+    @PutMapping("/{id}/locked")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CustomerResponse> lockedCustomer(
+            @RequestParam(defaultValue = "true", name = "isLocked") boolean isLocked,
+            @PathVariable("id") Integer customerId) {
+        return ResponseEntity.ok(customerService.lockCustomer(customerId, isLocked));
     }
 }

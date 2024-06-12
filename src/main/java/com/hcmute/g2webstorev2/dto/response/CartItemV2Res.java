@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -21,7 +20,7 @@ public class CartItemV2Res {
     private ShopResponse shop;
     @JsonProperty("shop_items")
     private List<ShopItemRes> shopItems;
-    private Set<VoucherResponse> vouchers;
+    private List<CartItemVoucherRes> vouchers;
     @JsonProperty("shop_subtotal")
     public Long shopSubTotal;
     @JsonProperty("shop_voucher_reduce")

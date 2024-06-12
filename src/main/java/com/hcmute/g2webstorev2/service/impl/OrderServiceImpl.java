@@ -5,7 +5,7 @@ import com.hcmute.g2webstorev2.dto.request.OrderCreationRequest;
 import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
-import com.hcmute.g2webstorev2.dto.response.PaymentResponse;
+import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import com.hcmute.g2webstorev2.enums.PaymentType;

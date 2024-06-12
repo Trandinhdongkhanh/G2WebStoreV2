@@ -78,7 +78,7 @@ public class VoucherServiceImpl implements VoucherService {
                 .reducePrice(body.getReducePrice())
                 .reducePercent(body.getReducePercent())
                 .quantity(body.getQuantity())
-                .maxUsePerCus(body.getMaxUsePerCus())
+                .useCount(0)
                 .shop(shop)
                 .isPaused(false)
                 .build()));

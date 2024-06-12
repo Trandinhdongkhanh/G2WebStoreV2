@@ -138,7 +138,7 @@ public class Mapper {
 
     public static VoucherResponse toVoucherResponse(Voucher voucher) {
         return VoucherResponse.builder()
-                .id(voucher.getId())
+                .id(voucher.getVoucherId())
                 .name(voucher.getName())
                 .startDate(voucher.getStartDate())
                 .endDate(voucher.getEndDate())
@@ -148,7 +148,7 @@ public class Mapper {
                 .reducePrice(voucher.getReducePrice())
                 .reducePercent(voucher.getReducePercent())
                 .quantity(voucher.getQuantity())
-                .maxUsePerCus(voucher.getMaxUsePerCus())
+                .useCount(voucher.getUseCount())
                 .shopId(voucher.getShop().getShopId())
                 .isPaused(voucher.getIsPaused())
                 .build();
@@ -166,19 +166,6 @@ public class Mapper {
                 .receiverPhoneNo(address.getReceiverPhoneNo())
                 .receiverName(address.getReceiverName())
                 .isDefault(address.isDefault())
-                .build();
-    }
-
-    public static CartItemResponse toCartItemResponse(CartItem cartItem) {
-        return CartItemResponse.builder()
-                .images(cartItem.getProduct().getImages().get(0).getFileUrl())
-                .name(cartItem.getProduct().getName())
-                .price(cartItem.getProduct().getPrice())
-                .quantity(cartItem.getQuantity())
-                .productId(cartItem.getProduct().getProductId())
-                .customerId(cartItem.getCustomer().getCustomerId())
-                .shopId(cartItem.getProduct().getShop().getShopId())
-                .subTotal(cartItem.getSubTotal())
                 .build();
     }
 
@@ -234,21 +221,29 @@ public class Mapper {
                 .isReviewed(orderItem.isReviewed())
                 .build();
     }
+    public static CartItemVoucherRes toCartItemVoucherRes(CartItemVoucher cartItemVoucher){
+        return CartItemVoucherRes.builder()
+                .voucherId(cartItemVoucher.getVoucher().getVoucherId())
+                .cartItemV2Id(cartItemVoucher.getCartItemV2().getCartItemId())
+                .isEligible(cartItemVoucher.getIsEligible())
+                .isSelected(cartItemVoucher.getIsSelected())
+                .build();
+    }
 
     public static CartItemV2Res toCartItemv2Res(CartItemV2 cartItemV2) {
         List<ShopItemRes> shopItemResSet = null;
-        Set<VoucherResponse> voucherResponseSet = null;
+        List<CartItemVoucherRes> cartItemVoucherResList = null;
         if (cartItemV2.getShopItems() != null)
             shopItemResSet = cartItemV2.getShopItems().stream().map(Mapper::toShopItemRes).collect(Collectors.toList());
-        if (cartItemV2.getVouchers() != null)
-            voucherResponseSet = cartItemV2.getVouchers().stream().map(Mapper::toVoucherResponse).collect(Collectors.toSet());
+        if (cartItemV2.getCartItemVouchers() != null)
+            cartItemVoucherResList = cartItemV2.getCartItemVouchers().stream().map(Mapper::toCartItemVoucherRes).collect(Collectors.toList());
         return CartItemV2Res.builder()
                 .cartItemId(cartItemV2.getCartItemId())
                 .customerId(cartItemV2.getCustomer().getCustomerId())
                 .shopName(cartItemV2.getShop().getName())
                 .shop(Mapper.toShopResponse(cartItemV2.getShop()))
                 .shopItems(shopItemResSet)
-                .vouchers(voucherResponseSet)
+                .vouchers(cartItemVoucherResList)
                 .shopSubTotal(cartItemV2.getShopSubTotal())
                 .shopVoucherReduce(cartItemV2.getShopReduce())
                 .shopFreeShipReduce(cartItemV2.getFeeShipReduce())

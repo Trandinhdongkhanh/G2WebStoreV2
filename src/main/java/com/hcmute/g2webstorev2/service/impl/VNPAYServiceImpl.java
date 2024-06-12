@@ -1,13 +1,13 @@
 package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.config.VNPAYConfig;
-import com.hcmute.g2webstorev2.dto.request.VNPayTransRefundReq;
-import com.hcmute.g2webstorev2.dto.request.VNPayTransactionQueryRequest;
-import com.hcmute.g2webstorev2.dto.response.PaymentResponse;
-import com.hcmute.g2webstorev2.dto.response.VNPayTransactionQueryRes;
-import com.hcmute.g2webstorev2.dto.response.VNPayTransactionRefundRes;
+import com.hcmute.g2webstorev2.dto.request.vnpay.VNPayTransRefundReq;
+import com.hcmute.g2webstorev2.dto.request.vnpay.VNPayTransactionQueryRequest;
+import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
+import com.hcmute.g2webstorev2.dto.response.vnpay.VNPayTransactionQueryRes;
+import com.hcmute.g2webstorev2.dto.response.vnpay.VNPayTransactionRefundRes;
 import com.hcmute.g2webstorev2.service.VNPAYService;
-import com.hcmute.g2webstorev2.util.VNPAYUtil;
+import com.hcmute.g2webstorev2.util.vnpay.VNPAYUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

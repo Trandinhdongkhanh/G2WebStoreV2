@@ -1,8 +1,8 @@
 package com.hcmute.g2webstorev2.service;
 
-import com.hcmute.g2webstorev2.dto.response.PaymentResponse;
-import com.hcmute.g2webstorev2.dto.response.VNPayTransactionQueryRes;
-import com.hcmute.g2webstorev2.dto.response.VNPayTransactionRefundRes;
+import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
+import com.hcmute.g2webstorev2.dto.response.vnpay.VNPayTransactionQueryRes;
+import com.hcmute.g2webstorev2.dto.response.vnpay.VNPayTransactionRefundRes;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;

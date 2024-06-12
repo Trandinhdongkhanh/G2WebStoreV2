@@ -30,8 +30,8 @@ public class VoucherResponse {
     @JsonProperty("reduce_percent")
     private Integer reducePercent;
     private Integer quantity;
-    @JsonProperty("max_use_per_cus")
-    private Integer maxUsePerCus;
+    @JsonProperty("use_count")
+    private Integer useCount;
     @JsonProperty("shop_id")
     private Integer shopId;
     @JsonProperty("is_paused")

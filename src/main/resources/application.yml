@@ -63,6 +63,7 @@ captcha:
 ghn:
   token: da8bac8e-9519-11ee-8bfa-8a2dda8ec551
   shop-id: 190509
+  fee-ship-url: https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee
 
 application:
   security:

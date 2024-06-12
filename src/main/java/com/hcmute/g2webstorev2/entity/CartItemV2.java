@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.hcmute.g2webstorev2.enums.VoucherType.*;
 import static com.hcmute.g2webstorev2.enums.DiscountType.*;
@@ -30,51 +29,40 @@ public class CartItemV2 {
     private Shop shop;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "cartItemV2")
     private List<ShopItem> shopItems;
-    @ManyToMany
-    @JoinTable(
-            name = "cart_item_voucher",
-            joinColumns = @JoinColumn(name = "cart_item_v2_id"),
-            inverseJoinColumns = @JoinColumn(name = "voucher_id")
-    )
-    private Set<Voucher> vouchers;
-    @Transient
-    private Long feeShip;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "cartItemV2")
+    private List<CartItemVoucher> cartItemVouchers;
     @Transient
     private Long shopReduce;
 
     public Long getShopReduce() {
-        if (vouchers == null || vouchers.isEmpty()) return 0L;
+        if (cartItemVouchers == null || cartItemVouchers.isEmpty()) return 0L;
         long shopReduce = 0L;
         long shopSubTotal = getShopSubTotal();
-        for (Voucher voucher : vouchers) {
-            if (Objects.equals(SHOP_VOUCHER, voucher.getVoucherType())) {
-                if (Objects.equals(PRICE, voucher.getDiscountType())) {
-                    shopReduce += voucher.getReducePrice();
-                    continue;
+        for (CartItemVoucher cartItemVoucher : cartItemVouchers) {
+            if (cartItemVoucher.getIsSelected() && cartItemVoucher.getIsEligible()) {
+                Voucher voucher = cartItemVoucher.getVoucher();
+                if (Objects.equals(voucher.getVoucherType(), SHOP_VOUCHER)) {
+                    if (Objects.equals(voucher.getDiscountType(), PRICE)) shopReduce += voucher.getReducePrice();
+                    else shopReduce += shopSubTotal * (voucher.getReducePercent() / 100);
                 }
-                shopReduce += shopSubTotal * (voucher.getReducePercent() / 100);
             }
         }
-        if (shopReduce >= shopSubTotal) return shopSubTotal;
-        return shopReduce;
+        return Math.min(shopReduce, shopSubTotal);
     }
-
     @Transient
     private Long feeShipReduce;
 
     public Long getFeeShipReduce() {
-        if (vouchers == null || vouchers.isEmpty()) return 0L;
+        if (cartItemVouchers == null || cartItemVouchers.isEmpty()) return 0L;
         long feeShipReduce = 0L;
-        for (Voucher voucher : getVouchers()) {
-            if (Objects.equals(FREE_SHIP_VOUCHER, voucher.getVoucherType())) {
-                if (Objects.equals(PRICE, voucher.getDiscountType())) {
-                    feeShipReduce += voucher.getReducePrice();
-                    continue;
+        for (CartItemVoucher cartItemVoucher : cartItemVouchers) {
+            if (cartItemVoucher.getIsSelected() && cartItemVoucher.getIsEligible()) {
+                Voucher voucher = cartItemVoucher.getVoucher();
+                if (Objects.equals(voucher.getVoucherType(), FREE_SHIP_VOUCHER)) {
+                    if (Objects.equals(voucher.getDiscountType(), PRICE)) feeShipReduce += voucher.getReducePrice();
                 }
-                feeShipReduce += getFeeShip() * (voucher.getReducePercent() / 100);
             }
         }
-        if (feeShipReduce >= getFeeShip()) return getFeeShip();
         return feeShipReduce;
     }
 

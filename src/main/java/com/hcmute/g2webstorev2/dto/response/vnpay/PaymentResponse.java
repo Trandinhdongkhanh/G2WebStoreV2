@@ -1,4 +1,4 @@
-package com.hcmute.g2webstorev2.dto.response;
+package com.hcmute.g2webstorev2.dto.response.vnpay;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

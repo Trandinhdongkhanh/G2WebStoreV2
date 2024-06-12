@@ -1,16 +1,13 @@
 package com.hcmute.g2webstorev2.service.impl;
 
-import com.hcmute.g2webstorev2.dto.request.AddVoucherToCartItemReq;
 import com.hcmute.g2webstorev2.dto.request.CartItemRequest;
 import com.hcmute.g2webstorev2.dto.response.CartItemV2Res;
 import com.hcmute.g2webstorev2.entity.*;
+import com.hcmute.g2webstorev2.entity.composite_key.CartItemVoucherKey;
 import com.hcmute.g2webstorev2.exception.InvalidVoucherException;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
-import com.hcmute.g2webstorev2.repository.CartItemV2Repo;
-import com.hcmute.g2webstorev2.repository.ProductRepo;
-import com.hcmute.g2webstorev2.repository.ShopItemRepo;
-import com.hcmute.g2webstorev2.repository.VoucherRepo;
+import com.hcmute.g2webstorev2.repository.*;
 import com.hcmute.g2webstorev2.service.CartItemV2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
 
 @Service
 @Slf4j
@@ -28,7 +28,6 @@ import java.util.Objects;
 public class CartItemV2ServiceImpl implements CartItemV2Service {
     private final CartItemV2Repo cartItemV2Repo;
     private final ProductRepo productRepo;
-    private final VoucherRepo voucherRepo;
     private final ShopItemRepo shopItemRepo;
 
     @Override
@@ -40,13 +39,15 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
 
         CartItemV2 cartItemV2 = cartItemV2Repo.findByShopAndCustomer(product.getShop(), customer)
                 .orElse(null);
+        LocalDate now = LocalDate.now();
 
+        //If there is no items of shop appear in cart
         if (cartItemV2 == null) {
             cartItemV2 = CartItemV2.builder()
                     .customer(customer)
                     .shop(product.getShop())
                     .shopItems(null)
-                    .vouchers(null)
+                    .cartItemVouchers(null)
                     .build();
 
             ShopItem shopItem = ShopItem.builder()
@@ -55,6 +56,20 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
                     .product(product)
                     .build();
 
+            List<CartItemVoucher> cartItemVouchers = new LinkedList<>();
+            for (Voucher voucher : product.getVouchers()) {
+                if (!isValidVoucher(voucher, now)) continue;
+                CartItemVoucherKey key = new CartItemVoucherKey(cartItemV2.getCartItemId(), voucher.getVoucherId());
+                CartItemVoucher cartItemVoucher = CartItemVoucher.builder()
+                        .key(key)
+                        .cartItemV2(cartItemV2)
+                        .voucher(voucher)
+                        .isSelected(false)
+                        .isEligible(null)
+                        .build();
+                cartItemVouchers.add(cartItemVoucher);
+            }
+            cartItemV2.setCartItemVouchers(cartItemVouchers);
             cartItemV2.setShopItems(List.of(shopItem));
             cartItemV2Repo.save(cartItemV2);
             log.info("Cart item saved successfully");
@@ -71,6 +86,23 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
                     .quantity(body.getQuantity())
                     .product(product)
                     .build();
+
+            for (Voucher voucher : product.getVouchers()) {
+                if (!isValidVoucher(voucher, now)) continue;
+                CartItemVoucher cartItemVoucher = cartItemV2.getCartItemVouchers().stream()
+                        .filter(v -> Objects.equals(v.getKey().getVoucherId(), voucher.getVoucherId()))
+                        .findFirst().orElse(null);
+                if (cartItemVoucher == null) {
+                    cartItemVoucher = CartItemVoucher.builder()
+                            .key(new CartItemVoucherKey(cartItemV2.getCartItemId(), voucher.getVoucherId()))
+                            .voucher(voucher)
+                            .cartItemV2(cartItemV2)
+                            .isSelected(false)
+                            .isEligible(null)
+                            .build();
+                    cartItemV2.getCartItemVouchers().add(cartItemVoucher);
+                }
+            }
             cartItemV2.getShopItems().add(shopItem);
             cartItemV2Repo.save(cartItemV2);
             log.info("Cart item saved successfully");
@@ -81,43 +113,51 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
         shopItemRepo.save(shopItem);
     }
 
+    private boolean isValidVoucher(Voucher voucher, LocalDate now) {
+        return (!voucher.getIsPaused() && voucher.getStartDate().isBefore(now) && voucher.getEndDate().isAfter(now));
+    }
+
     @Override
     @Transactional
     public List<CartItemV2Res> getCartItems() {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        List<CartItemV2> cartItemV2List = cartItemV2Repo.findAllByCustomer(customer);
-        List<CartItemV2> result = delInvalidVouchers(cartItemV2List);
-        return result.stream().map(Mapper::toCartItemv2Res).toList();
+        LocalDate now = LocalDate.now();
+        List<CartItemV2> cartItemV2List = cartItemV2Repo.findAllByCustomer(customer)
+                .stream().map(cartItemV2 -> delInvalidVouchers(cartItemV2, now)).collect(Collectors.toList());
+        return cartItemV2Repo.saveAll(cartItemV2List).stream().map(Mapper::toCartItemv2Res).toList();
     }
 
-    private List<CartItemV2> delInvalidVouchers(List<CartItemV2> cartItemV2List) {
-        for (CartItemV2 cartItemV2 : cartItemV2List)
-            cartItemV2.getVouchers().removeIf(voucher -> cartItemV2.getShopSubTotal() < voucher.getMinSpend() ||
-                    voucher.getEndDate().isBefore(LocalDate.now()) || !voucher.getIsPaused());
-        return cartItemV2Repo.saveAll(cartItemV2List);
+    private CartItemV2 delInvalidVouchers(CartItemV2 cartItemV2, LocalDate now) {
+        cartItemV2.getCartItemVouchers().removeIf(cartItemVoucher -> !isValidVoucher(cartItemVoucher.getVoucher(), now));
+        cartItemV2.getCartItemVouchers().forEach(cartItemVoucher -> {
+            if (cartItemV2.getShopSubTotal() >= cartItemVoucher.getVoucher().getMinSpend())
+                cartItemVoucher.setIsEligible(true);
+            else cartItemVoucher.setIsEligible(false);
+        });
+        return cartItemV2;
     }
 
     @Override
     @Transactional
-    public CartItemV2Res addVoucher(AddVoucherToCartItemReq body) {
-        Voucher voucher = voucherRepo.findById(body.getVoucherId())
-                .orElseThrow(() -> new ResourceNotFoundException("Voucher not found"));
-
-        CartItemV2 cartItemV2 = cartItemV2Repo.findById(body.getCartItemV2Id())
+    public void selectVoucher(Long cartItemV2Id, String voucherId) {
+        CartItemV2 cartItemV2 = cartItemV2Repo.findById(cartItemV2Id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart Item not found"));
 
-        if (cartItemV2.getShopSubTotal() < voucher.getMinSpend())
-            throw new InvalidVoucherException("Min spend isn't enough to apply voucher");
-
-        Voucher voucherInCart = cartItemV2.getVouchers().stream()
-                .filter(v -> v.getId().equals(voucher.getId()))
+        CartItemVoucher cartItemVoucher = cartItemV2.getCartItemVouchers().stream()
+                .filter(v -> Objects.equals(v.getVoucher().getVoucherId(), voucherId))
                 .findFirst()
-                .orElse(null);
-
-        if (voucherInCart != null) throw new InvalidVoucherException("Voucher is already applied");
-        cartItemV2.getVouchers().add(voucher);
-        return Mapper.toCartItemv2Res(cartItemV2Repo.save(cartItemV2));
+                .orElseThrow(() -> new ResourceNotFoundException("Voucher not found"));
+        if (cartItemVoucher.getIsEligible()) {
+            for (CartItemVoucher v : cartItemV2.getCartItemVouchers()) {
+                if (Objects.equals(v.getVoucher().getVoucherId(), cartItemVoucher.getVoucher().getVoucherId())) {
+                    v.setIsSelected(!v.getIsSelected());
+                    continue;
+                }
+                if (Objects.equals(v.getVoucher().getVoucherType(), cartItemVoucher.getVoucher().getVoucherType()))
+                    v.setIsSelected(false);
+            }
+        }
+        throw new InvalidVoucherException("Can't apply voucher");
     }
 
     @Override

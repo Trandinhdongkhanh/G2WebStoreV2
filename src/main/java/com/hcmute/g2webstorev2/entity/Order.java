@@ -5,6 +5,7 @@ import com.hcmute.g2webstorev2.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +26,8 @@ public class Order {
     private LocalDateTime createdDate;
     private LocalDateTime payedDate;
     private LocalDateTime deliveredDate;
+    private LocalDate expectedDeliveryDate;
+    private String ghnOrderCode;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     private Customer customer;

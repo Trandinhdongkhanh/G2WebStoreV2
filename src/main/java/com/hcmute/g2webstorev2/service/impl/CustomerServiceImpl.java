@@ -17,6 +17,9 @@ import com.hcmute.g2webstorev2.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -256,6 +259,21 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = customerRepo.save(otp.getCustomer());
 
         otpRepo.deleteAllByCustomerId(customer.getCustomerId());
+    }
+
+    @Override
+    public Page<CustomerResponse> getCustomers(int page, int size) {
+        return customerRepo.findAll(PageRequest.of(page, size, Sort.by("customerId").descending()))
+                .map(Mapper::toCustomerResponse);
+    }
+
+    @Override
+    @Transactional
+    public CustomerResponse lockCustomer(Integer customerId, boolean isLocked) {
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+        customer.setAccountNonLocked(false);
+        return Mapper.toCustomerResponse(customer);
     }
 
     private String generateAndSaveActivationToken(Customer customer) {

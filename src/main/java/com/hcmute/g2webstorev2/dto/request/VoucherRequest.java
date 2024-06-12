@@ -45,8 +45,4 @@ public class VoucherRequest {
     @Min(value = 1, message = "Quantity must be equals or greater than 1")
     @NotNull(message = "Quantity cannot be null")
     private Integer quantity;
-    @JsonProperty("max_use_per_cus")
-    @NotNull(message = "Max use per customer cannot be null")
-    @Min(value = 1, message = "Max use per customer must be equals or greater than 1")
-    private Integer maxUsePerCus;
 }

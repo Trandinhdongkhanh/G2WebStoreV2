@@ -41,7 +41,7 @@ public class AddressServiceImpl implements AddressService {
                 .orElseThrow(() -> new ResourceNotFoundException("Address with ID = " + id + " not found"));
 
         if (body.isDefault()){
-             addressRepo.findByDefault(true)
+            addressRepo.findByCustomerAndDefaultIsTrue(address.getCustomer())
                      .ifPresent(defaultAddress -> defaultAddress.setDefault(false));
         }
 
@@ -63,7 +63,7 @@ public class AddressServiceImpl implements AddressService {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (body.isDefault()){
-            addressRepo.findByDefault(true)
+            addressRepo.findByCustomerAndDefaultIsTrue(customer)
                     .ifPresent(defaultAddress -> defaultAddress.setDefault(false));
         }
 

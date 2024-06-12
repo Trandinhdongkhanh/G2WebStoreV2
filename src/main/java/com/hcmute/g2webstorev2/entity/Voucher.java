@@ -17,9 +17,8 @@ import java.util.List;
 @Table(name = "voucher")
 public class Voucher {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "voucher_id")
-    private String id;
+    private String voucherId;
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -31,7 +30,7 @@ public class Voucher {
     private Integer reducePrice;
     private Integer reducePercent;
     private Integer quantity;
-    private Integer maxUsePerCus;
+    private Integer useCount;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "voucher_product",

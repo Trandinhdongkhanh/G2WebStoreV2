@@ -43,7 +43,7 @@ public class Customer implements UserDetails {
     @JoinColumn(name = "role_id")
     private Role role;
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<CartItem> items;
+    private List<CartItemV2> items;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();

@@ -13,6 +13,5 @@ import java.util.Optional;
 public interface AddressRepo extends JpaRepository<Address, Integer> {
     List<Address> findAllByCustomer(Customer customer);
 
-    @Query("select a from Address a where a.isDefault = true")
-    Optional<Address> findByDefault(boolean isDefault);
+    Optional<Address> findByCustomerAndDefaultIsTrue(Customer customer);
 }
