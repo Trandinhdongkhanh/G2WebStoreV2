@@ -118,7 +118,7 @@ public class VoucherServiceImpl implements VoucherService {
         if (voucher.getEndDate().isBefore(LocalDate.now()))
             throw new VoucherException("Voucher is expired");
 
-        List<Product> products = new ArrayList<>();
+        Set<Product> products = new LinkedHashSet<>(voucher.getProducts());
 
         body.getProductIds().forEach(id -> {
             Product product = productRepo.findById(id)
@@ -129,8 +129,7 @@ public class VoucherServiceImpl implements VoucherService {
 
             products.add(product);
         });
-
-        voucher.setProducts(products);
+        voucher.setProducts(new LinkedList<>(products));
         log.info("Add voucher to products successfully");
     }
 

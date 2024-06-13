@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -122,19 +120,31 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
     public List<CartItemV2Res> getCartItems() {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         LocalDate now = LocalDate.now();
-        List<CartItemV2> cartItemV2List = cartItemV2Repo.findAllByCustomer(customer)
-                .stream().map(cartItemV2 -> delInvalidVouchers(cartItemV2, now)).collect(Collectors.toList());
+        List<CartItemV2> cartItemV2List = cartItemV2Repo.findAllByCustomer(customer);
+        for (CartItemV2 cartItemV2 : cartItemV2List) {
+            Set<CartItemVoucher> cartItemVouchers = cartItemV2.getCartItemVouchers().stream()
+                    .filter(itemVoucher -> isVoucherExisted(cartItemV2.getShopItems(), itemVoucher))
+                    .filter(itemVoucher -> isValidVoucher(itemVoucher.getVoucher(), now))
+                    .collect(Collectors.toSet());
+
+            cartItemVouchers.forEach(cartItemVoucher ->
+                cartItemVoucher.setIsEligible(cartItemV2.getShopSubTotal() >= cartItemVoucher.getVoucher().getMinSpend()));
+
+            Set<CartItemVoucher> sortedSet = cartItemVouchers.stream()
+                    .sorted(Comparator.comparingInt(cartItemVoucher -> cartItemVoucher.getVoucher().getReducePrice()))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+            cartItemV2.setCartItemVouchers(new LinkedList<>(sortedSet));
+        }
         return cartItemV2Repo.saveAll(cartItemV2List).stream().map(Mapper::toCartItemv2Res).toList();
     }
 
-    private CartItemV2 delInvalidVouchers(CartItemV2 cartItemV2, LocalDate now) {
-        cartItemV2.getCartItemVouchers().removeIf(cartItemVoucher -> !isValidVoucher(cartItemVoucher.getVoucher(), now));
-        cartItemV2.getCartItemVouchers().forEach(cartItemVoucher -> {
-            if (cartItemV2.getShopSubTotal() >= cartItemVoucher.getVoucher().getMinSpend())
-                cartItemVoucher.setIsEligible(true);
-            else cartItemVoucher.setIsEligible(false);
-        });
-        return cartItemV2;
+    private boolean isVoucherExisted(List<ShopItem> shopItems, CartItemVoucher cartItemVoucher) {
+        for (ShopItem shopItem : shopItems)
+            for (Voucher voucher : shopItem.getProduct().getVouchers())
+                if (Objects.equals(cartItemVoucher.getVoucher().getVoucherId(), voucher.getVoucherId()))
+                    return true;
+        return false;
     }
 
     @Override
@@ -170,5 +180,13 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
 
         cartItemV2Repo.delete(cartItemV2);
         log.info("Cart item deleted successfully");
+    }
+
+    @Override
+    @Transactional
+    public void delAllItem() {
+        Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        cartItemV2Repo.deleteAllByCustomer(customer);
+        log.info("All items deleted");
     }
 }

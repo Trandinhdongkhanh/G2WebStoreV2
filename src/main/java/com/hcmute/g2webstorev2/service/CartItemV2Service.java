@@ -10,4 +10,5 @@ public interface CartItemV2Service {
     List<CartItemV2Res> getCartItems();
     void selectVoucher(Long cartItemV2Id, String voucherId);
     void delItem(Long cartItemId);
+    void delAllItem();
 }

@@ -38,6 +38,7 @@ public class ProductServiceImpl implements ProductService {
     private final FileService fileService;
     private final ShopCateRepo shopCateRepo;
     private final CartItemV2Repo cartItemV2Repo;
+    private final ShopItemRepo shopItemRepo;
 
     @Override
     @Transactional
@@ -296,7 +297,7 @@ public class ProductServiceImpl implements ProductService {
         if (product.getIsBanned())
             throw new SellFunctionLockedException(
                     "Product is banned, please adjust your product and wait for admin to review it");
-        if (!isAvailable) cartItemV2Repo.deleteAllByShop(product.getShop());
+        if (!isAvailable) shopItemRepo.deleteAllByProduct(product);
         product.setIsAvailable(isAvailable);
         return Mapper.toProductResponse(product);
     }
@@ -308,7 +309,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         Shop shop = product.getShop();
         if (isBanned) {
-            cartItemV2Repo.deleteAllByShop(product.getShop());
+            shopItemRepo.deleteAllByProduct(product);
             product.setIsAvailable(false);
             shop.setViolationPoint(shop.getViolationPoint() + 1);
         }

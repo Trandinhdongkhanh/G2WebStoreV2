@@ -46,4 +46,10 @@ public class CartItemV2Controller {
         cartItemV2Service.selectVoucher(cartItemId, voucherId);
         return ResponseEntity.ok("Select voucher successfully");
     }
+    @DeleteMapping("/my-cart")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<String> dellAllCartItems(){
+        cartItemV2Service.delAllItem();
+        return ResponseEntity.ok("All items deleted");
+    }
 }
