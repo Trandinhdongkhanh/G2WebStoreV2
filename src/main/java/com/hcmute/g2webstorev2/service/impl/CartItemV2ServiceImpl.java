@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,7 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
 
         CartItemV2 cartItemV2 = cartItemV2Repo.findByShopAndCustomer(product.getShop(), customer)
                 .orElse(null);
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
 
         //If there is no items of shop appear in cart
         if (cartItemV2 == null) {
@@ -111,7 +111,7 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
         shopItemRepo.save(shopItem);
     }
 
-    private boolean isValidVoucher(Voucher voucher, LocalDate now) {
+    private boolean isValidVoucher(Voucher voucher, LocalDateTime now) {
         return (!voucher.getIsPaused() && voucher.getStartDate().isBefore(now) && voucher.getEndDate().isAfter(now));
     }
 
@@ -119,7 +119,7 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
     @Transactional
     public List<CartItemV2Res> getCartItems() {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
         List<CartItemV2> cartItemV2List = cartItemV2Repo.findAllByCustomer(customer);
         for (CartItemV2 cartItemV2 : cartItemV2List) {
             Set<CartItemVoucher> cartItemVouchers = cartItemV2.getCartItemVouchers().stream()

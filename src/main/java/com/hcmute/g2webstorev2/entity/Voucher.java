@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -20,8 +21,8 @@ public class Voucher {
     @Column(name = "voucher_id")
     private String voucherId;
     private String name;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     @Enumerated(value = EnumType.STRING)
     private DiscountType discountType;
     @Enumerated(value = EnumType.STRING)

@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -21,10 +21,10 @@ public class VoucherRequest {
     private String name;
     @JsonProperty("start_date")
     @NotNull(message = "Start date cannot be null")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
     @JsonProperty("end_date")
     @NotNull(message = "End date cannot be null")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
     @JsonProperty("discount_type")
     @NotNull(message = "Discount type cannot be null")
     private DiscountType discountType;

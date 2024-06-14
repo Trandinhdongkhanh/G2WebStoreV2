@@ -5,7 +5,7 @@ import com.hcmute.g2webstorev2.enums.DiscountType;
 import com.hcmute.g2webstorev2.enums.VoucherType;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -16,9 +16,9 @@ public class VoucherResponse {
     private String id;
     private String name;
     @JsonProperty("start_date")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
     @JsonProperty("end_date")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
     @JsonProperty("discount_type")
     private DiscountType discountType;
     @JsonProperty("voucher_type")

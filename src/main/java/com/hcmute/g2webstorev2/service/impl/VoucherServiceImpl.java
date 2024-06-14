@@ -25,7 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,6 +42,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     @Transactional
     public VoucherResponse addVoucher(VoucherRequest body) {
+        LocalDateTime now = LocalDateTime.now();
         if (voucherRepo.existsByName(body.getName()))
             throw new ResourceNotUniqueException("Duplicate voucher name");
 
@@ -59,7 +60,7 @@ public class VoucherServiceImpl implements VoucherService {
         if (body.getStartDate().isAfter(body.getEndDate()))
             throw new VoucherException("Start date can't be after end date");
 
-        if (body.getStartDate().isBefore(LocalDate.now()))
+        if (body.getStartDate().isBefore(now))
             throw new VoucherException("Start date must be after current time");
 
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -99,7 +100,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     public List<VoucherResponse> getVouchersByProduct(Integer id) {
         if (!productRepo.existsById(id)) throw new ResourceNotFoundException("Product with ID = " + id + " not found");
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
         return voucherRepo.findAllByProductId(id)
                 .stream().filter(voucher -> voucher.getEndDate().isAfter(now)
                         && !voucher.getIsPaused() && voucher.getStartDate().isBefore(now))
@@ -110,12 +111,13 @@ public class VoucherServiceImpl implements VoucherService {
     @Override
     @Transactional
     public void addVoucherToProducts(AddVoucherToProductsReq body, String voucherId) {
+        LocalDateTime now = LocalDateTime.now();
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Voucher voucher = voucherRepo
                 .findById(voucherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Voucher with ID = " + voucherId + " not found"));
 
-        if (voucher.getEndDate().isBefore(LocalDate.now()))
+        if (voucher.getEndDate().isBefore(now))
             throw new VoucherException("Voucher is expired");
 
         Set<Product> products = new LinkedHashSet<>(voucher.getProducts());
@@ -138,7 +140,7 @@ public class VoucherServiceImpl implements VoucherService {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<Voucher> vouchers = filterVouchers(seller.getShop(), name, voucherId);
-        LocalDate now = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
         if (status != null)
             switch (status) {
                 case NOT_STARTED -> {
