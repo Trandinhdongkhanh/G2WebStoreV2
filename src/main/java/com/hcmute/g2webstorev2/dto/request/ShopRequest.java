@@ -14,16 +14,26 @@ import lombok.*;
 public class ShopRequest {
     @NotBlank(message = "Shop name cannot be blank")
     private String name;
-    @NotBlank(message = "Province cannot be blank")
-    private String province;
-    @NotBlank(message = "District cannot be blank")
-    private String district;
+    @JsonProperty("province_id")
+    @NotNull(message = "Province ID must not be null")
+    private Integer provinceId;
+    @NotBlank(message = "Province name cannot be blank")
+    @JsonProperty("province_name")
+    private String provinceName;
     @JsonProperty("district_id")
     @NotNull(message = "District ID cannot be null")
     @Min(value = 1, message = "District ID must be equals or greater than 1")
     private Integer districtId;
-    @NotBlank(message = "Ward cannot be blank")
-    private String ward;
+    @NotBlank(message = "District name cannot be blank")
+    @JsonProperty("district_name")
+    private String districtName;
+    @NotBlank(message = "Ward code must not be blank")
+    @NotNull(message = "Ward code must not be null")
+    @JsonProperty("ward_code")
+    private String wardCode;
+    @NotBlank(message = "Ward name cannot be blank")
+    @JsonProperty("ward_name")
+    private String wardName;
     @NotBlank(message = "Street cannot be blank")
     private String street;
 }

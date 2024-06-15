@@ -13,11 +13,18 @@ public class AddressResponse {
     private Integer addressId;
     @JsonProperty("order_receive_address")
     private String orderReceiveAddress;
-    private String ward;
+    @JsonProperty("ward_code")
+    private String wardCode;
+    @JsonProperty("ward_name")
+    private String wardName;
     @JsonProperty("district_id")
     private Integer districtId;
-    private String district;
-    private String province;
+    @JsonProperty("district_name")
+    private String districtName;
+    @JsonProperty("province_id")
+    private Integer provinceId;
+    @JsonProperty("province_name")
+    private String provinceName;
     @JsonProperty("customer_id")
     private Integer customerId;
     @JsonProperty("receiver_name")

@@ -13,11 +13,18 @@ public class ShopResponse {
     private Integer shopId;
     private String image;
     private String name;
-    private String province;
-    private String district;
+    @JsonProperty("province_id")
+    private Integer provinceId;
+    @JsonProperty("province_name")
+    private String provinceName;
     @JsonProperty("district_id")
     private Integer districtId;
-    private String ward;
+    @JsonProperty("district_name")
+    private String districtName;
+    @JsonProperty("ward_code")
+    private String wardCode;
+    @JsonProperty("ward_name")
+    private String wardName;
     private String street;
     private Long balance;
     @JsonProperty("is_allowed_to_sell")

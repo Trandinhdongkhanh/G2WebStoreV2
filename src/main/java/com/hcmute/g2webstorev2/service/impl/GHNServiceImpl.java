@@ -63,8 +63,8 @@ public class GHNServiceImpl implements GHNService {
         FeeShipReq reqBody = FeeShipReq.builder()
                 .serviceTypeId(2) //2: Chuyển phát thương mại điện tử
                 .fromDistrictId(cartItemV2.getShop().getDistrictId())
-//                .fromWardCode(cartItemV2.getShop().getWard())
-//                .toWardCode(address.getWard())
+                .fromWardCode(cartItemV2.getShop().getWardCode())
+                .toWardCode(address.getWardCode())
                 .toDistrictId(address.getDistrictId())
                 .weight((int) (chargeableWeight * 1000))    //unit = gram
                 .codValue(codValue)

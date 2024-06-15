@@ -123,18 +123,14 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
         List<CartItemV2> cartItemV2List = cartItemV2Repo.findAllByCustomer(customer);
         for (CartItemV2 cartItemV2 : cartItemV2List) {
             Set<CartItemVoucher> cartItemVouchers = cartItemV2.getCartItemVouchers().stream()
-                    .filter(itemVoucher -> isVoucherExisted(cartItemV2.getShopItems(), itemVoucher))
                     .filter(itemVoucher -> isValidVoucher(itemVoucher.getVoucher(), now))
+                    .filter(itemVoucher -> isVoucherExisted(cartItemV2.getShopItems(), itemVoucher))
                     .collect(Collectors.toSet());
 
             cartItemVouchers.forEach(cartItemVoucher ->
                 cartItemVoucher.setIsEligible(cartItemV2.getShopSubTotal() >= cartItemVoucher.getVoucher().getMinSpend()));
 
-            Set<CartItemVoucher> sortedSet = cartItemVouchers.stream()
-                    .sorted(Comparator.comparingInt(cartItemVoucher -> cartItemVoucher.getVoucher().getReducePrice()))
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
-
-            cartItemV2.setCartItemVouchers(new LinkedList<>(sortedSet));
+            cartItemV2.setCartItemVouchers(new LinkedList<>(cartItemVouchers));
         }
         return cartItemV2Repo.saveAll(cartItemV2List).stream().map(Mapper::toCartItemv2Res).toList();
     }

@@ -74,9 +74,9 @@ public class EmailServiceImpl implements EmailService {
             properties.put("email", order.getCustomer().getEmail());
             properties.put("order", order);
             properties.put("receiverName", order.getAddress().getReceiverName());
-            properties.put("district", order.getAddress().getDistrict());
-            properties.put("province", order.getAddress().getProvince());
-            properties.put("ward", order.getAddress().getWard());
+            properties.put("district", order.getAddress().getDistrictName());
+            properties.put("province", order.getAddress().getProvinceName());
+            properties.put("ward", order.getAddress().getWardName());
             properties.put("address", order.getAddress().getOrderReceiveAddress());
             properties.put("phoneNo", order.getAddress().getReceiverPhoneNo());
             properties.put("shopName", order.getShop().getName());

@@ -19,10 +19,12 @@ public class Shop {
     @OneToOne(mappedBy = "shop", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private GCPFile image;
     private String name;
-    private String province;
-    private String district;
+    private Integer provinceId;
+    private String provinceName;
     private Integer districtId;
-    private String ward;
+    private String districtName;
+    private String wardCode;
+    private String wardName;
     private String street;
     private Long balance;
     private Integer violationPoint;

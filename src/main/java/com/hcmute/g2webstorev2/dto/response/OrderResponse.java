@@ -19,12 +19,17 @@ public class OrderResponse {
     private Integer orderId;
     @JsonProperty("order_status")
     private OrderStatus orderStatus;
+    @JsonProperty("expected_delivery_date")
+    private LocalDateTime expectedDeliveryDate;
     @JsonProperty("created_date")
     private LocalDateTime createdDate;
     @JsonProperty("payed_date")
     private LocalDateTime payedDate;
     @JsonProperty("delivered_date")
+
     private LocalDateTime deliveredDate;
+    @JsonProperty("ghn_order_code")
+    private String ghnOrderCode;
     @JsonProperty("customer_id")
     private Integer customerId;
     @JsonProperty("shop_id")

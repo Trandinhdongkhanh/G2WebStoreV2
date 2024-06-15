@@ -47,9 +47,12 @@ public class ShopServiceImpl implements ShopService {
 
         Shop shop = seller.getShop();
         shop.setName(body.getName());
-        shop.setWard(body.getWard());
-        shop.setDistrict(body.getDistrict());
-        shop.setProvince(body.getProvince());
+        shop.setWardCode(body.getWardCode());
+        shop.setWardName(body.getWardName());
+        shop.setDistrictId(body.getDistrictId());
+        shop.setDistrictName(body.getDistrictName());
+        shop.setProvinceId(body.getProvinceId());
+        shop.setProvinceName(body.getProvinceName());
         shop.setStreet(body.getStreet());
         shop.setDistrictId(body.getDistrictId());
 

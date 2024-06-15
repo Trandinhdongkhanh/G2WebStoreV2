@@ -46,10 +46,12 @@ public class AddressServiceImpl implements AddressService {
         }
 
         address.setOrderReceiveAddress(body.getOrderReceiveAddress());
-        address.setWard(body.getWard());
+        address.setWardCode(body.getWardCode());
+        address.setWardName(body.getWardName());
         address.setDistrictId(body.getDistrictId());
-        address.setDistrict(body.getDistrict());
-        address.setProvince(body.getProvince());
+        address.setDistrictName(body.getDistrictName());
+        address.setProvinceId(body.getProvinceId());
+        address.setProvinceName(body.getProvinceName());
         address.setReceiverName(body.getReceiverName());
         address.setReceiverPhoneNo(body.getReceiverPhoneNo());
         address.setDefault(body.isDefault());
@@ -70,10 +72,12 @@ public class AddressServiceImpl implements AddressService {
         AddressResponse res = Mapper.toAddressResponse(addressRepo.save(
                 Address.builder()
                         .customer(customer)
-                        .province(body.getProvince())
-                        .district(body.getDistrict())
+                        .provinceId(body.getProvinceId())
+                        .provinceName(body.getProvinceName())
                         .districtId(body.getDistrictId())
-                        .ward(body.getWard())
+                        .districtName(body.getDistrictName())
+                        .wardCode(body.getWardCode())
+                        .wardName(body.getWardName())
                         .orderReceiveAddress(body.getOrderReceiveAddress())
                         .receiverPhoneNo(body.getReceiverPhoneNo())
                         .receiverName(body.getReceiverName())

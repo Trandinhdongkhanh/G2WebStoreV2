@@ -18,10 +18,12 @@ public class Address {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     private Customer customer;
-    private String province;
-    private String district;
+    private Integer provinceId;
+    private String provinceName;
     private Integer districtId;
-    private String ward;
+    private String districtName;
+    private String wardName;
+    private String wardCode;
     private String orderReceiveAddress;
     private String receiverName;
     private String receiverPhoneNo;
