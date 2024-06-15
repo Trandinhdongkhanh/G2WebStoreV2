@@ -140,6 +140,7 @@ public class VoucherServiceImpl implements VoucherService {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<Voucher> vouchers = filterVouchers(seller.getShop(), name, voucherId);
+        Collections.reverse(vouchers);
         LocalDateTime now = LocalDateTime.now();
         if (status != null)
             switch (status) {
