@@ -65,6 +65,13 @@ ghn:
   shop-id: 190509
   fee-ship-url: https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee
   expected-delivery-url: https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/leadtime
+  create-order-url: https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create
+  print-order:
+    return-url:
+      printA5: https://dev-online-gateway.ghn.vn/a5/public-api/printA5?token=
+      print80x80: https://dev-online-gateway.ghn.vn/a5/public-api/print80x80?token=
+      print50x72: https://dev-online-gateway.ghn.vn/a5/public-api/print52x70?token=
+    url: https://dev-online-gateway.ghn.vn/shiip/public-api/v2/a5/gen-token
 
 application:
   security:

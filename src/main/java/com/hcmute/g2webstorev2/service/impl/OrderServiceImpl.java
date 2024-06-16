@@ -3,8 +3,10 @@ package com.hcmute.g2webstorev2.service.impl;
 import com.hcmute.g2webstorev2.dto.request.CheckShopItemReq;
 import com.hcmute.g2webstorev2.dto.request.OrderCreationRequest;
 import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
+import com.hcmute.g2webstorev2.dto.request.ghn.ExpectedDeliveryDateReq;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
+import com.hcmute.g2webstorev2.dto.response.ghn.CreateOrderApiRes;
 import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
@@ -16,6 +18,7 @@ import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.*;
 import com.hcmute.g2webstorev2.service.EmailService;
+import com.hcmute.g2webstorev2.service.GHNService;
 import com.hcmute.g2webstorev2.service.OrderService;
 import com.hcmute.g2webstorev2.service.VNPAYService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
     private final EmailService emailService;
     private final CartItemV2Repo cartItemV2Repo;
     private final CustomerRepo customerRepo;
+    private final GHNService ghnService;
 
     private void checkDataIntegrity(CheckShopItemReq item) {
         Product product = productRepo.findById(item.getProductId())
@@ -76,6 +80,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Order setUpOrder(PaymentType paymentType, Customer customer, CartItemV2 cartItemV2, Address address, Integer feeShip) {
+        LocalDateTime expectedDeliveryDate = ghnService.calculateExceptedDeliveryDate(ExpectedDeliveryDateReq.builder()
+                .fromDistrictId(cartItemV2.getShop().getDistrictId())
+                .fromWardCode(cartItemV2.getShop().getWardCode())
+                .toDistrictId(address.getDistrictId())
+                .toWardCode(address.getWardCode())
+                .serviceId(53320)   //53320: Chuyển phát thương mại điện tử
+                .build());
+
         Order order = Order.builder()
                 .createdDate(LocalDateTime.now())
                 .customer(customer)
@@ -83,10 +95,13 @@ public class OrderServiceImpl implements OrderService {
                 .feeShip(feeShip)
                 .feeShipReduce(Math.toIntExact(cartItemV2.getFeeShipReduce()))
                 .shopVoucherPriceReduce(Math.toIntExact(cartItemV2.getShopReduce()))
-                .total(Math.toIntExact(cartItemV2.getShopSubTotal()))
+                .shopTotal(Math.toIntExact(cartItemV2.getShopSubTotal()))
                 .pointSpent(0)
                 .address(address)
+                .expectedDeliveryDate(expectedDeliveryDate)
                 .build();
+        int grandTotal = order.getShopTotal() + order.getFeeShip() - order.getShopVoucherPriceReduce() - order.getFeeShipReduce();
+        order.setGrandTotal(grandTotal);
 
         switch (paymentType) {
             case COD -> {
@@ -111,7 +126,6 @@ public class OrderServiceImpl implements OrderService {
 
         List<CartItemV2> cartItemV2Set = cartItemV2Repo.findAllByCustomer(customer);
         List<Order> orders = new ArrayList<>();
-        int ordersTotalPrice = 0;
 
         for (OrderCreationRequest order : body.getOrders()) {
             order.getItems().forEach(this::checkDataIntegrity);
@@ -128,8 +142,6 @@ public class OrderServiceImpl implements OrderService {
                     customer.setPoint(0);
                     customerRepo.save(customer);
                 }
-                ordersTotalPrice += newOrder.getTotal() + newOrder.getFeeShip() - newOrder.getShopVoucherPriceReduce()
-                        - newOrder.getFeeShipReduce() - newOrder.getPointSpent();
                 orders.add(newOrder);
             }
         }
@@ -137,6 +149,8 @@ public class OrderServiceImpl implements OrderService {
         cartItemV2Repo.deleteAll(cartItemV2Set);
 
         String paymentUrl = null;
+        int ordersTotalPrice = orders.stream()
+                .reduce(0, (grandTotal, order) -> grandTotal + order.getGrandTotal(), Integer::sum);
         if (!body.getPaymentType().equals(COD))
             paymentUrl = processOnlPayment(body.getPaymentType(), ordersTotalPrice, req, orders);
         else orders.forEach(emailService::sendOrderConfirmation);
@@ -207,6 +221,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse sellerUpdateOrderStatus(Integer id, OrderStatus status) {
+        LocalDateTime now = LocalDateTime.now();
         Order order = orderRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order with ID = " + id + " not found"));
 
@@ -217,10 +232,14 @@ public class OrderServiceImpl implements OrderService {
 
         if (order.getOrderStatus().equals(UN_PAID))
             throw new AccessDeniedException("Order is UNPAID, can't change status");
-        if (status.equals(DELIVERED)) order.setDeliveredDate(LocalDateTime.now());
+        if (status.equals(DELIVERED)) order.setDeliveredDate(now);
 
+        if (status.equals(PACKED)){
+            CreateOrderApiRes res = ghnService.createOrder(order);
+            order.setGhnOrderCode(res.getData().getOrderCode());
+        }
 
-        if (status == RECEIVED && !isSevenDaysPassed(order.getDeliveredDate(), LocalDateTime.now()))
+        if (status == RECEIVED && !isSevenDaysPassed(order.getDeliveredDate(), now))
             throw new AccessDeniedException("You don't have permission to update the Order Status to '" + RECEIVED.name() + "'" +
                     ", please update after 7 days from delivered date");
 
@@ -245,7 +264,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (status.equals(RECEIVED)) {
             Shop shop = order.getShop();
-            shop.setBalance(shop.getBalance() + order.getTotal());
+            shop.setBalance(shop.getBalance() + order.getGrandTotal());
             shopRepo.save(shop);
         }
 
@@ -277,12 +296,12 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
-        PaymentResponse paymentResponse = vnpayService.createPayment(order.getTotal(), null, null, req);
+        PaymentResponse paymentResponse = vnpayService.createPayment(order.getGrandTotal(), null, null, req);
         vnPayTransRepo.deleteAllByOrder(order);
         vnPayTransRepo.save(VNPAYTransaction.builder()
                 .vnp_TxnRef(paymentResponse.getVnp_TxnRef())
                 .order(order)
-                .total(order.getTotal())
+                .total(order.getGrandTotal())
                 .trans_date(paymentResponse.getVnp_CreateDate())
                 .build());
 

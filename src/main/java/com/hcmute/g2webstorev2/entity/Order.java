@@ -40,7 +40,8 @@ public class Order {
     private Integer g2VoucherPriceReduce;
     private Integer shopVoucherPriceReduce;
     private Integer pointSpent;
-    private Integer total;
+    private Integer grandTotal;
+    private Integer shopTotal;
     @Enumerated(value = EnumType.STRING)
     private PaymentType paymentType;
     @ManyToOne(fetch = FetchType.EAGER)

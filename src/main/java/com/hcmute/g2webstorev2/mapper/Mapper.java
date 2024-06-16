@@ -193,7 +193,8 @@ public class Mapper {
                 .shopVoucherPriceReduce(order.getShopVoucherPriceReduce())
                 .feeShipReduce(order.getFeeShipReduce())
                 .pointSpent(order.getPointSpent())
-                .total(order.getTotal())
+                .grandTotal(order.getGrandTotal())
+                .shopTotal(order.getShopTotal())
                 .address(Mapper.toAddressResponse(order.getAddress()))
                 .build();
     }

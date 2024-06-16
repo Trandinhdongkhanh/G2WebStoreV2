@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FeeShipRes {
+public class FeeShopData {
     private Integer total;
     @JsonProperty("service_fee")
     private Integer serviceFee;

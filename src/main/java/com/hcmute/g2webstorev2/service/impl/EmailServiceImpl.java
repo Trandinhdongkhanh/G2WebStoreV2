@@ -82,10 +82,10 @@ public class EmailServiceImpl implements EmailService {
             properties.put("shopName", order.getShop().getName());
             properties.put("deliveredDate", order.getDeliveredDate());
             properties.put("orderItems", order.getOrderItems());
-            properties.put("total", order.getTotal());
+            properties.put("total", order.getShopTotal());
             properties.put("feeShip", order.getFeeShip());
             properties.put("discount", discount);
-            properties.put("finalTotal", order.getTotal() + order.getFeeShip() - discount);
+            properties.put("finalTotal", order.getGrandTotal());
             properties.put("paymentType", order.getPaymentType());
 
             Context context = new Context();

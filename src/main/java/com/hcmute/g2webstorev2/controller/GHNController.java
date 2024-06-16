@@ -25,4 +25,10 @@ public class GHNController {
             @RequestParam("cartItemId") Long cartItemId) {
         return ResponseEntity.ok(ghnService.calculateFeeShip(addressId, paymentType, cartItemId));
     }
+
+    @GetMapping("/print-order")
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_ORDER_MANAGEMENT') or hasAuthority('READ_ORDER')")
+    public ResponseEntity<String> printOrder(@RequestParam("orderCode") String orderCode) {
+        return ResponseEntity.ok(ghnService.printOrder(orderCode));
+    }
 }

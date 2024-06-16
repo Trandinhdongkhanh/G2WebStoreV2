@@ -46,7 +46,10 @@ public class OrderResponse {
     private Integer feeShipReduce;
     @JsonProperty("point_spent")
     private Integer pointSpent;
-    private Integer total;
+    @JsonProperty("grand_total")
+    private Integer grandTotal;
+    @JsonProperty("shop_total")
+    private Integer shopTotal;
     private List<OrderItemResponse> items;
     @JsonProperty("payment_type")
     private PaymentType paymentType;

@@ -7,8 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CalculateFeeApiRes {
+public class ExpectedDeliveryDateApiRes {
     private Integer code;
     private String message;
-    private FeeShopData data;
+    private ExpectedDeliverDateData data;
 }
