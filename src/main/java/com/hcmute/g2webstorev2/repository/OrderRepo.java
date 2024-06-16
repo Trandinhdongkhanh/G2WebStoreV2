@@ -19,7 +19,7 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
     Page<Order> findAllByCustomerAndOrderStatusOrderByOrderIdDesc(Customer customer, OrderStatus orderStatus, Pageable pageable);
     Page<Order> findAllByShopAndOrderStatusOrderByOrderIdDesc(Shop shop, OrderStatus orderStatus, Pageable pageable);
     Page<Order> findAllByShopOrderByOrderIdDesc(Shop shop, Pageable pageable);
-    @Query("select sum(o.total) from Order o " +
+    @Query("select sum(o.grandTotal) from Order o " +
             "where o.shop.shopId = :shopId " +
             "and o.deliveredDate between :startTime and :endTime and " +
             "o.orderStatus = 'RECEIVED'")

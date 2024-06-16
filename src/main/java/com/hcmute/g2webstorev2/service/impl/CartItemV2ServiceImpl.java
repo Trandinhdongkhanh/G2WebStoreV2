@@ -162,6 +162,7 @@ public class CartItemV2ServiceImpl implements CartItemV2Service {
                 if (Objects.equals(v.getVoucher().getVoucherType(), cartItemVoucher.getVoucher().getVoucherType()))
                     v.setIsSelected(false);
             }
+            return;
         }
         throw new InvalidVoucherException("Can't apply voucher");
     }
