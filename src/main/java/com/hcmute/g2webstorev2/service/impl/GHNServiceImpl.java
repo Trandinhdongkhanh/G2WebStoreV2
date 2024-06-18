@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -125,6 +126,7 @@ public class GHNServiceImpl implements GHNService {
 
     @Override
     public CreateOrderApiRes createOrder(Order order) {
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Integer codAmount = 0;
         if (order.getPaymentType().equals(PaymentType.COD)) codAmount += order.getGrandTotal();
         List<CreateOrderItemData> items = new ArrayList<>();
@@ -138,14 +140,25 @@ public class GHNServiceImpl implements GHNService {
             items.add(item);
         });
 
+        String fromAddress = order.getShop().getStreet() + ", " + order.getShop().getWardName() + ", " +
+                order.getShop().getDistrictName() + ", " + order.getShop().getProvinceName();
+        String toAddress  = order.getAddress().getOrderReceiveAddress() + ", " + order.getAddress().getWardName() + ", " +
+                order.getAddress().getDistrictName() + ", " + order.getAddress().getProvinceName();
+
         HttpHeaders headers = setUpGhnHeaders();
         CreateOrderReq reqBody = CreateOrderReq.builder()
+                .fromPhone(seller.getPhoneNo())
                 .fromName(order.getShop().getName())
-                .toName(order.getCustomer().getFullName())
-                .toPhone(order.getCustomer().getPhoneNo())
-                .toAddress(order.getAddress().getOrderReceiveAddress())
+                .fromAddress(fromAddress)
+                .fromWardName(order.getShop().getWardName())
+                .fromDistrictName(order.getShop().getDistrictName())
+                .fromProvinceName(order.getShop().getProvinceName())
+                .toName(order.getAddress().getReceiverName())
+                .toPhone(order.getAddress().getReceiverPhoneNo())
+                .toAddress(toAddress)
                 .toWardName(order.getAddress().getWardName())
                 .toDistrictName(order.getAddress().getDistrictName())
+                .toProvinceName(order.getAddress().getProvinceName())
                 .codAmount(codAmount)
                 .weight((int) (getChargeableWeight(order) * 1000)) //unit = gram
                 .serviceTypeId(2) //2: Chuyển phát thương mại điện tử
