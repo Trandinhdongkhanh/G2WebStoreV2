@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ExpectedDeliverDateData {
-    @JsonProperty("lead_time")
+    @JsonProperty("leadtime")
     private Long leadTime;
     @JsonProperty("order_date")
     private Long orderDate;
