@@ -36,19 +36,22 @@ public class CartItemV2 {
 
     public Long getShopReduce() {
         if (cartItemVouchers == null || cartItemVouchers.isEmpty()) return 0L;
-        long shopReduce = 0L;
-        long shopSubTotal = getShopSubTotal();
+        float shopReduce = 0L;
+        float shopSubTotal = (float) getShopSubTotal();
         for (CartItemVoucher cartItemVoucher : cartItemVouchers) {
             if (cartItemVoucher.getIsSelected() && cartItemVoucher.getIsEligible()) {
                 Voucher voucher = cartItemVoucher.getVoucher();
                 if (Objects.equals(voucher.getVoucherType(), SHOP_VOUCHER)) {
-                    if (Objects.equals(voucher.getDiscountType(), PRICE)) shopReduce += voucher.getReducePrice();
-                    else shopReduce += shopSubTotal * (voucher.getReducePercent() / 100);
+                    if (voucher.getDiscountType().equals(PRICE))
+                        shopReduce += voucher.getReducePrice();
+                    else if (voucher.getDiscountType().equals(PERCENTAGE))
+                        shopReduce += shopSubTotal * ((float) voucher.getReducePercent() / 100);
                 }
             }
         }
-        return Math.min(shopReduce, shopSubTotal);
+        return (long) Math.min(shopReduce, shopSubTotal);
     }
+
     @Transient
     private Long feeShipReduce;
 

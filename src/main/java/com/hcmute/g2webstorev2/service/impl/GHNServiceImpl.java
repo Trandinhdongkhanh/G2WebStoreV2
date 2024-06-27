@@ -127,8 +127,8 @@ public class GHNServiceImpl implements GHNService {
     @Override
     public CreateOrderApiRes createOrder(Order order) {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Integer codAmount = 0;
-        if (order.getPaymentType().equals(PaymentType.COD)) codAmount += order.getGrandTotal();
+        int codAmount = 0;
+        if (order.getPaymentType().equals(PaymentType.COD)) codAmount += order.getGrandTotal() - order.getFeeShip();
         List<CreateOrderItemData> items = new ArrayList<>();
         order.getOrderItems().forEach(orderItem -> {
             CreateOrderItemData item = CreateOrderItemData.builder()

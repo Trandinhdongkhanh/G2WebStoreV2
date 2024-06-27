@@ -43,7 +43,7 @@ public class PaymentController {
 //        02: Giao dịch hoàn trả toàn phần (vnp_TransactionType=02)
 //        03: Giao dịch hoàn trả một phần (vnp_TransactionType=03)
             @RequestParam("vnp_TransactionType") String vnp_TransactionType,
-            @RequestParam("reqAmount") int reqAmount,
+            @RequestParam("reqAmount") long reqAmount,
             HttpServletRequest req
     ) {
         return ResponseEntity.ok(vnpayService.refund(

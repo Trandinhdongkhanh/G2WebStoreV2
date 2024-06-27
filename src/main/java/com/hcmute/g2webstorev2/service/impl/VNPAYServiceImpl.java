@@ -136,14 +136,14 @@ public class VNPAYServiceImpl implements VNPAYService {
     }
 
     @Override
-    public VNPayTransactionRefundRes refund(int reqAmount, String vnp_TxnRef, HttpServletRequest req,
+    public VNPayTransactionRefundRes refund(long reqAmount, String vnp_TxnRef, HttpServletRequest req,
                                             String vnp_TransactionType, String vnp_TransactionDate, String vnp_CreateBy) {
         //Command: refund
         String vnp_RequestId = vnpayUtil.getRandomNumber(8);
         String vnp_Version = vnpayConfig.getVnp_Version();
         String vnp_Command = "refund";
         String vnp_TmnCode = vnpayConfig.getVnp_TmnCode();
-        long amount = reqAmount * 100L;
+        long amount = reqAmount * 100;
         String vnp_Amount = String.valueOf(amount);
         String vnp_OrderInfo = "Hoan tien GD OrderId: " + vnp_TxnRef;
         String vnp_TransactionNo = ""; //Assuming value of the parameter "vnp_TransactionNo" does not exist on your system.
@@ -160,23 +160,23 @@ public class VNPAYServiceImpl implements VNPAYService {
         String vnp_SecureHash = vnpayUtil.hmacSHA512(vnpayConfig.getSecretKey(), hash_Data);
 
         VNPayTransRefundReq refundReq = VNPayTransRefundReq.builder()
-                .vnp_RequestId(vnp_RequestId)
-                .vnp_Version(vnp_Version)
-                .vnp_Command(vnp_Command)
-                .vnp_TmnCode(vnp_TmnCode)
-                .vnp_TransactionType(vnp_TransactionType)
-                .vnp_TxnRef(vnp_TxnRef)
-                .vnp_Amount(vnp_Amount)
-                .vnp_OrderInfo(vnp_OrderInfo)
-                .vnp_TransactionDate(vnp_TransactionDate)
-                .vnp_CreateBy(vnp_CreateBy)
-                .vnp_CreateDate(vnp_CreateDate)
-                .vnp_IpAddr(vnp_IpAddr)
-                .vnp_SecureHash(vnp_SecureHash)
+                .vnpRequestId(vnp_RequestId)
+                .vnpVersion(vnp_Version)
+                .vnpCommand(vnp_Command)
+                .vnpTmnCode(vnp_TmnCode)
+                .vnpTransactionType(vnp_TransactionType)
+                .vnpTxnRef(vnp_TxnRef)
+                .vnpAmount(vnp_Amount)
+                .vnpOrderInfo(vnp_OrderInfo)
+                .vnpTransactionDate(vnp_TransactionDate)
+                .vnpCreateBy(vnp_CreateBy)
+                .vnpCreateDate(vnp_CreateDate)
+                .vnpIpAddr(vnp_IpAddr)
+                .vnpSecureHash(vnp_SecureHash)
                 .build();
 
         if (vnp_TransactionNo != null && !vnp_TransactionNo.isEmpty()) {
-            refundReq.setVnp_TransactionNo("{get value of vnp_TransactionNo}");
+            refundReq.setVnpTransactionNo("{get value of vnp_TransactionNo}");
         }
 
         RestTemplate restTemplate = new RestTemplate();

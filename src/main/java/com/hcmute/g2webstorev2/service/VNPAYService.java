@@ -15,6 +15,6 @@ public interface VNPAYService {
 
     boolean isValidSignValue(String vnp_SecureHash, HttpServletRequest req);
 
-    VNPayTransactionRefundRes refund(int reqAmount, String vnp_TxnRef, HttpServletRequest req,
+    VNPayTransactionRefundRes refund(long reqAmount, String vnp_TxnRef, HttpServletRequest req,
                 String vnp_TransactionType, String vnp_TransactionDate, String vnp_CreateBy);
 }

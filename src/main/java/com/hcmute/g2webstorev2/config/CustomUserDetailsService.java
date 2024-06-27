@@ -3,7 +3,7 @@ package com.hcmute.g2webstorev2.config;
 import com.hcmute.g2webstorev2.repository.AdminRepo;
 import com.hcmute.g2webstorev2.repository.CustomerRepo;
 import com.hcmute.g2webstorev2.repository.SellerRepo;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,14 +12,12 @@ import org.springframework.stereotype.Service;
 import static com.hcmute.g2webstorev2.enums.AppRole.*;
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private CustomerRepo customerRepo;
-    @Autowired
-    private AdminRepo adminRepo;
-    @Autowired
-    private SellerRepo sellerRepo;
+    private final CustomerRepo customerRepo;
+    private final AdminRepo adminRepo;
+    private final SellerRepo sellerRepo;
 
     @Override
     public UserDetails loadUserByUsername(String value) throws UsernameNotFoundException {
