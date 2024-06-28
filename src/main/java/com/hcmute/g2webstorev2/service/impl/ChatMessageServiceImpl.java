@@ -19,10 +19,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     private final ChatRoomService chatRoomService;
     @Override
     public ChatMessage save(ChatMessage chatMessage) {
-        var chatId = chatRoomService
+        String chatId = chatRoomService
                 .getChatRoomId(chatMessage.getSenderId(), chatMessage.getRecipientId(), true)
                 .orElseThrow(); // You can create your own dedicated exception
         chatMessage.setChatId(chatId);
+        chatMessage.setId(chatId + chatMessage.getTimestamp());
         chatMessageRepo.save(chatMessage);
         return chatMessage;
     }

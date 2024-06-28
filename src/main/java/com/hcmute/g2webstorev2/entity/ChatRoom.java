@@ -1,9 +1,9 @@
 package com.hcmute.g2webstorev2.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,4 +19,6 @@ public class ChatRoom {
     private String chatId;
     private String senderId;
     private String recipientId;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "chatRoom")
+    private List<ChatMessage> chatMessages;
 }

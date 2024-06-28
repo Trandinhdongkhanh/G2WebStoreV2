@@ -1,8 +1,6 @@
 package com.hcmute.g2webstorev2.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,4 +20,7 @@ public class ChatMessage {
     private String recipientId;
     private String content;
     private LocalDateTime timestamp;
+    @ManyToOne
+    @JoinColumn(name = "chat_room_id")
+    private ChatRoom chatRoom;
 }
