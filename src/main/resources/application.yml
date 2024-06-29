@@ -40,11 +40,11 @@ spring:
 
 gcp:
   config:
-    file: g2-test-project-05bf49dd9bfb.json
+    file: g2webstore-ff3faa84aa1c.json
   project:
-    id: g2-test-project
+    id: g2webstore
   bucket:
-    id: demo-bucket-g2
+    id: g2_web_store_data
   gcs:
     url-prefix: https://storage.googleapis.com/
 

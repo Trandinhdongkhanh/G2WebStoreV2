@@ -15,10 +15,13 @@ import java.util.List;
 
 public class ChatRoom {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String chatId;
     private String senderId;
     private String recipientId;
+    private String receiverName;
+    private String receiverAvatar;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "chatRoom")
     private List<ChatMessage> chatMessages;
 }

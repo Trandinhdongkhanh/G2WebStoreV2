@@ -47,4 +47,9 @@ public class Order {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id")
     private Address address;
+    private String refundReason;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "order")
+    private List<GCPFile> refundImages;
+    private LocalDateTime refundingAt;
+    private LocalDateTime refundedAt;
 }

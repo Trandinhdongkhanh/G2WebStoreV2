@@ -39,4 +39,8 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
     @Query("select count(*) from Order o where o.shop.shopId = :shopId " +
             "and o.orderStatus = 'CANCELED'")
     long countCanceledOrder(Integer shopId);
+    @Query("select o from Order o where o.orderStatus = 'REFUNDING'")
+    Page<Order> findAllRefundingOrders(Pageable pageable);
+    @Query("select o from Order o where o.orderStatus = 'REFUNDED'")
+    Page<Order> findAllRefundedOrders(Pageable pageable);
 }

@@ -3,6 +3,7 @@ package com.hcmute.g2webstorev2.service.impl;
 import com.hcmute.g2webstorev2.dto.request.CheckShopItemReq;
 import com.hcmute.g2webstorev2.dto.request.OrderCreationRequest;
 import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
+import com.hcmute.g2webstorev2.dto.request.RefundReq;
 import com.hcmute.g2webstorev2.dto.request.ghn.ExpectedDeliveryDateReq;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
@@ -11,26 +12,22 @@ import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import com.hcmute.g2webstorev2.enums.PaymentType;
-import com.hcmute.g2webstorev2.exception.NameNotMatchException;
-import com.hcmute.g2webstorev2.exception.PriceNotMatchException;
-import com.hcmute.g2webstorev2.exception.ProductNotSufficientException;
-import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
+import com.hcmute.g2webstorev2.exception.*;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.*;
-import com.hcmute.g2webstorev2.service.EmailService;
-import com.hcmute.g2webstorev2.service.GHNService;
-import com.hcmute.g2webstorev2.service.OrderService;
-import com.hcmute.g2webstorev2.service.VNPAYService;
+import com.hcmute.g2webstorev2.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -56,6 +53,7 @@ public class OrderServiceImpl implements OrderService {
     private final CartItemV2Repo cartItemV2Repo;
     private final CustomerRepo customerRepo;
     private final GHNService ghnService;
+    private final FileService fileService;
 
     private void checkDataIntegrity(CheckShopItemReq item) {
         Product product = productRepo.findById(item.getProductId())
@@ -226,6 +224,8 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order with ID = " + id + " not found"));
 
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!order.getOrderStatus().equals(ORDERED) && status.equals(CANCELED))
+            throw new AccessDeniedException("You can't cancel this order");
 
         if (!Objects.equals(seller.getShop().getShopId(), order.getShop().getShopId()))
             throw new AccessDeniedException("You don't have permission on this order, access denied");
@@ -326,6 +326,36 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
         return Mapper.toOrderResponse(order);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse customerRefund(Integer orderId, MultipartFile[] files, RefundReq body) {
+        LocalDateTime now = LocalDateTime.now();
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        if (files == null || files.length == 0) throw new GCPFileUploadException("Please add videos or images");
+        List<GCPFile> gcpFiles = fileService.uploadFiles(files);
+        gcpFiles.forEach(gcpFile -> gcpFile.setOrder(order));
+        order.setRefundImages(gcpFiles);
+        order.setRefundReason(body.getRefundReason());
+        order.setRefundingAt(now);
+        order.setOrderStatus(REFUNDING);
+        return Mapper.toOrderResponse(order);
+    }
+
+    @Override
+    public Page<OrderResponse> getRefundingOrders(int page, int size) {
+        return orderRepo
+                .findAllRefundingOrders(PageRequest.of(page, size, Sort.by("refundingAt")))
+                .map(Mapper::toOrderResponse);
+    }
+
+    @Override
+    public Page<OrderResponse> getRefundedOrders(int page, int size) {
+        return orderRepo
+                .findAllRefundedOrders(PageRequest.of(page, size, Sort.by("refundedAt")))
+                .map(Mapper::toOrderResponse);
     }
 
     private boolean isSevenDaysPassed(LocalDateTime deliveredDate, LocalDateTime curDate) {

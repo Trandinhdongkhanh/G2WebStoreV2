@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
+import com.hcmute.g2webstorev2.dto.request.RefundReq;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
 import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
@@ -11,26 +12,28 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/api/v1/orders")
+@RequiredArgsConstructor
 public class OrderController {
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
+
     @GetMapping("/{orderId}")
     @PreAuthorize("hasAnyRole(" +
             "'SELLER_FULL_ACCESS'," +
             "'SELLER_ORDER_MANAGEMENT'," +
             "'SELLER_READ_ONLY') or hasAuthority('READ_ORDER')")
-    public ResponseEntity<OrderResponse> getOrderById(@PathVariable("orderId") Integer orderId){
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable("orderId") Integer orderId) {
         return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
 
@@ -42,6 +45,7 @@ public class OrderController {
             HttpServletRequest req) throws IOException {
         return ResponseEntity.ok(orderService.createOrders(body, req, res));
     }
+
     @PostMapping("/{id}/pay-unpaid-order")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<PaymentResponse> payUnPaidOrder(
@@ -82,7 +86,33 @@ public class OrderController {
     public ResponseEntity<Page<OrderResponse>> getShopOrders(
             @RequestParam(value = "orderStatus", required = false) OrderStatus orderStatus,
             @RequestParam("page") int pageNumber,
-            @RequestParam("size")int pageSize) {
+            @RequestParam("size") int pageSize) {
         return ResponseEntity.ok(orderService.getShopOrders(orderStatus, pageNumber, pageSize));
+    }
+
+    @PutMapping("/{orderId}/customer-refund")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<OrderResponse> customerRefund(
+            @PathVariable("orderId") Integer orderId,
+            @RequestParam("files") MultipartFile[] files,
+            @Valid @ModelAttribute RefundReq body) {
+        return ResponseEntity.ok(orderService.customerRefund(orderId, files, body));
+    }
+
+    @GetMapping("/admin/refunding")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<OrderResponse>> adminGetRefundingOrders(
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "5", name = "size") int size
+    ) {
+        return ResponseEntity.ok(orderService.getRefundingOrders(page, size));
+    }
+    @GetMapping("/admin/refunded")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<OrderResponse>> adminGetRefundedOrders(
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "5", name = "size") int size
+    ) {
+        return ResponseEntity.ok(orderService.getRefundedOrders(page, size));
     }
 }
