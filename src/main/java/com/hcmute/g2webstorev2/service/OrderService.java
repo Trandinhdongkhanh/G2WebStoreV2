@@ -6,6 +6,7 @@ import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
 import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
+import com.hcmute.g2webstorev2.enums.PaymentType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
@@ -23,7 +24,7 @@ public interface OrderService {
 
     OrderResponse customerUpdateOrderStatus(Integer id, OrderStatus status);
 
-    void updateUnPaidOrder(String vnp_TxnRef);
+    void updateUnPaidOrder(String vnp_TxnRef, String zp_trans_id, PaymentType paymentType);
 
     String payUnPaidOrder(Integer orderId, HttpServletRequest req) throws UnsupportedEncodingException;
 

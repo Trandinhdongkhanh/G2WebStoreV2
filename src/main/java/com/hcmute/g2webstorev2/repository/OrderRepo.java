@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Repository
@@ -43,4 +44,8 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
     Page<Order> findAllRefundingOrders(Pageable pageable);
     @Query("select o from Order o where o.orderStatus = 'REFUNDED'")
     Page<Order> findAllRefundedOrders(Pageable pageable);
+    @Query("select o from Order o where o.vnp_TxnRef like :vnpTxnRef")
+    List<Order> findAllByVnp_TxnRef(String vnpTxnRef);
+    @Query("select o from Order o where o.zp_trans_id like :zpTransId")
+    List<Order> findAllByZp_trans_id(String zpTransId);
 }

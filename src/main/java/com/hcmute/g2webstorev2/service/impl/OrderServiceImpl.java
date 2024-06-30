@@ -49,7 +49,6 @@ public class OrderServiceImpl implements OrderService {
     private final ShopRepo shopRepo;
     private final AddressRepo addressRepo;
     private final VNPAYService vnpayService;
-    private final VNPayTransRepo vnPayTransRepo;
     private final EmailService emailService;
     private final CartItemV2Repo cartItemV2Repo;
     private final CustomerRepo customerRepo;
@@ -290,18 +289,31 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void updateUnPaidOrder(String vnp_TxnRef) {
-        List<VNPAYTransaction> vnpayTransactions = vnPayTransRepo.findAllByVnp_TxnRef(vnp_TxnRef);
-        if (vnpayTransactions.isEmpty()) throw new ResourceNotFoundException("Transactions not found");
-
-        List<Order> orders = new ArrayList<>();
-        vnpayTransactions.forEach(transaction -> {
-            Order order = transaction.getOrder();
-            order.setOrderStatus(ORDERED);
-            orders.add(order);
-        });
-        orderRepo.saveAll(orders);
-        orders.forEach(emailService::sendOrderConfirmation);
+    public void updateUnPaidOrder(String vnp_TxnRef, String zp_trans_id, PaymentType paymentType) {
+        switch (paymentType){
+            case VNPAY -> {
+                List<Order> orders = orderRepo.findAllByVnp_TxnRef(vnp_TxnRef);
+                if (orders.isEmpty()) throw new ResourceNotFoundException("Transactions not found");
+                orders.forEach(order -> {
+                    order.setOrderStatus(ORDERED);
+                    orders.add(order);
+                });
+                orderRepo.saveAll(orders);
+                orders.forEach(emailService::sendOrderConfirmation);
+            }
+            case ZALOPAY -> {
+                List<Order> orders = orderRepo.findAllByZp_trans_id(zp_trans_id);
+                if (orders.isEmpty()) throw new ResourceNotFoundException("Transactions not found");
+                orders.forEach(order -> {
+                    order.setOrderStatus(ORDERED);
+                    orders.add(order);
+                });
+                orderRepo.saveAll(orders);
+                orders.forEach(emailService::sendOrderConfirmation);
+            }
+            default -> {
+            }
+        }
     }
 
     @Override
@@ -314,12 +326,14 @@ public class OrderServiceImpl implements OrderService {
                 PaymentResponse paymentResponse = vnpayService.createPayment(order.getGrandTotal(), null, null, req);
                 order.setVnp_TxnRef(paymentResponse.getVnp_TxnRef());
                 order.setVnp_trans_date(paymentResponse.getVnp_CreateDate());
+                log.info(paymentResponse.getPaymentUrl());
                 return paymentResponse.getPaymentUrl();
             }
             case ZALOPAY -> {
                 CreateOrderRes zalopayRes = zalopayService.createOrder(order.getGrandTotal(), List.of(order));
                 if (zalopayRes == null) throw new NullPointerException("An error occur while process online payment");
                 if (zalopayRes.getReturnCode() != 1) throw new ZaloPayException(zalopayRes.getSubReturnMessage());
+                log.info(zalopayRes.getOrderUrl());
                 return zalopayRes.getOrderUrl();
             }
             default -> {

@@ -1,17 +1,18 @@
 package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.response.vnpay.*;
+import com.hcmute.g2webstorev2.dto.response.zalopay.CallBackRes;
+import com.hcmute.g2webstorev2.dto.response.zalopay.ZaloPayServerRes;
+import com.hcmute.g2webstorev2.enums.PaymentType;
 import com.hcmute.g2webstorev2.service.OrderService;
 import com.hcmute.g2webstorev2.service.VNPAYService;
+import com.hcmute.g2webstorev2.service.ZalopayService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -21,6 +22,7 @@ import java.io.IOException;
 public class PaymentController {
     private final VNPAYService vnpayService;
     private final OrderService orderService;
+    private final ZalopayService zalopayService;
 
     @GetMapping("/create-payment")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
@@ -98,7 +100,7 @@ public class PaymentController {
                 .build();
         if (vnpayService.isValidSignValue(vnp_SecureHash, req)) {
             if ("00".equals(vnp_TransactionStatus)) {
-                orderService.updateUnPaidOrder(vnp_TxnRef);
+                orderService.updateUnPaidOrder(vnp_TxnRef, null, PaymentType.VNPAY);
                 res.sendRedirect("http://localhost:8002/thanks");
                 return ResponseEntity.ok(ReturnURLResponse.builder()
                         .vnp_Rsp(vnp_ResponseCode)
@@ -113,5 +115,9 @@ public class PaymentController {
                 .vnp_Rsp(vnp_ResponseCode)
                 .data(vnpayTransactionRes)
                 .build());
+    }
+    @PostMapping("/zalopay/callback")
+    public ZaloPayServerRes callback(@RequestBody CallBackRes cbRes) {
+        return zalopayService.handleCallBackData(cbRes);
     }
 }
