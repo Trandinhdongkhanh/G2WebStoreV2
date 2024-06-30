@@ -48,7 +48,7 @@ public class OrderController {
 
     @PostMapping("/{id}/pay-unpaid-order")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<PaymentResponse> payUnPaidOrder(
+    public ResponseEntity<String> payUnPaidOrder(
             @PathVariable("id") Integer id,
             HttpServletRequest req) throws UnsupportedEncodingException {
         return ResponseEntity.ok(orderService.payUnPaidOrder(id, req));

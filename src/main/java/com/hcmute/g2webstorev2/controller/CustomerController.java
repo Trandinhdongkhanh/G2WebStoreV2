@@ -6,7 +6,7 @@ import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.service.CustomerService;
 import com.hcmute.g2webstorev2.util.CaptchaValidator;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +19,11 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/customers")
+@RequiredArgsConstructor
 public class CustomerController {
-    @Autowired
-    private CustomerService customerService;
+    private final CustomerService customerService;
 
-    @Autowired
-    private CaptchaValidator captchaValidator;
+    private final CaptchaValidator captchaValidator;
 
     @GetMapping("/me")
     public ResponseEntity<CustomerResponse> getInfo() {
@@ -78,7 +77,7 @@ public class CustomerController {
         return ResponseEntity.ok("Verification code has been sent to your email");
     }
 
-    @GetMapping("/reset-password")
+    @PutMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordRequest body) {
         customerService.resetPassword(body);
         return ResponseEntity.ok("Password changed successfully");

@@ -7,8 +7,8 @@ import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.repository.GCPFileRepo;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.util.GCPDataBucketUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,11 +22,10 @@ import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
-    @Autowired
-    private GCPDataBucketUtil gcpDataBucketUtil;
-    @Autowired
-    private GCPFileRepo gcpFileRepo;
+    private final GCPDataBucketUtil gcpDataBucketUtil;
+    private final GCPFileRepo gcpFileRepo;
 
     @Override
     public List<GCPFile> uploadFiles(MultipartFile[] files) {

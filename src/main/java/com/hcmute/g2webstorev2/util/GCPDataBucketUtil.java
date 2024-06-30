@@ -23,10 +23,8 @@ import java.util.UUID;
 public class GCPDataBucketUtil {
     @Value("${gcp.config.file}")
     private String gcpConfigFile;
-
     @Value("${gcp.project.id}")
     private String gcpProjectId;
-
     @Value("${gcp.bucket.id}")
     private String gcpBucketId;
     @Value("${gcp.gcs.url-prefix}")

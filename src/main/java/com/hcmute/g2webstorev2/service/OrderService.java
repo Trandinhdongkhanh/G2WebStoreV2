@@ -25,7 +25,7 @@ public interface OrderService {
 
     void updateUnPaidOrder(String vnp_TxnRef);
 
-    PaymentResponse payUnPaidOrder(Integer orderId, HttpServletRequest req) throws UnsupportedEncodingException;
+    String payUnPaidOrder(Integer orderId, HttpServletRequest req) throws UnsupportedEncodingException;
 
     Page<OrderResponse> getShopOrders(OrderStatus orderStatus, int pageNumber, int pageSize);
 

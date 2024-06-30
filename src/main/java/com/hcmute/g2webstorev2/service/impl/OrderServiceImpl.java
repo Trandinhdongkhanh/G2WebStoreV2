@@ -9,6 +9,7 @@ import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
 import com.hcmute.g2webstorev2.dto.response.ghn.CreateOrderApiRes;
 import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
+import com.hcmute.g2webstorev2.dto.response.zalopay.CreateOrderRes;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import com.hcmute.g2webstorev2.enums.PaymentType;
@@ -54,6 +55,7 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerRepo customerRepo;
     private final GHNService ghnService;
     private final FileService fileService;
+    private final ZalopayService zalopayService;
 
     private void checkDataIntegrity(CheckShopItemReq item) {
         Product product = productRepo.findById(item.getProductId())
@@ -108,6 +110,10 @@ public class OrderServiceImpl implements OrderService {
             }
             case VNPAY -> {
                 order.setPaymentType(VNPAY);
+                order.setOrderStatus(UN_PAID);
+            }
+            case ZALOPAY -> {
+                order.setPaymentType(ZALOPAY);
                 order.setOrderStatus(UN_PAID);
             }
         }
@@ -186,18 +192,26 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private String processOnlPayment(PaymentType paymentType, int total, HttpServletRequest req, List<Order> orders) throws IOException {
-        if (paymentType.equals(VNPAY)) {
-            PaymentResponse paymentResponse = vnpayService.createPayment(total, null, null, req);
-            log.info(paymentResponse.getPaymentUrl());
+        switch (paymentType) {
+            case VNPAY -> {
+                PaymentResponse paymentResponse = vnpayService.createPayment(total, null, null, req);
+                log.info(paymentResponse.getPaymentUrl());
 
-            orders.forEach(order ->
-                    vnPayTransRepo.save(VNPAYTransaction.builder()
-                            .order(order)
-                            .vnp_TxnRef(paymentResponse.getVnp_TxnRef())
-                            .trans_date(paymentResponse.getVnp_CreateDate())
-                            .build())
-            );
-            return paymentResponse.getPaymentUrl();
+                orders.forEach(order -> {
+                    order.setVnp_TxnRef(paymentResponse.getVnp_TxnRef());
+                    order.setVnp_trans_date(paymentResponse.getVnp_CreateDate());
+                });
+                return paymentResponse.getPaymentUrl();
+            }
+            case ZALOPAY -> {
+                CreateOrderRes zalopayRes = zalopayService.createOrder(total, orders);
+                if (zalopayRes == null) throw new NullPointerException("An error occur while process online payment");
+                if (zalopayRes.getReturnCode() != 1) throw new ZaloPayException(zalopayRes.getSubReturnMessage());
+                orders.forEach(order -> order.setZp_trans_id(zalopayRes.getZpTransToken()));
+            }
+            default -> {
+                return null;
+            }
         }
         return null;
     }
@@ -234,7 +248,7 @@ public class OrderServiceImpl implements OrderService {
             throw new AccessDeniedException("Order is UNPAID, can't change status");
         if (status.equals(DELIVERED)) order.setDeliveredDate(now);
 
-        if (status.equals(PACKED)){
+        if (status.equals(PACKED)) {
             CreateOrderApiRes res = ghnService.createOrder(order);
             order.setGhnOrderCode(res.getData().getOrderCode());
         }
@@ -292,20 +306,26 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public PaymentResponse payUnPaidOrder(Integer orderId, HttpServletRequest req) throws UnsupportedEncodingException {
+    public String payUnPaidOrder(Integer orderId, HttpServletRequest req) throws UnsupportedEncodingException {
         Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
-
-        PaymentResponse paymentResponse = vnpayService.createPayment(order.getGrandTotal(), null, null, req);
-        vnPayTransRepo.deleteAllByOrder(order);
-        vnPayTransRepo.save(VNPAYTransaction.builder()
-                .vnp_TxnRef(paymentResponse.getVnp_TxnRef())
-                .order(order)
-                .total(order.getGrandTotal())
-                .trans_date(paymentResponse.getVnp_CreateDate())
-                .build());
-
-        return paymentResponse;
+        switch (order.getPaymentType()){
+            case VNPAY -> {
+                PaymentResponse paymentResponse = vnpayService.createPayment(order.getGrandTotal(), null, null, req);
+                order.setVnp_TxnRef(paymentResponse.getVnp_TxnRef());
+                order.setVnp_trans_date(paymentResponse.getVnp_CreateDate());
+                return paymentResponse.getPaymentUrl();
+            }
+            case ZALOPAY -> {
+                CreateOrderRes zalopayRes = zalopayService.createOrder(order.getGrandTotal(), List.of(order));
+                if (zalopayRes == null) throw new NullPointerException("An error occur while process online payment");
+                if (zalopayRes.getReturnCode() != 1) throw new ZaloPayException(zalopayRes.getSubReturnMessage());
+                return zalopayRes.getOrderUrl();
+            }
+            default -> {
+                return null;
+            }
+        }
     }
 
     @Override

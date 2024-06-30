@@ -28,6 +28,17 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return ResponseEntity.internalServerError().body(err);
     }
+    @ExceptionHandler(ZaloPayException.class)
+    public ResponseEntity<ErrorRes> handleZaloPayException(ZaloPayException e){
+        ErrorRes err = ErrorRes.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+        log.error(e.getMessage());
+        return ResponseEntity.badRequest().body(err);
+    }
     @ExceptionHandler(GHNException.class)
     public ResponseEntity<ErrorRes> handleGHNException(GHNException e){
         ErrorRes err = ErrorRes.builder()

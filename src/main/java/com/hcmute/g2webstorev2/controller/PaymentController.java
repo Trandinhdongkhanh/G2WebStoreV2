@@ -5,7 +5,7 @@ import com.hcmute.g2webstorev2.service.OrderService;
 import com.hcmute.g2webstorev2.service.VNPAYService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +17,10 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/v1/payments")
+@RequiredArgsConstructor
 public class PaymentController {
-    @Autowired
-    private VNPAYService vnpayService;
-    @Autowired
-    private OrderService orderService;
+    private final VNPAYService vnpayService;
+    private final OrderService orderService;
 
     @GetMapping("/create-payment")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
@@ -60,6 +59,7 @@ public class PaymentController {
         //Can only request after 5 min
         return ResponseEntity.ok(vnpayService.getTransactionInfoFromVNPay(orderId, transDate, req));
     }
+
 
     @GetMapping("/return-url")
     public ResponseEntity<ReturnURLResponse> returnUrl(

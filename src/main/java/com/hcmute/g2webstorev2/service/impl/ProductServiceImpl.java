@@ -37,7 +37,6 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepo categoryRepo;
     private final FileService fileService;
     private final ShopCateRepo shopCateRepo;
-    private final CartItemV2Repo cartItemV2Repo;
     private final ShopItemRepo shopItemRepo;
 
     @Override

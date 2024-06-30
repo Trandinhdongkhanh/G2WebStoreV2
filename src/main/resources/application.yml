@@ -40,7 +40,7 @@ spring:
 
 gcp:
   config:
-    file: g2webstore-ff3faa84aa1c.json
+    file: g2webstore-61c4fc4f6e32.json
   project:
     id: g2webstore
   bucket:
@@ -55,6 +55,13 @@ vnp:
   tmn-code: 9279QT0C
   secret-key: RIPBIASTCZTZNUAOQYTKVZDTBLAKOMOR
   version: 2.1.0
+
+zalopay:
+  app-id: 553
+  key1: 9phuAOYhan4urywHTh0ndEXiV3pKHr5Q
+  key2: Iyz2habzyr7AG8SgvoBCbKwKi3UzlLi3
+  api:
+    create-order: https://sb-openapi.zalopay.vn/v2/create
 
 captcha:
   secret: 6Lcdz8cpAAAAAPYumczXzpVgiX_5G_vHzcrQo7rC
