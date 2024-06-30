@@ -15,6 +15,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequestMapping("/api/v1/payments")
@@ -117,7 +119,13 @@ public class PaymentController {
                 .build());
     }
     @PostMapping("/zalopay/callback")
-    public ZaloPayServerRes callback(@RequestBody CallBackRes cbRes) {
-        return zalopayService.handleCallBackData(cbRes);
+    public ZaloPayServerRes callback(@RequestBody CallBackRes cbRes) throws NoSuchAlgorithmException, InvalidKeyException {
+        ZaloPayServerRes result = zalopayService.handleCallBackData(cbRes);
+        if (result.getReturnCode() == 1)
+            orderService.updateUnPaidOrder(
+                    null,
+                    String.valueOf(cbRes.getData().getZpTransId()),
+                    PaymentType.ZALOPAY);
+        return result;
     }
 }

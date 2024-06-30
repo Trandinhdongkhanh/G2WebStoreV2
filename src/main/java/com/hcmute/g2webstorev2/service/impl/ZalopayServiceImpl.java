@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.service.impl;
 
+import com.hcmute.g2webstorev2.config.ZaloPayConfig;
 import com.hcmute.g2webstorev2.dto.request.zalopay.CreateOrderReq;
 import com.hcmute.g2webstorev2.dto.request.zalopay.EmbedDataReq;
 import com.hcmute.g2webstorev2.dto.request.zalopay.ItemData;
@@ -8,15 +9,11 @@ import com.hcmute.g2webstorev2.dto.response.zalopay.CallBackRes;
 import com.hcmute.g2webstorev2.dto.response.zalopay.CreateOrderRes;
 import com.hcmute.g2webstorev2.dto.response.zalopay.ZaloPayServerRes;
 import com.hcmute.g2webstorev2.entity.Order;
-import com.hcmute.g2webstorev2.enums.PaymentType;
-import com.hcmute.g2webstorev2.service.OrderService;
 import com.hcmute.g2webstorev2.service.ZalopayService;
 import com.hcmute.g2webstorev2.util.zalopay.HMACUtil;
 import jakarta.xml.bind.DatatypeConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,31 +22,16 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ZalopayServiceImpl implements ZalopayService {
-    @Value("${zalopay.app-id}")
-    private Integer appId;
-    @Value("${zalopay.key1}")
-    private String key1;
-    @Value("${zalopay.key2}")
-    private String key2;
-    @Value("${zalopay.api.create-order}")
-    private String createOrderApi;
-    @Value("${zalopay.callback-url}")
-    private String callBackUrl;
-    private Mac HmacSHA256;
-    @Autowired
-    private OrderService orderService;
-
-    public ZalopayServiceImpl() throws Exception {
-        HmacSHA256 = Mac.getInstance("HmacSHA256");
-        HmacSHA256.init(new SecretKeySpec(key2.getBytes(), "HmacSHA256"));
-    }
-
+    private final ZaloPayConfig config;
     @Override
     public CreateOrderRes createOrder(long amount, List<Order> orders) {
         Random rand = new Random();
@@ -72,7 +54,7 @@ public class ZalopayServiceImpl implements ZalopayService {
         }));
 
         CreateOrderReq req = CreateOrderReq.builder()
-                .appId(appId)
+                .appId(config.getAppId())
                 .appTransId(getCurrentTimeString("yyMMdd") + "_" + random_id)
                 .appTime(System.currentTimeMillis())
                 .appUser("G2WebStore")
@@ -80,14 +62,14 @@ public class ZalopayServiceImpl implements ZalopayService {
                 .description("G2WebStore - Payment for the order #" + random_id)
                 .bankCode("")   //Use Sandbox payment credentials (VISA) so the bank code must be empty
                 .item(items)
-                .callbackUrl(callBackUrl)
+                .callbackUrl(config.getCallBackUrl())
                 .embedData(embed_data)
                 .build();
 
         // app_id +”|”+ app_trans_id +”|”+ appuser +”|”+ amount +"|" + app_time +”|”+ embed_data +"|" +item
         String data = req.getAppId() + "|" + req.getAppTransId() + "|" + req.getAppUser() + "|" + req.getAmount()
                 + "|" + req.getAppTime() + "|" + req.getEmbedData() + "|" + req.getItem();
-        req.setMac(HMACUtil.HMacHexStringEncode(HMACUtil.HMACSHA256, key1, data));
+        req.setMac(HMACUtil.HMacHexStringEncode(HMACUtil.HMACSHA256, config.getKey1(), data));
 
         // Set up headers and body
         HttpHeaders headers = new HttpHeaders();
@@ -97,11 +79,13 @@ public class ZalopayServiceImpl implements ZalopayService {
 
         HttpEntity<CreateOrderReq> entity = new HttpEntity<>(req, headers);
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.postForObject(createOrderApi, entity, CreateOrderRes.class);
+        return restTemplate.postForObject(config.getCreateOrderApi(), entity, CreateOrderRes.class);
     }
 
     @Override
-    public ZaloPayServerRes handleCallBackData(CallBackRes cbRes) {
+    public ZaloPayServerRes handleCallBackData(CallBackRes cbRes) throws NoSuchAlgorithmException, InvalidKeyException {
+        Mac HmacSHA256 = Mac.getInstance("HmacSHA256");
+        HmacSHA256.init(new SecretKeySpec(config.getKey2().getBytes(), "HmacSHA256"));
         ZaloPayServerRes result;
 
         try {
@@ -121,7 +105,6 @@ public class ZalopayServiceImpl implements ZalopayService {
             } else {
                 // thanh toán thành công
                 // merchant cập nhật trạng thái cho đơn hàng
-                orderService.updateUnPaidOrder(null, String.valueOf(cbData.getZpTransId()), PaymentType.ZALOPAY);
                 log.info("update order's status = success where app_trans_id = " + cbData.getAppTransId());
                 result = ZaloPayServerRes.builder()
                         .returnCode(1)
