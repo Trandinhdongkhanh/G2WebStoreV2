@@ -39,7 +39,7 @@ spring:
 
 gcp:
   config:
-    file: g2webstore-fd2c40af80ef.json
+    file: YOUR_KEY
   project:
     id: g2webstore
   bucket:
