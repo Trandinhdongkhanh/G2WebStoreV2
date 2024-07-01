@@ -75,7 +75,6 @@ public class ZalopayServiceImpl implements ZalopayService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setContentType(MediaType.APPLICATION_XML);
 
         HttpEntity<CreateOrderReq> entity = new HttpEntity<>(req, headers);
         RestTemplate restTemplate = new RestTemplate();

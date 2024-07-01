@@ -4,7 +4,6 @@ server:
 spring:
   application:
     name: G2WebStoreV2
-
   datasource:
     url: jdbc:mysql://localhost:3306/g2db_test
     username: root
@@ -40,7 +39,7 @@ spring:
 
 gcp:
   config:
-    file: g2webstore-b1aaa4a0b53b.json
+    file: g2webstore-fd2c40af80ef.json
   project:
     id: g2webstore
   bucket:
