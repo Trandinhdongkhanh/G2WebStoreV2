@@ -4,7 +4,6 @@ import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
 import com.hcmute.g2webstorev2.dto.request.RefundReq;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
-import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import com.hcmute.g2webstorev2.service.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/api/v1/orders")
