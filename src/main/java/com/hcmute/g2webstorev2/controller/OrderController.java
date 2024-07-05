@@ -107,6 +107,7 @@ public class OrderController {
     ) {
         return ResponseEntity.ok(orderService.getRefundingOrders(page, size));
     }
+
     @GetMapping("/admin/refunded")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<OrderResponse>> adminGetRefundedOrders(
@@ -114,5 +115,11 @@ public class OrderController {
             @RequestParam(defaultValue = "5", name = "size") int size
     ) {
         return ResponseEntity.ok(orderService.getRefundedOrders(page, size));
+    }
+
+    @PutMapping("/{orderId}/refund")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<OrderResponse> refund(@PathVariable("orderId") Integer orderId) {
+        return ResponseEntity.ok(orderService.refund(orderId));
     }
 }
