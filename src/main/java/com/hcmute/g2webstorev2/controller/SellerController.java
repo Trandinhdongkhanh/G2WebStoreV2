@@ -53,7 +53,7 @@ public class SellerController {
         return ResponseEntity.ok("Verification code has been sent to your email");
     }
 
-    @GetMapping("/reset-password")
+    @PutMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest body) {
         sellerService.resetPassword(body);
         return ResponseEntity.ok("Password changed successfully");

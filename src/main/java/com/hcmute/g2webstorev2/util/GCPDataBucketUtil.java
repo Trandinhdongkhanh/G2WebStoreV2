@@ -39,22 +39,22 @@ public class GCPDataBucketUtil {
     public boolean delFile(String fileName) {
         try {
 
-            InputStream inputStream = new ClassPathResource(gcpConfigFile).getInputStream();
+            InputStream inputStream = new ClassPathResource(firebaseKey).getInputStream();
 
             Storage storage = StorageOptions.newBuilder()
                     .setCredentials(GoogleCredentials.fromStream(inputStream))
-                    .setProjectId(gcpProjectId).build().getService();
+                    .setProjectId(fbPrjId).build().getService();
 
-            Blob blob = storage.get(gcpBucketId, fileName);
+            Blob blob = storage.get(firebaseBucket, fileName);
             if (blob == null)
-                throw new GCSFileNotFoundException("The object " + fileName + " wasn't found in " + gcpBucketId);
-            storage.delete(gcpBucketId, fileName);
-            log.info("Object " + fileName + " was deleted from " + gcpBucketId);
+                throw new GCSFileNotFoundException("The object " + fileName + " wasn't found in " + firebaseBucket);
+            storage.delete(firebaseBucket, fileName);
+            log.info("Object " + fileName + " was deleted from " + firebaseBucket);
             return true;
 
         } catch (Exception e) {
-            log.error("An error occurred while uploading data. Exception: ", e);
-            throw new GCPFileUploadException("An error occurred while storing data to GCS");
+            log.error("An error occurred while deleting data. Exception: ", e);
+            throw new GCPFileUploadException("An error occurred while deleting data from GCS");
         }
     }
 
