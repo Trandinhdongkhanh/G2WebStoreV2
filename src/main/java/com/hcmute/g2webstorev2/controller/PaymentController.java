@@ -1,12 +1,9 @@
 package com.hcmute.g2webstorev2.controller;
 
 import com.hcmute.g2webstorev2.dto.response.vnpay.*;
-import com.hcmute.g2webstorev2.dto.response.zalopay.CallBackRes;
-import com.hcmute.g2webstorev2.dto.response.zalopay.ZaloPayServerRes;
 import com.hcmute.g2webstorev2.enums.PaymentType;
 import com.hcmute.g2webstorev2.service.OrderService;
 import com.hcmute.g2webstorev2.service.VNPAYService;
-import com.hcmute.g2webstorev2.service.ZalopayService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequestMapping("/api/v1/payments")
@@ -24,7 +19,6 @@ import java.security.NoSuchAlgorithmException;
 public class PaymentController {
     private final VNPAYService vnpayService;
     private final OrderService orderService;
-    private final ZalopayService zalopayService;
 
     @GetMapping("/create-payment")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
@@ -117,15 +111,5 @@ public class PaymentController {
                 .vnp_Rsp(vnp_ResponseCode)
                 .data(vnpayTransactionRes)
                 .build());
-    }
-    @PostMapping("/zalopay/callback")
-    public ZaloPayServerRes callback(@RequestBody CallBackRes cbRes) throws NoSuchAlgorithmException, InvalidKeyException {
-        ZaloPayServerRes result = zalopayService.handleCallBackData(cbRes);
-        if (result.getReturnCode() == 1)
-            orderService.updateUnPaidOrder(
-                    null,
-                    String.valueOf(cbRes.getData().getZpTransId()),
-                    PaymentType.ZALOPAY);
-        return result;
     }
 }

@@ -4,7 +4,6 @@ import com.hcmute.g2webstorev2.dto.request.OrdersCreationRequest;
 import com.hcmute.g2webstorev2.dto.request.RefundReq;
 import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
-import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import com.hcmute.g2webstorev2.enums.PaymentType;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 public interface OrderService {
     OrdersCreationResponse createOrders(OrdersCreationRequest body, HttpServletRequest req, HttpServletResponse res) throws IOException;
@@ -26,7 +24,7 @@ public interface OrderService {
 
     void updateUnPaidOrder(String vnp_TxnRef, String zp_trans_id, PaymentType paymentType);
 
-    String payUnPaidOrder(Integer orderId, HttpServletRequest req) throws UnsupportedEncodingException;
+    String payUnPaidOrder(Integer orderId, HttpServletRequest req) throws IOException;
 
     Page<OrderResponse> getShopOrders(OrderStatus orderStatus, int pageNumber, int pageSize);
 
@@ -36,4 +34,5 @@ public interface OrderService {
 
     Page<OrderResponse> getRefundingOrders(int page, int size);
     Page<OrderResponse> getRefundedOrders(int page, int size);
+    OrderResponse refund(Integer orderId);
 }

@@ -50,7 +50,7 @@ public class OrderController {
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> payUnPaidOrder(
             @PathVariable("id") Integer id,
-            HttpServletRequest req) throws UnsupportedEncodingException {
+            HttpServletRequest req) throws IOException {
         return ResponseEntity.ok(orderService.payUnPaidOrder(id, req));
     }
 

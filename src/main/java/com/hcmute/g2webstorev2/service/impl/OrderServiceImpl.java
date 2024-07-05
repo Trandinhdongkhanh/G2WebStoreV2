@@ -9,7 +9,6 @@ import com.hcmute.g2webstorev2.dto.response.OrderResponse;
 import com.hcmute.g2webstorev2.dto.response.OrdersCreationResponse;
 import com.hcmute.g2webstorev2.dto.response.ghn.CreateOrderApiRes;
 import com.hcmute.g2webstorev2.dto.response.vnpay.PaymentResponse;
-import com.hcmute.g2webstorev2.dto.response.zalopay.CreateOrderRes;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import com.hcmute.g2webstorev2.enums.PaymentType;
@@ -31,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -54,7 +52,6 @@ public class OrderServiceImpl implements OrderService {
     private final CustomerRepo customerRepo;
     private final GHNService ghnService;
     private final FileService fileService;
-    private final ZalopayService zalopayService;
 
     private void checkDataIntegrity(CheckShopItemReq item) {
         Product product = productRepo.findById(item.getProductId())
@@ -109,10 +106,6 @@ public class OrderServiceImpl implements OrderService {
             }
             case VNPAY -> {
                 order.setPaymentType(VNPAY);
-                order.setOrderStatus(UN_PAID);
-            }
-            case ZALOPAY -> {
-                order.setPaymentType(ZALOPAY);
                 order.setOrderStatus(UN_PAID);
             }
         }
@@ -191,26 +184,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private String processOnlPayment(PaymentType paymentType, int total, HttpServletRequest req, List<Order> orders) throws IOException {
-        switch (paymentType) {
-            case VNPAY -> {
-                PaymentResponse paymentResponse = vnpayService.createPayment(total, null, null, req);
-                log.info(paymentResponse.getPaymentUrl());
+        if (Objects.requireNonNull(paymentType) == VNPAY) {
+            PaymentResponse paymentResponse = vnpayService.createPayment(total, null, null, req);
+            log.info(paymentResponse.getPaymentUrl());
 
-                orders.forEach(order -> {
-                    order.setVnp_TxnRef(paymentResponse.getVnp_TxnRef());
-                    order.setVnp_trans_date(paymentResponse.getVnp_CreateDate());
-                });
-                return paymentResponse.getPaymentUrl();
-            }
-            case ZALOPAY -> {
-                CreateOrderRes zalopayRes = zalopayService.createOrder(total, orders);
-                if (zalopayRes == null) throw new NullPointerException("An error occur while process online payment");
-                if (zalopayRes.getReturnCode() != 1) throw new ZaloPayException(zalopayRes.getSubReturnMessage());
-                orders.forEach(order -> order.setZp_trans_id(zalopayRes.getZpTransToken()));
-            }
-            default -> {
-                return null;
-            }
+            orders.forEach(order -> {
+                order.setVnp_TxnRef(paymentResponse.getVnp_TxnRef());
+                order.setVnp_trans_date(paymentResponse.getVnp_CreateDate());
+            });
+            return paymentResponse.getPaymentUrl();
         }
         return null;
     }
@@ -290,56 +272,31 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void updateUnPaidOrder(String vnp_TxnRef, String zp_trans_id, PaymentType paymentType) {
-        switch (paymentType){
-            case VNPAY -> {
-                List<Order> orders = orderRepo.findAllByVnp_TxnRef(vnp_TxnRef);
-                if (orders.isEmpty()) throw new ResourceNotFoundException("Transactions not found");
-                orders.forEach(order -> {
-                    order.setOrderStatus(ORDERED);
-                    orders.add(order);
-                });
-                orderRepo.saveAll(orders);
-                orders.forEach(emailService::sendOrderConfirmation);
-            }
-            case ZALOPAY -> {
-                List<Order> orders = orderRepo.findAllByZp_trans_id(zp_trans_id);
-                if (orders.isEmpty()) throw new ResourceNotFoundException("Transactions not found");
-                orders.forEach(order -> {
-                    order.setOrderStatus(ORDERED);
-                    orders.add(order);
-                });
-                orderRepo.saveAll(orders);
-                orders.forEach(emailService::sendOrderConfirmation);
-            }
-            default -> {
-            }
+        if (Objects.requireNonNull(paymentType) == VNPAY) {
+            List<Order> orders = orderRepo.findAllByVnp_TxnRef(vnp_TxnRef);
+            if (orders.isEmpty()) throw new ResourceNotFoundException("Transactions not found");
+            orders.forEach(order -> {
+                order.setOrderStatus(ORDERED);
+                orders.add(order);
+            });
+            orderRepo.saveAll(orders);
+            orders.forEach(emailService::sendOrderConfirmation);
         }
     }
 
     @Override
     @Transactional
-    public String payUnPaidOrder(Integer orderId, HttpServletRequest req) throws UnsupportedEncodingException {
+    public String payUnPaidOrder(Integer orderId, HttpServletRequest req) throws IOException {
         Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
-        switch (order.getPaymentType()){
-            case VNPAY -> {
-                PaymentResponse paymentResponse = vnpayService.createPayment(order.getGrandTotal(), null, null, req);
-                order.setVnp_TxnRef(paymentResponse.getVnp_TxnRef());
-                order.setVnp_trans_date(paymentResponse.getVnp_CreateDate());
-                log.info(paymentResponse.getPaymentUrl());
-                return paymentResponse.getPaymentUrl();
-            }
-            case ZALOPAY -> {
-                CreateOrderRes zalopayRes = zalopayService.createOrder(order.getGrandTotal(), List.of(order));
-                if (zalopayRes == null) throw new NullPointerException("An error occur while process online payment");
-                if (zalopayRes.getReturnCode() != 1) throw new ZaloPayException(zalopayRes.getSubReturnMessage());
-                log.info(zalopayRes.getOrderUrl());
-                return zalopayRes.getOrderUrl();
-            }
-            default -> {
-                return null;
-            }
+        if (Objects.requireNonNull(order.getPaymentType()) == VNPAY) {
+            PaymentResponse paymentResponse = vnpayService.createPayment(order.getGrandTotal(), null, null, req);
+            order.setVnp_TxnRef(paymentResponse.getVnp_TxnRef());
+            order.setVnp_trans_date(paymentResponse.getVnp_CreateDate());
+            log.info(paymentResponse.getPaymentUrl());
+            return paymentResponse.getPaymentUrl();
         }
+        return null;
     }
 
     @Override
@@ -390,6 +347,17 @@ public class OrderServiceImpl implements OrderService {
         return orderRepo
                 .findAllRefundedOrders(PageRequest.of(page, size, Sort.by("refundedAt")))
                 .map(Mapper::toOrderResponse);
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse refund(Integer orderId) {
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        order.setOrderStatus(REFUNDED);
+        Customer customer = order.getCustomer();
+        customer.setPoint(customer.getPoint() + order.getGrandTotal());
+        return Mapper.toOrderResponse(order);
     }
 
     private boolean isSevenDaysPassed(LocalDateTime deliveredDate, LocalDateTime curDate) {

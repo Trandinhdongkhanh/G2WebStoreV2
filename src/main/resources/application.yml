@@ -63,14 +63,6 @@ vnp:
   secret-key: RIPBIASTCZTZNUAOQYTKVZDTBLAKOMOR
   version: 2.1.0
 
-zalopay:
-  app-id: 553
-  key1: 9phuAOYhan4urywHTh0ndEXiV3pKHr5Q
-  key2: Iyz2habzyr7AG8SgvoBCbKwKi3UzlLi3
-  callback-url: http://localhost:8080/api/v1/payments/zalopay/callback
-  api:
-    create-order: https://sb-openapi.zalopay.vn/v2/create
-
 captcha:
   secret: 6Lcdz8cpAAAAAPYumczXzpVgiX_5G_vHzcrQo7rC
   url: https://www.google.com/recaptcha/api/siteverify

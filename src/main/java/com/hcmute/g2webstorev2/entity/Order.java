@@ -52,7 +52,6 @@ public class Order {
     private List<GCPFile> refundImages;
     private LocalDateTime refundingAt;
     private LocalDateTime refundedAt;
-    private String zp_trans_id;
     private String vnp_TxnRef;
     private String vnp_trans_date;
 }
