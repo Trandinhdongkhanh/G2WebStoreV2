@@ -49,7 +49,7 @@ gcp:
     url-prefix: https://storage.googleapis.com/
 
 firebase:
-  key: g2-web-store-firebase-adminsdk-9197j-e2a3bdabcd.json
+  key: g2-web-store-firebase-adminsdk-9197j-953b6466f4.json
   project: g2-web-store
   storage:
     bucket: g2-web-store.appspot.com
