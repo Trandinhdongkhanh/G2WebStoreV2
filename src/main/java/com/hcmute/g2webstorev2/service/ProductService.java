@@ -17,11 +17,11 @@ import java.util.List;
 public interface ProductService {
     void updateProducts(List<Product> products) throws IOException;
     Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed,
-                                            SortType sortType, Integer startPrice, Integer endPrice, Integer districtId);
+                                            SortType sortType, Integer startPrice, Integer endPrice, Integer districtId) throws IOException;
     Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed, SortType sortType,
                                          Integer startPrice, Integer endPrice, Integer districtId);
     ProductResponse getProduct(Integer id);
-    ProductResponse addProduct(ProductRequest body, MultipartFile[] files);
+    ProductResponse addProduct(ProductRequest body, MultipartFile[] files) throws IOException;
     ProductResponse enableProduct(boolean isAvailable, Integer productId);
     ProductResponse bannedProduct(boolean isBanned, Integer productId);
     void updateProduct(ProductRequest body, Integer id, MultipartFile[] files);

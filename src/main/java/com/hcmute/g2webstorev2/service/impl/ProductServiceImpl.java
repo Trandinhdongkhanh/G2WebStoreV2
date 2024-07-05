@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.service.impl;
 
+//import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
@@ -11,22 +12,20 @@ import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.exception.SellFunctionLockedException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.*;
+//import com.hcmute.g2webstorev2.service.ElasticSearchService;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -38,6 +37,7 @@ public class ProductServiceImpl implements ProductService {
     private final FileService fileService;
     private final ShopCateRepo shopCateRepo;
     private final ShopItemRepo shopItemRepo;
+//    private final ElasticSearchService esService;
 
     @Override
     @Transactional
@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed, SortType sortType,
-                                                   Integer startPrice, Integer endPrice, Integer districtId) {
+                                                   Integer startPrice, Integer endPrice, Integer districtId) throws IOException {
         if (sortType != null) {
             switch (sortType) {
                 case NEWEST -> {
@@ -121,19 +121,28 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductResponse> getNewestProductsByName(String name, Integer startPrice, Integer endPrice,
-                                                          int pageNumber, int pageSize) {
-        if (startPrice != null && endPrice != null)
-            return productRepo.findAllByNameAndPriceBetween(
-                    name,
-                    startPrice,
-                    endPrice,
-                    PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
-            ).map(Mapper::toProductResponse);
+                                                          int pageNumber, int pageSize) throws IOException {
+            if (startPrice != null && endPrice != null) {
+//                SearchResponse<Product> res = esService.fuzzyQueryProducts(name, startPrice, endPrice);
+//                Pageable pageable = PageRequest.of(pageNumber, pageSize);
+//                List<Product> products = new ArrayList<>();
+//                res.hits().hits().forEach(h -> products.add(h.source()));
+//                products.sort(Comparator.comparingInt(Product::getProductId));
+//
+//                return new PageImpl<>(getPageContent(products, pageable), pageable, products.size());
+            }
 
         return productRepo.findAllByName(
                 name,
                 PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
         ).map(Mapper::toProductResponse);
+    }
+    private List<ProductResponse> getPageContent(List<Product> products, Pageable pageable){
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), products.size());
+
+        return products.subList(start, end)
+                .stream().map(Mapper::toProductResponse).toList();
     }
 
     private Page<ProductResponse> getTopSellProductsByName(String name, Integer startPrice, Integer endPrice,
@@ -247,7 +256,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse addProduct(ProductRequest body, MultipartFile[] files) {
+    public ProductResponse addProduct(ProductRequest body, MultipartFile[] files) throws IOException {
         log.info("Beginning add product...");
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -282,6 +291,7 @@ public class ProductServiceImpl implements ProductService {
         product.setImages(images);
 
         ProductResponse res = Mapper.toProductResponse(productRepo.save(product));
+//        esService.addProduct(product);
 
         log.info("Product with ID = " + res.getProductId() + " have been created");
         return res;

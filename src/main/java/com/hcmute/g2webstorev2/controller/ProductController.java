@@ -140,7 +140,7 @@ public class ProductController {
     @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<ProductResponse> addProduct(
             @Valid @ModelAttribute ProductRequest body,
-            @RequestParam("files") MultipartFile[] files) {
+            @RequestParam("files") MultipartFile[] files) throws IOException {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(productService.addProduct(body, files));
@@ -225,7 +225,7 @@ public class ProductController {
             @RequestParam(value = "sort", required = false) SortType sortType,
             @RequestParam(value = "startPrice", required = false) Integer startPrice,
             @RequestParam(value = "endPrice", required = false) Integer endPrice,
-            @RequestParam(value = "districtId", required = false) Integer districtId) {
+            @RequestParam(value = "districtId", required = false) Integer districtId) throws IOException {
         return ResponseEntity.ok(productService.getProductsByName(
                 name,
                 pageNumber,

@@ -1,10 +1,7 @@
 package com.hcmute.g2webstorev2.util;
 
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.Bucket;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.*;
 import com.hcmute.g2webstorev2.entity.GCPFile;
 import com.hcmute.g2webstorev2.exception.GCPFileUploadException;
 import com.hcmute.g2webstorev2.exception.GCSFileNotFoundException;
@@ -29,6 +26,14 @@ public class GCPDataBucketUtil {
     private String gcpBucketId;
     @Value("${gcp.gcs.url-prefix}")
     private String gcsUrlPrefix;
+    @Value("${firebase.key}")
+    private String firebaseKey;
+    @Value("${firebase.storage.bucket}")
+    private String firebaseBucket;
+    @Value("${firebase.storage.url}")
+    private String fbUrl;
+    @Value("${firebase.project}")
+    private String fbPrjId;
 
 
     public boolean delFile(String fileName) {
@@ -56,29 +61,27 @@ public class GCPDataBucketUtil {
     public GCPFile uploadFile(MultipartFile multipartFile, String fileName, String contentType) {
 
         try {
-
-            log.debug("Start file uploading process on GCS");
+            log.info("Start file uploading process on GCS");
             checkFileExtension(fileName);
             String formattedFileName = fileName.trim().replaceAll("\\s+", "");  //Remove whitespaces
 
-            InputStream inputStream = new ClassPathResource(gcpConfigFile).getInputStream();
-
-            StorageOptions options = StorageOptions.newBuilder().setProjectId(gcpProjectId)
+            InputStream inputStream = new ClassPathResource(firebaseKey).getInputStream();
+            StorageOptions options = StorageOptions.newBuilder().setProjectId(fbPrjId)
                     .setCredentials(GoogleCredentials.fromStream(inputStream)).build();
-
             Storage storage = options.getService();
-            Bucket bucket = storage.get(gcpBucketId, Storage.BucketGetOption.fields());
+            Bucket bucket = storage.get(firebaseBucket, Storage.BucketGetOption.fields());
 
             String id = UUID.randomUUID().toString();
             String gcpFileName = id + "-" + formattedFileName;
             Blob blob = bucket.create(gcpFileName, multipartFile.getBytes(), contentType);
 
+            String objUrl = fbUrl + firebaseBucket + "/o/" + blob.getName() + "?alt=media";
 
             if (blob != null) {
                 log.debug("File successfully uploaded to GCS");
                 return GCPFile.builder()
                         .fileName(gcpFileName)
-                        .fileUrl(gcsUrlPrefix + gcpBucketId + "/" + blob.getName())
+                        .fileUrl(objUrl)
                         .fileType(blob.getContentType())
                         .build();
             }
