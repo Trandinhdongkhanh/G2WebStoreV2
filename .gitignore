@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Firebase Key
+src/main/resources/g2-web-store-firebase-adminsdk-9197j-055d542a1c.json
