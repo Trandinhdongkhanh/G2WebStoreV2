@@ -194,8 +194,6 @@ public class SellerServiceImpl implements SellerService {
     public SellerResponse uploadAvatar(MultipartFile file) {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (seller.getAvatar() != null) fileService.delFile(seller.getAvatar().getId());
-
         List<GCPFile> images = fileService.uploadFiles(new MultipartFile[]{file});
         seller.setAvatar(images.get(0));
         images.get(0).setSeller(seller);

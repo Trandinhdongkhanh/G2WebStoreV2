@@ -4,7 +4,6 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
 import com.hcmute.g2webstorev2.entity.GCPFile;
 import com.hcmute.g2webstorev2.exception.GCPFileUploadException;
-import com.hcmute.g2webstorev2.exception.GCSFileNotFoundException;
 import com.hcmute.g2webstorev2.exception.InvalidFileTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,30 +33,6 @@ public class GCPDataBucketUtil {
     private String fbUrl;
     @Value("${firebase.project}")
     private String fbPrjId;
-
-
-    public boolean delFile(String fileName) {
-        try {
-
-            InputStream inputStream = new ClassPathResource(firebaseKey).getInputStream();
-
-            Storage storage = StorageOptions.newBuilder()
-                    .setCredentials(GoogleCredentials.fromStream(inputStream))
-                    .setProjectId(fbPrjId).build().getService();
-
-            Blob blob = storage.get(firebaseBucket, fileName);
-            if (blob == null)
-                throw new GCSFileNotFoundException("The object " + fileName + " wasn't found in " + firebaseBucket);
-            storage.delete(firebaseBucket, fileName);
-            log.info("Object " + fileName + " was deleted from " + firebaseBucket);
-            return true;
-
-        } catch (Exception e) {
-            log.error("An error occurred while deleting data. Exception: ", e);
-            throw new GCPFileUploadException("An error occurred while deleting data from GCS");
-        }
-    }
-
     public GCPFile uploadFile(MultipartFile multipartFile, String fileName, String contentType) {
 
         try {

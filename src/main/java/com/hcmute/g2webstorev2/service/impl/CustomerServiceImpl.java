@@ -198,8 +198,6 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse uploadAvatar(MultipartFile file) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (customer.getAvatar() != null) fileService.delFile(customer.getAvatar().getId());
-
         List<GCPFile> images = fileService.uploadFiles(new MultipartFile[]{file});
         customer.setAvatar(images.get(0));
         images.get(0).setCustomer(customer);

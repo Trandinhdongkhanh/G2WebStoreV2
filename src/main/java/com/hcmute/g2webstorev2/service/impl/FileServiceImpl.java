@@ -3,14 +3,12 @@ package com.hcmute.g2webstorev2.service.impl;
 import com.hcmute.g2webstorev2.entity.GCPFile;
 import com.hcmute.g2webstorev2.exception.FilesUploadException;
 import com.hcmute.g2webstorev2.exception.GCPFileUploadException;
-import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.repository.GCPFileRepo;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.util.GCPDataBucketUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -53,17 +51,5 @@ public class FileServiceImpl implements FileService {
         });
 
         return gcpFiles;
-    }
-
-    @Override
-    @Transactional
-    public void delFile(Long fileId) {
-        GCPFile gcpFile = gcpFileRepo.findById(fileId)
-                .orElseThrow(() -> new ResourceNotFoundException("File with ID = " + fileId + " not found"));
-
-        if (gcpDataBucketUtil.delFile(gcpFile.getFileName())) {
-            gcpFileRepo.deleteById(fileId);
-            log.info("File with ID = " + fileId + " deleted successfully");
-        }
     }
 }

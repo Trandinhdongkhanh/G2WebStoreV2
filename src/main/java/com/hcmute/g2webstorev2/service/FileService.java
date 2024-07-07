@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface FileService {
     List<GCPFile> uploadFiles(MultipartFile[] files);
-    void delFile(Long fileId);
 }

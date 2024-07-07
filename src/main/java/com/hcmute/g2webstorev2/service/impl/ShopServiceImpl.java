@@ -77,8 +77,6 @@ public class ShopServiceImpl implements ShopService {
 
         Shop shop = seller.getShop();
 
-        if (shop.getImage() != null) fileService.delFile(shop.getImage().getId());
-
         List<GCPFile> images = fileService.uploadFiles(new MultipartFile[]{file});
         shop.setImage(images.get(0));
         images.get(0).setShop(shop);
