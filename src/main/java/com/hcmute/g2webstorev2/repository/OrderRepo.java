@@ -44,6 +44,6 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
     Page<Order> findAllRefundingOrders(Pageable pageable);
     @Query("select o from Order o where o.orderStatus = 'REFUNDED'")
     Page<Order> findAllRefundedOrders(Pageable pageable);
-    @Query("select o from Order o where o.vnp_TxnRef like :vnpTxnRef")
+    @Query("select o from Order o where o.vnp_TxnRef = :vnpTxnRef")
     List<Order> findAllByVnp_TxnRef(String vnpTxnRef);
 }

@@ -271,13 +271,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void updateUnPaidOrder(String vnp_TxnRef, String zp_trans_id, PaymentType paymentType) {
+    public void updateUnPaidOrder(String vnp_TxnRef, PaymentType paymentType) {
         if (Objects.requireNonNull(paymentType) == VNPAY) {
+            LocalDateTime now = LocalDateTime.now();
             List<Order> orders = orderRepo.findAllByVnp_TxnRef(vnp_TxnRef);
             if (orders.isEmpty()) throw new ResourceNotFoundException("Transactions not found");
             orders.forEach(order -> {
                 order.setOrderStatus(ORDERED);
-                orders.add(order);
+                order.setPayedDate(now);
             });
             orderRepo.saveAll(orders);
             orders.forEach(emailService::sendOrderConfirmation);

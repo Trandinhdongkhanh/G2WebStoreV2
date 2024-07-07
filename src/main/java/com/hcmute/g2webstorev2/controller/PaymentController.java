@@ -96,7 +96,7 @@ public class PaymentController {
                 .build();
         if (vnpayService.isValidSignValue(vnp_SecureHash, req)) {
             if ("00".equals(vnp_TransactionStatus)) {
-                orderService.updateUnPaidOrder(vnp_TxnRef, null, PaymentType.VNPAY);
+                orderService.updateUnPaidOrder(vnp_TxnRef, PaymentType.VNPAY);
                 res.sendRedirect("http://localhost:8002/thanks");
                 return ResponseEntity.ok(ReturnURLResponse.builder()
                         .vnp_Rsp(vnp_ResponseCode)

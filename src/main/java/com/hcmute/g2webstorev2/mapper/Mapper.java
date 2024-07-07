@@ -173,6 +173,9 @@ public class Mapper {
     }
 
     public static OrderResponse toOrderResponse(Order order) {
+        List<GCPFileResponse> refundImages = null;
+        if (order.getRefundImages() != null && !order.getRefundImages().isEmpty())
+            refundImages = order.getRefundImages().stream().map(Mapper::toGCPFileResponse).toList();
         return OrderResponse.builder()
                 .orderId(order.getOrderId())
                 .orderStatus(order.getOrderStatus())
@@ -196,6 +199,10 @@ public class Mapper {
                 .grandTotal(order.getGrandTotal())
                 .shopTotal(order.getShopTotal())
                 .address(Mapper.toAddressResponse(order.getAddress()))
+                .refundedAt(order.getRefundedAt())
+                .refundingAt(order.getRefundingAt())
+                .refundReason(order.getRefundReason())
+                .refundImages(refundImages)
                 .build();
     }
 

@@ -1,18 +1,19 @@
 package com.hcmute.g2webstorev2.service.impl;
 
-//import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
+import com.hcmute.g2webstorev2.es.index.ProductIndex;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
 import com.hcmute.g2webstorev2.exception.SellFunctionLockedException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.*;
-//import com.hcmute.g2webstorev2.service.ElasticSearchService;
+import com.hcmute.g2webstorev2.service.ElasticSearchService;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,8 @@ public class ProductServiceImpl implements ProductService {
     private final FileService fileService;
     private final ShopCateRepo shopCateRepo;
     private final ShopItemRepo shopItemRepo;
-//    private final ElasticSearchService esService;
+    private final ElasticSearchService esService;
+    private final ProductESRepo productESRepo;
 
     @Override
     @Transactional
@@ -123,13 +125,13 @@ public class ProductServiceImpl implements ProductService {
     private Page<ProductResponse> getNewestProductsByName(String name, Integer startPrice, Integer endPrice,
                                                           int pageNumber, int pageSize) throws IOException {
             if (startPrice != null && endPrice != null) {
-//                SearchResponse<Product> res = esService.fuzzyQueryProducts(name, startPrice, endPrice);
-//                Pageable pageable = PageRequest.of(pageNumber, pageSize);
-//                List<Product> products = new ArrayList<>();
-//                res.hits().hits().forEach(h -> products.add(h.source()));
-//                products.sort(Comparator.comparingInt(Product::getProductId));
-//
-//                return new PageImpl<>(getPageContent(products, pageable), pageable, products.size());
+                SearchResponse<Product> res = esService.fuzzyQueryProducts(name, startPrice, endPrice);
+                Pageable pageable = PageRequest.of(pageNumber, pageSize);
+                List<Product> products = new ArrayList<>();
+                res.hits().hits().forEach(h -> products.add(h.source()));
+                products.sort(Comparator.comparingInt(Product::getProductId));
+
+                return new PageImpl<>(getPageContent(products, pageable), pageable, products.size());
             }
 
         return productRepo.findAllByName(
@@ -287,14 +289,24 @@ public class ProductServiceImpl implements ProductService {
 
         List<GCPFile> images = fileService.uploadFiles(files);
         images.forEach(img -> img.setProduct(product));
-
         product.setImages(images);
 
-        ProductResponse res = Mapper.toProductResponse(productRepo.save(product));
-//        esService.addProduct(product);
+        Product res = productRepo.save(product);
+        ProductIndex productIndex = ProductIndex.builder()
+                .productId(res.getProductId())
+                .name(res.getName())
+                .price(res.getPrice())
+                .stockQuantity(res.getStockQuantity())
+                .soldQuantity(res.getSoldQuantity())
+                .shopId(res.getShop().getShopId())
+                .categoryId(res.getCategory().getCategoryId())
+                .isAvailable(res.getIsAvailable())
+                .isBanned(res.getIsBanned())
+                .build();
+        productESRepo.save(productIndex);
 
         log.info("Product with ID = " + res.getProductId() + " have been created");
-        return res;
+        return Mapper.toProductResponse(product);
     }
 
     @Override

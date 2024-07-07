@@ -22,7 +22,7 @@ public interface OrderService {
 
     OrderResponse customerUpdateOrderStatus(Integer id, OrderStatus status);
 
-    void updateUnPaidOrder(String vnp_TxnRef, String zp_trans_id, PaymentType paymentType);
+    void updateUnPaidOrder(String vnp_TxnRef, PaymentType paymentType);
 
     String payUnPaidOrder(Integer orderId, HttpServletRequest req) throws IOException;
 
@@ -33,6 +33,8 @@ public interface OrderService {
     OrderResponse customerRefund(Integer orderId, MultipartFile[] files, RefundReq body);
 
     Page<OrderResponse> getRefundingOrders(int page, int size);
+
     Page<OrderResponse> getRefundedOrders(int page, int size);
+
     OrderResponse refund(Integer orderId);
 }

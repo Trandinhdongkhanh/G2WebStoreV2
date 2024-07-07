@@ -54,4 +54,12 @@ public class OrderResponse {
     @JsonProperty("payment_type")
     private PaymentType paymentType;
     private AddressResponse address;
+    @JsonProperty("refund_reason")
+    private String refundReason;
+    @JsonProperty("refunded_at")
+    private LocalDateTime refundedAt;
+    @JsonProperty("refunding_at")
+    private LocalDateTime refundingAt;
+    @JsonProperty("refund_images")
+    private List<GCPFileResponse> refundImages;
 }

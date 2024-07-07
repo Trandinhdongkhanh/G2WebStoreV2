@@ -78,6 +78,7 @@ public class CustomerController {
     }
 
     @PutMapping("/reset-password")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<String> resetPassword(@RequestBody @Valid ResetPasswordRequest body) {
         customerService.resetPassword(body);
         return ResponseEntity.ok("Password changed successfully");

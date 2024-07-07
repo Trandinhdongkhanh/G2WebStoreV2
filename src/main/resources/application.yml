@@ -11,6 +11,14 @@ spring:
     password: khanh1307
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  elasticsearch:
+    uris: http://localhost:9200
+
+  data:
+    elasticsearch:
+      cluster-name: productService
+      cluster-nodes: localhost:9200
+
   jpa:
     hibernate:
       ddl-auto: update
