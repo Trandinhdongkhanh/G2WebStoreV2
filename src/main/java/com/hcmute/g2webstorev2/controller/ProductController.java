@@ -62,7 +62,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+    public ResponseEntity<Page<ProductIndex>> getAllProducts(
             @RequestParam(value = "page", defaultValue = "0")
             @Min(value = 0, message = "Page index must not be less than zero")
             @NotNull(message = "Page index must not be null")
