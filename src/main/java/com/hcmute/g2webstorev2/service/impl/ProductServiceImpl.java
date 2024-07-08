@@ -45,6 +45,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void updateProducts(List<Product> products) {
         productRepo.saveAll(products);
+        productESRepo.saveAll(products.stream().map(Mapper::toProductIndex).toList());
     }
 
     @Override
@@ -73,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getDefaultProductsByName(String name, Integer startPrice, Integer endPrice,
-                                                           int pageNumber, int pageSize, int seed) throws IOException {
+                                                        int pageNumber, int pageSize, int seed) throws IOException {
         List<ProductIndex> products = ProductUtil.convertToList(esService.boolSearchProducts(name, seed));
 
         if (startPrice != null && endPrice != null)
@@ -84,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getProductsByNameAndPriceAsc(String name, Integer startPrice, Integer endPrice,
-                                                               int pageNumber, int pageSize) throws IOException {
+                                                            int pageNumber, int pageSize) throws IOException {
         List<ProductIndex> products = ProductUtil.convertToList(esService.boolSearchProducts(name, null));
 
         if (startPrice != null && endPrice != null)
@@ -96,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getProductsByNameAndPriceDesc(String name, Integer startPrice, Integer endPrice,
-                                                                int pageNumber, int pageSize) throws IOException {
+                                                             int pageNumber, int pageSize) throws IOException {
         List<ProductIndex> products = ProductUtil.convertToList(esService.boolSearchProducts(name, null));
 
         if (startPrice != null && endPrice != null)
@@ -118,8 +119,9 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return new PageImpl<>(ProductUtil.getPageContent(products, pageable), pageable, products.size());
     }
+
     private Page<ProductIndex> getTopSellProductsByName(String name, Integer startPrice, Integer endPrice,
-                                                           int pageNumber, int pageSize) throws IOException {
+                                                        int pageNumber, int pageSize) throws IOException {
         List<ProductIndex> products = ProductUtil.convertToList(esService.boolSearchProducts(name, null));
 
         if (startPrice != null && endPrice != null)
@@ -132,7 +134,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductIndex> getAllProducts(int pageNumber, int pageSize, Integer seed, SortType sortType,
-                                                Integer startPrice, Integer endPrice, Integer districtId) {
+                                             Integer startPrice, Integer endPrice, Integer districtId) {
         if (sortType != null) {
             switch (sortType) {
                 case DEFAULT -> {
@@ -156,7 +158,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getTopSellProducts(int pageNumber, int pageSize, Integer startPrice,
-                                                     Integer endPrice, Integer districtId) {
+                                                  Integer endPrice, Integer districtId) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByPriceBetween(
                             startPrice,
@@ -169,7 +171,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getProductsByPriceDesc(int pageNumber, int pageSize, Integer startPrice,
-                                                         Integer endPrice, Integer districtId) {
+                                                      Integer endPrice, Integer districtId) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByPriceBetween(
                             startPrice,
@@ -182,7 +184,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getProductsByPriceAsc(int pageNumber, int pageSize, Integer startPrice,
-                                                        Integer endPrice, Integer districtId) {
+                                                     Integer endPrice, Integer districtId) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByPriceBetween(
                             startPrice,
@@ -195,7 +197,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getNewestProducts(int pageNumber, int pageSize, Integer startPrice, Integer endPrice,
-                                                    Integer districtId) {
+                                                 Integer districtId) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByPriceBetween(
                             startPrice,
@@ -208,7 +210,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getDefaultProducts(int pageNumber, int pageSize, Integer seed, Integer startPrice,
-                                                     Integer endPrice, Integer districtId) {
+                                                  Integer endPrice, Integer districtId) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByPriceBetween(startPrice, endPrice, seed, PageRequest.of(pageNumber, pageSize))
                     .map(Mapper::toProductIndex);
@@ -277,6 +279,7 @@ public class ProductServiceImpl implements ProductService {
                     "Product is banned, please adjust your product and wait for admin to review it");
         if (!isAvailable) shopItemRepo.deleteAllByProduct(product);
         product.setIsAvailable(isAvailable);
+        productESRepo.save(Mapper.toProductIndex(product));
         return Mapper.toProductResponse(product);
     }
 
@@ -293,6 +296,7 @@ public class ProductServiceImpl implements ProductService {
         }
         shopRepo.save(shop);
         product.setIsBanned(isBanned);
+        productESRepo.save(Mapper.toProductIndex(product));
         return Mapper.toProductResponse(product);
     }
 
@@ -331,6 +335,7 @@ public class ProductServiceImpl implements ProductService {
         product.setWeight(body.getWeight());
         product.setWidth(body.getWidth());
         product.setLength(body.getLength());
+        productESRepo.save(Mapper.toProductIndex(product));
 
         log.info("Product with ID = " + id + " updated successfully");
     }
@@ -342,6 +347,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID = " + id + " not found"));
 
         productRepo.delete(product);
+        productESRepo.delete(Mapper.toProductIndex(product));
 
         log.info("Product with ID = " + id + " deleted successfully");
     }
@@ -431,7 +437,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getNewestProductsByCategory(Integer id, Integer startPrice, Integer endPrice,
-                                                              int pageNumber, int pageSize) {
+                                                           int pageNumber, int pageSize) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByCategoryAndPriceBetween(
                     getPath(id),
@@ -447,7 +453,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getTopSellProductsByCategory(Integer id, Integer startPrice, Integer endPrice,
-                                                               int pageNumber, int pageSize) {
+                                                            int pageNumber, int pageSize) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByCategoryAndPriceBetween(
                     getPath(id),
@@ -463,7 +469,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getProductsByCategoryAndPriceDesc(Integer id, Integer startPrice, Integer endPrice,
-                                                                    int pageNumber, int pageSize) {
+                                                                 int pageNumber, int pageSize) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByCategoryAndPriceBetween(
                     getPath(id),
@@ -479,7 +485,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getProductsByCategoryAndPriceAsc(Integer id, Integer startPrice, Integer endPrice,
-                                                                   int pageNumber, int pageSize) {
+                                                                int pageNumber, int pageSize) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByCategoryAndPriceBetween(
                     getPath(id),
@@ -495,7 +501,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Page<ProductIndex> getDefaultProductsByCategory(Integer id, Integer startPrice, Integer endPrice,
-                                                               int pageNumber, int pageSize, int seed) {
+                                                            int pageNumber, int pageSize, int seed) {
         if (startPrice != null && endPrice != null)
             return productRepo.findAllByCategoryAndPriceBetween(
                     getPath(id),
@@ -512,8 +518,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductIndex> getProductsByCategory(Integer id, int pageNumber, int pageSize, Integer seed,
-                                                       SortType sortType, Integer startPrice, Integer endPrice,
-                                                       Integer districtId) {
+                                                    SortType sortType, Integer startPrice, Integer endPrice,
+                                                    Integer districtId) {
         if (sortType != null) {
             switch (sortType) {
                 case NEWEST -> {
@@ -552,7 +558,8 @@ public class ProductServiceImpl implements ProductService {
             products.add(product);
         });
 
-        productRepo.saveAll(products);
+        List<Product> results = productRepo.saveAll(products);
+        productESRepo.saveAll(results.stream().map(Mapper::toProductIndex).toList());
     }
 
     @Override

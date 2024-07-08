@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class ProductUtil {
-    public static List<ProductIndex> convertToList(SearchResponse<ProductIndex> res){
+    public static List<ProductIndex> convertToList(SearchResponse<ProductIndex> res) {
         List<ProductIndex> productIndexList = new LinkedList<>();
         List<Hit<ProductIndex>> hits = res.hits().hits();
         for (Hit<ProductIndex> hit : hits) {
@@ -22,11 +22,15 @@ public class ProductUtil {
         }
         return productIndexList;
     }
-    public static List<ProductIndex> filterByPrice(List<ProductIndex> products, Integer startPrice, Integer endPrice){
+
+    public static List<ProductIndex> filterByPrice(List<ProductIndex> products, Integer startPrice, Integer endPrice) {
         return products.stream()
-                .filter(productIndex -> productIndex.getPrice() >= startPrice && productIndex.getPrice() <= endPrice)
+                .filter(productIndex ->
+                        (productIndex.getPrice() >= startPrice && productIndex.getPrice() <= endPrice)
+                                && productIndex.getIsAvailable())
                 .collect(Collectors.toList());
     }
+
     public static List<ProductIndex> getPageContent(List<ProductIndex> products, Pageable pageable) {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), products.size());
