@@ -7,6 +7,7 @@ import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
+import com.hcmute.g2webstorev2.es.index.ProductIndex;
 import com.hcmute.g2webstorev2.service.ExcelService;
 import com.hcmute.g2webstorev2.service.ProductService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -205,7 +206,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<ProductResponse>> getProductsByName(
+    public ResponseEntity<Page<ProductIndex>> getProductsByName(
             @RequestParam(value = "page")
             @Min(value = 0, message = "Page index must not be less than zero")
             @NotNull(message = "Page index must not be null")

@@ -53,26 +53,30 @@ public class GHNServiceImpl implements GHNService {
     private final CartItemV2Repo cartItemV2Repo;
     private final AddressRepo addressRepo;
     private final ProductRepo productRepo;
-    private float getChargeableWeight(CartItemV2 cartItemV2){
-        float chargeableWeight = 0; //unit: kg
+
+    private float getChargeableWeight(CartItemV2 cartItemV2) {
+        float calWeight = 0; //unit: kg
+        float realWeight = 0;
         for (ShopItem item : cartItemV2.getShopItems()) {
             Product product = item.getProduct();
             //Recipe which calculate order weight to get the real shipping fee
-            chargeableWeight += (product.getLength() * product.getWidth() * product.getHeight()) / 6000;
-            chargeableWeight *= item.getQuantity();
+            calWeight += ((product.getLength() * product.getWidth() * product.getHeight()) / 6000) * item.getQuantity();
+            realWeight += product.getWeight() * item.getQuantity();
         }
-        return chargeableWeight;
+        return Math.max(calWeight, realWeight);
     }
-    private float getChargeableWeight(Order order){
-        float chargeableWeight = 0; //unit: kg
+
+    private float getChargeableWeight(Order order) {
+        float calWeight = 0; //unit: kg
+        float realWeight = 0;
         for (OrderItem item : order.getOrderItems()) {
             Product product = productRepo.findById(item.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Order item not found"));
             //Recipe which calculate order weight to get the real shipping fee
-            chargeableWeight += (product.getLength() * product.getWidth() * product.getHeight()) / 6000;
-            chargeableWeight *= item.getQuantity();
+            calWeight += ((product.getLength() * product.getWidth() * product.getHeight()) / 6000) * item.getQuantity();
+            realWeight += product.getWeight() * item.getQuantity();
         }
-        return chargeableWeight;
+        return Math.max(calWeight, realWeight);
     }
 
     @Override
@@ -142,7 +146,7 @@ public class GHNServiceImpl implements GHNService {
 
         String fromAddress = order.getShop().getStreet() + ", " + order.getShop().getWardName() + ", " +
                 order.getShop().getDistrictName() + ", " + order.getShop().getProvinceName();
-        String toAddress  = order.getAddress().getOrderReceiveAddress() + ", " + order.getAddress().getWardName() + ", " +
+        String toAddress = order.getAddress().getOrderReceiveAddress() + ", " + order.getAddress().getWardName() + ", " +
                 order.getAddress().getDistrictName() + ", " + order.getAddress().getProvinceName();
 
         HttpHeaders headers = setUpGhnHeaders();

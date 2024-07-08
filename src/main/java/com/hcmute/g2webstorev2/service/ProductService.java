@@ -7,6 +7,7 @@ import com.hcmute.g2webstorev2.dto.response.ProductResponse;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
+import com.hcmute.g2webstorev2.es.index.ProductIndex;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,8 +17,8 @@ import java.util.List;
 
 public interface ProductService {
     void updateProducts(List<Product> products) throws IOException;
-    Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed,
-                                            SortType sortType, Integer startPrice, Integer endPrice, Integer districtId) throws IOException;
+    Page<ProductIndex> getProductsByName(String name, int pageNumber, int pageSize, Integer seed,
+                                        SortType sortType, Integer startPrice, Integer endPrice, Integer districtId) throws IOException;
     Page<ProductResponse> getAllProducts(int pageNumber, int pageSize, Integer seed, SortType sortType,
                                          Integer startPrice, Integer endPrice, Integer districtId);
     ProductResponse getProduct(Integer id);

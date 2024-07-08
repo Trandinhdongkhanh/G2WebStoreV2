@@ -2,6 +2,7 @@ package com.hcmute.g2webstorev2.mapper;
 
 import com.hcmute.g2webstorev2.dto.response.*;
 import com.hcmute.g2webstorev2.entity.*;
+import com.hcmute.g2webstorev2.es.index.ProductIndex;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -234,7 +235,8 @@ public class Mapper {
                 .isReviewed(orderItem.isReviewed())
                 .build();
     }
-    public static CartItemVoucherRes toCartItemVoucherRes(CartItemVoucher cartItemVoucher){
+
+    public static CartItemVoucherRes toCartItemVoucherRes(CartItemVoucher cartItemVoucher) {
         return CartItemVoucherRes.builder()
                 .voucher(Mapper.toVoucherResponse(cartItemVoucher.getVoucher()))
                 .cartItemV2Id(cartItemVoucher.getCartItemV2().getCartItemId())
@@ -262,16 +264,47 @@ public class Mapper {
                 .shopFreeShipReduce(cartItemV2.getFeeShipReduce())
                 .build();
     }
-    public static ShopItemRes toShopItemRes(ShopItem shopItem){
+
+    public static ShopItemRes toShopItemRes(ShopItem shopItem) {
+        String thumbnail = null;
+        for (GCPFile file : shopItem.getProduct().getImages()){
+            if (!file.getFileType().equals(".mp4")){
+                thumbnail = file.getFileUrl();
+                break;
+            }
+        }
         return ShopItemRes.builder()
                 .shopItemId(shopItem.getShopItemId())
                 .cartItemV2Id(shopItem.getCartItemV2().getCartItemId())
                 .price(Long.valueOf(shopItem.getProduct().getPrice()))
                 .name(shopItem.getProduct().getName())
                 .quantity(shopItem.getQuantity())
-                .image(shopItem.getProduct().getImages().get(0).getFileUrl())
+                .image(thumbnail)
                 .subTotal(shopItem.getSubTotal())
                 .productId(shopItem.getProduct().getProductId())
+                .build();
+    }
+
+    public static ProductIndex toProductIndex(Product product) {
+        String thumbnail = null;
+        for (GCPFile file : product.getImages()){
+            if (!file.getFileType().equals(".mp4")){
+                thumbnail = file.getFileUrl();
+                break;
+            }
+        }
+        return ProductIndex.builder()
+                .productId(product.getProductId())
+                .name(product.getName())
+                .price(product.getPrice())
+                .stockQuantity(product.getStockQuantity())
+                .soldQuantity(product.getSoldQuantity())
+                .shopId(product.getShop().getShopId())
+                .categoryId(product.getCategory().getCategoryId())
+                .shopCategoryId(product.getShopCategory().getId())
+                .isAvailable(product.getIsAvailable())
+                .isBanned(product.getIsBanned())
+                .thumbnail(thumbnail)
                 .build();
     }
 }

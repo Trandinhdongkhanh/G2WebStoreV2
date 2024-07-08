@@ -1,9 +1,11 @@
 package com.hcmute.g2webstorev2.service.impl;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
+import com.hcmute.g2webstorev2.dto.response.VoucherResponse;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
@@ -48,28 +50,29 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getProductsByName(String name, int pageNumber, int pageSize, Integer seed, SortType sortType,
-                                                   Integer startPrice, Integer endPrice, Integer districtId) throws IOException {
+    public Page<ProductIndex> getProductsByName(String name, int pageNumber, int pageSize, Integer seed, SortType sortType,
+                                                Integer startPrice, Integer endPrice, Integer districtId) throws IOException {
         if (sortType != null) {
             switch (sortType) {
                 case NEWEST -> {
                     return getNewestProductsByName(name, startPrice, endPrice, pageNumber, pageSize);
                 }
-                case TOP_SELLER -> {
-                    return getTopSellProductsByName(name, startPrice, endPrice, pageNumber, pageSize);
-                }
-                case PRICE_DESC -> {
-                    return getProductsByNameAndPriceDesc(name, startPrice, endPrice, pageNumber, pageSize);
-                }
-                case PRICE_ASC -> {
-                    return getProductsByNameAndPriceAsc(name, startPrice, endPrice, pageNumber, pageSize);
-                }
-                case DEFAULT -> {
-                    return getDefaultProductsByName(name, startPrice, endPrice, pageNumber, pageSize, seed);
-                }
+//                case TOP_SELLER -> {
+//                    return getTopSellProductsByName(name, startPrice, endPrice, pageNumber, pageSize);
+//                }
+//                case PRICE_DESC -> {
+//                    return getProductsByNameAndPriceDesc(name, startPrice, endPrice, pageNumber, pageSize);
+//                }
+//                case PRICE_ASC -> {
+//                    return getProductsByNameAndPriceAsc(name, startPrice, endPrice, pageNumber, pageSize);
+//                }
+//                case DEFAULT -> {
+//                    return getDefaultProductsByName(name, startPrice, endPrice, pageNumber, pageSize, seed);
+//                }
             }
         }
-        return getDefaultProductsByName(name, startPrice, endPrice, pageNumber, pageSize, seed);
+        return null;
+//        return getDefaultProductsByName(name, startPrice, endPrice, pageNumber, pageSize, seed);
     }
 
     private Page<ProductResponse> getDefaultProductsByName(String name, Integer startPrice, Integer endPrice,
@@ -122,24 +125,23 @@ public class ProductServiceImpl implements ProductService {
         ).map(Mapper::toProductResponse);
     }
 
-    private Page<ProductResponse> getNewestProductsByName(String name, Integer startPrice, Integer endPrice,
-                                                          int pageNumber, int pageSize) throws IOException {
-            if (startPrice != null && endPrice != null) {
-                SearchResponse<Product> res = esService.fuzzyQueryProducts(name, startPrice, endPrice);
-                Pageable pageable = PageRequest.of(pageNumber, pageSize);
-                List<Product> products = new ArrayList<>();
-                res.hits().hits().forEach(h -> products.add(h.source()));
-                products.sort(Comparator.comparingInt(Product::getProductId));
+    private Page<ProductIndex> getNewestProductsByName(String name, Integer startPrice, Integer endPrice,
+                                                       int pageNumber, int pageSize) throws IOException {
+        SearchResponse<ProductIndex> res = esService
+                .boolSearchProducts(name, startPrice, endPrice, pageNumber, pageSize, null);
 
-                return new PageImpl<>(getPageContent(products, pageable), pageable, products.size());
-            }
-
-        return productRepo.findAllByName(
-                name,
-                PageRequest.of(pageNumber, pageSize, Sort.by("productId").descending())
-        ).map(Mapper::toProductResponse);
+        List<ProductIndex> productIndexList = new LinkedList<>();
+        List<Hit<ProductIndex>> hits = res.hits().hits();
+        for (Hit<ProductIndex> hit : hits) {
+            ProductIndex productIndex = hit.source();
+            productIndexList.add(productIndex);
+            log.info("Found product " + productIndex.getProductId() + ", score " + hit.score());
+        }
+        productIndexList.sort(Comparator.comparingInt(ProductIndex::getProductId).reversed());
+        return new PageImpl<>(productIndexList, PageRequest.of(pageNumber, pageSize), res.hits().total().value());
     }
-    private List<ProductResponse> getPageContent(List<Product> products, Pageable pageable){
+
+    private List<ProductResponse> getPageContent(List<Product> products, Pageable pageable) {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), products.size());
 
@@ -292,17 +294,7 @@ public class ProductServiceImpl implements ProductService {
         product.setImages(images);
 
         Product res = productRepo.save(product);
-        ProductIndex productIndex = ProductIndex.builder()
-                .productId(res.getProductId())
-                .name(res.getName())
-                .price(res.getPrice())
-                .stockQuantity(res.getStockQuantity())
-                .soldQuantity(res.getSoldQuantity())
-                .shopId(res.getShop().getShopId())
-                .categoryId(res.getCategory().getCategoryId())
-                .isAvailable(res.getIsAvailable())
-                .isBanned(res.getIsBanned())
-                .build();
+        ProductIndex productIndex = Mapper.toProductIndex(res);
         productESRepo.save(productIndex);
 
         log.info("Product with ID = " + res.getProductId() + " have been created");

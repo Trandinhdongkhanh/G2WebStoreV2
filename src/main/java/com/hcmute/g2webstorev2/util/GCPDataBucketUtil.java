@@ -70,7 +70,7 @@ public class GCPDataBucketUtil {
 
     private void checkFileExtension(String fileName) {
         if (fileName != null && fileName.contains(".")) {
-            String[] extensionList = {".png", ".jpeg", ".pdf", ".doc", ".mp3", ".jpg", ".mp4", ".jfif"};
+            String[] extensionList = {".png", ".jpeg", ".jpg", ".mp4", ".jfif"};
 
             for (String extension : extensionList) {
                 if (fileName.endsWith(extension)) {
