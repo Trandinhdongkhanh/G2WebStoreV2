@@ -170,7 +170,7 @@ public class ProductController {
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<Page<ProductResponse>> getProductsByCategory(
+    public ResponseEntity<Page<ProductIndex>> getProductsByCategory(
             @PathVariable("categoryId")
             @NotNull(message = "Category ID cannot be null")
             @Min(value = 1, message = "Category ID must be greater than 0")
