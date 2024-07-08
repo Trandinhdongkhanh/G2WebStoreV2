@@ -3,6 +3,8 @@ package com.hcmute.g2webstorev2.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,4 +18,9 @@ public class Notification {
     @Column(name = "notification_id")
     private Long notificationId;
     private String content;
+    private LocalDateTime createdDate;
+    private Boolean isRead;
+    private Boolean isPublic;
+    private Integer customerId;
+    private Integer sellerId;
 }

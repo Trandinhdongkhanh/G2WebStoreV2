@@ -45,7 +45,8 @@ public class SecurityConfig {
             "/configuration/security",
             "/swagger-ui/**",
             "/webjars/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/ws/**"
     };
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
     private final CustomUserDetailsService customUserDetailsService;
