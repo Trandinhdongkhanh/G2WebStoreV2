@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.es.index;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -15,6 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 @Document(indexName = "product_index")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductIndex implements Serializable {
     @Id
     @Field(type = FieldType.Keyword, name = "product_id")
