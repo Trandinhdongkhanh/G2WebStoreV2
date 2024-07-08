@@ -293,6 +293,8 @@ public class Mapper {
                 break;
             }
         }
+        Integer shopCategoryId = null;
+        if (product.getShopCategory() != null) shopCategoryId = product.getShopCategory().getId();
         return ProductIndex.builder()
                 .productId(product.getProductId())
                 .name(product.getName())
@@ -301,7 +303,7 @@ public class Mapper {
                 .soldQuantity(product.getSoldQuantity())
                 .shopId(product.getShop().getShopId())
                 .categoryId(product.getCategory().getCategoryId())
-                .shopCategoryId(product.getShopCategory().getId())
+                .shopCategoryId(shopCategoryId)
                 .isAvailable(product.getIsAvailable())
                 .isBanned(product.getIsBanned())
                 .thumbnail(thumbnail)
