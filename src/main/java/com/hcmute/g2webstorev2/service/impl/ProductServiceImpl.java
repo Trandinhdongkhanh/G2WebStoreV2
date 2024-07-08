@@ -68,9 +68,22 @@ public class ProductServiceImpl implements ProductService {
                 case DEFAULT -> {
                     return getDefaultProductsByName(name, startPrice, endPrice, pageNumber, pageSize, seed);
                 }
+                case MOST_RELEVANT -> {
+                    return getMostRelevantProductsByName(name, startPrice, endPrice, pageNumber, pageSize);
+                }
             }
         }
         return getDefaultProductsByName(name, startPrice, endPrice, pageNumber, pageSize, seed);
+    }
+
+    private Page<ProductIndex> getMostRelevantProductsByName(String name, Integer startPrice, Integer endPrice, int pageNumber, int pageSize) throws IOException {
+        List<ProductIndex> products = ProductUtil.convertToList(esService.boolSearchProducts(name, null));
+
+        if (startPrice != null && endPrice != null)
+            products = ProductUtil.filterByPrice(products, startPrice, endPrice);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return new PageImpl<>(ProductUtil.getPageContent(products, pageable), pageable, products.size());
     }
 
     private Page<ProductIndex> getDefaultProductsByName(String name, Integer startPrice, Integer endPrice,
