@@ -47,8 +47,6 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
     public Notification savePublicNotification(NotificationReq body) {
         LocalDateTime now = LocalDateTime.now();
         return notificationRepo.save(Notification.builder()
@@ -59,7 +57,6 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    @Transactional
     public Notification savePrivateNotification(NotificationReq body) {
         LocalDateTime now = LocalDateTime.now();
         return notificationRepo.save(Notification.builder()

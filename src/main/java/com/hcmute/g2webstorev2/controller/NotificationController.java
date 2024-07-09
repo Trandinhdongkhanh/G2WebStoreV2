@@ -57,6 +57,7 @@ public class NotificationController {
     // Mapped as /app/public
     @MessageMapping("/public")
     @SendTo("/all/notifications")
+    @PreAuthorize("hasRole('ADMIN')")
     public Notification send(@Payload NotificationReq body) {
         return notificationService.savePublicNotification(body);
     }
