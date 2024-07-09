@@ -45,6 +45,15 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getSellerNotifications(page, size));
     }
 
+    @GetMapping("/api/v1/notifications/admin/me")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<Notification>> getPublicNotification(
+            @RequestParam(defaultValue = "0", name = "page", required = false) int page,
+            @RequestParam(defaultValue = "5", name = "size", required = false) int size
+    ) {
+        return ResponseEntity.ok(notificationService.getPublicNotifications(page, size));
+    }
+
     // Mapped as /app/public
     @MessageMapping("/public")
     @SendTo("/all/notifications")

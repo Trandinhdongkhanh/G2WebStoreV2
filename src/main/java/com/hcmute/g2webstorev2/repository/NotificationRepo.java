@@ -13,4 +13,6 @@ public interface NotificationRepo extends JpaRepository<Notification, Long> {
     Page<Notification> getCusNotifications(Integer customerId, Pageable pageable);
     @Query("select n from Notification n where n.isPublic = true or n.sellerId = :sellerId")
     Page<Notification> getSellerNotifications(Integer sellerId, Pageable pageable);
+    @Query("select n from Notification n where n.isPublic = true")
+    Page<Notification> findAllByIsPublic(Pageable pageable);
 }

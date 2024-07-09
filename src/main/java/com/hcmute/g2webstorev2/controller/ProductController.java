@@ -80,8 +80,7 @@ public class ProductController {
             @RequestParam(value = "districtId", required = false) Integer districtId) {
         //Seed is used to randomize products. Each time a seed change products get randomized
         return ResponseEntity.ok(productService.getAllProducts(
-                pageNumber, pageSize, seed, sortType,
-                startPrice, endPrice, districtId));
+                pageNumber, pageSize, seed, sortType, startPrice, endPrice, districtId));
     }
 
     @GetMapping("/top-five/shop/{shopId}")
@@ -114,9 +113,15 @@ public class ProductController {
             @PathVariable("shopId") Integer shopId,
             @RequestParam(defaultValue = "0", name = "page") int page,
             @RequestParam(defaultValue = "5", name = "size") int size,
-            @RequestParam(defaultValue = "DEFAULT", name = "sort") SortType sortType
+            @RequestParam(defaultValue = "DEFAULT", name = "sort") SortType sortType,
+            @RequestParam(value = "startPrice", required = false) Integer startPrice,
+            @RequestParam(value = "endPrice", required = false) Integer endPrice,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "shopCateId", required = false) Integer shopCateId
     ) {
-        return ResponseEntity.ok(productService.customerGetAllProductsByShop(shopId, sortType, page, size));
+        return ResponseEntity.ok(productService.customerGetAllProductsByShop(
+                shopId, sortType, page, size, startPrice ,endPrice, name, shopCateId
+        ));
     }
 
     @PutMapping("/{id}/enable")
@@ -194,14 +199,7 @@ public class ProductController {
             @RequestParam(value = "endPrice", required = false) Integer endPrice,
             @RequestParam(value = "districtId", required = false) Integer districtId) {
         return ResponseEntity.ok(productService.getProductsByCategory(
-                id,
-                pageNumber,
-                pageSize,
-                seed,
-                sortType,
-                startPrice,
-                endPrice,
-                districtId
+                id, pageNumber, pageSize, seed, sortType, startPrice, endPrice, districtId
         ));
     }
 
@@ -228,14 +226,7 @@ public class ProductController {
             @RequestParam(value = "endPrice", required = false) Integer endPrice,
             @RequestParam(value = "districtId", required = false) Integer districtId) throws IOException {
         return ResponseEntity.ok(productService.getProductsByName(
-                name,
-                pageNumber,
-                pageSize,
-                seed,
-                sortType,
-                startPrice,
-                endPrice,
-                districtId
+                name, pageNumber, pageSize, seed, sortType, startPrice, endPrice, districtId
         ));
     }
 
@@ -249,6 +240,8 @@ public class ProductController {
     }
 
     @GetMapping("/shop-category/{id}")
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_PRODUCT_ACCESS', 'SELLER_READ_ONLY') " +
+            "or hasAuthority('READ_PRODUCT')")
     public ResponseEntity<Page<ProductResponse>> getProductsByShopCate(
             @PathVariable("id") Integer id,
             @RequestParam("page") int pageNumber,

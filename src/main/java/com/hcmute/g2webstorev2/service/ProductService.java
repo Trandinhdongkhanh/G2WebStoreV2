@@ -29,7 +29,9 @@ public interface ProductService {
     void delProduct(Integer id);
     Page<ProductResponse> sellerGetAllProductsByShop(Integer pageNumber, Integer pageSize,
                                                ShopProductsSortType sortType);
-    Page<ProductResponse> customerGetAllProductsByShop(Integer shopId, SortType sortType, int page, int size);
+    Page<ProductResponse> customerGetAllProductsByShop(Integer shopId, SortType sortType, int page, int size,
+                                                       Integer startPrice, Integer endPrice, String name,
+                                                       Integer shopCateId);
     Page<ProductIndex> getProductsByCategory(
             Integer id, int pageNumber, int pageSize, Integer seed,
             SortType sortType, Integer startPrice, Integer endPrice, Integer districtId);

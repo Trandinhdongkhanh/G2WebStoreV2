@@ -3,6 +3,7 @@ package com.hcmute.g2webstorev2.service.impl;
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
+import com.hcmute.g2webstorev2.dto.response.VoucherResponse;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -127,7 +129,6 @@ public class ProductServiceImpl implements ProductService {
 
         if (startPrice != null && endPrice != null)
             products = ProductUtil.filterByPrice(products, startPrice, endPrice);
-        products.sort(Comparator.comparingInt(ProductIndex::getProductId).reversed());
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return new PageImpl<>(ProductUtil.getPageContent(products, pageable), pageable, products.size());
@@ -412,41 +413,65 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> customerGetAllProductsByShop(Integer shopId, SortType sortType, int page, int size) {
+    public Page<ProductResponse> customerGetAllProductsByShop(Integer shopId, SortType sortType, int page, int size,
+                                                              Integer startPrice, Integer endPrice, String name,
+                                                              Integer shopCateId) {
         Shop shop = shopRepo.findById(shopId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop not found"));
 
+        List<Product> products = productRepo.customerFindAllByShop(shop);
+        if (name != null) products = productRepo.customerFindAllByShopAndName(shop, name);
+        if (startPrice != null && endPrice != null)
+            products = products.stream()
+                    .filter(product -> product.getPrice() >= startPrice && product.getPrice() <= endPrice)
+                    .collect(Collectors.toList());
+        if (shopCateId != null)
+            products = products.stream()
+                    .filter(product -> product.getShopCategory().getId().equals(shopCateId))
+                    .collect(Collectors.toList());
+        PageRequest pageable = PageRequest.of(page, size);
+
         switch (sortType) {
             case DEFAULT -> {
-                return productRepo.customerFindAllByShop(shop, PageRequest.of(page, size))
-                        .map(Mapper::toProductResponse);
+                Collections.shuffle(products, new Random(5));
+                return new PageImpl<>(
+                        ProductUtil.getContent(products, pageable).stream().map(Mapper::toProductResponse).toList(),
+                        pageable,
+                        products.size());
             }
             case TOP_SELLER -> {
-                return productRepo.customerFindAllByShop(
-                        shop,
-                        PageRequest.of(page, size, Sort.by("soldQuantity").descending())
-                ).map(Mapper::toProductResponse);
+                products.sort(Comparator.comparingInt(Product::getSoldQuantity).reversed());
+                return new PageImpl<>(
+                        ProductUtil.getContent(products, pageable).stream().map(Mapper::toProductResponse).toList(),
+                        pageable,
+                        products.size());
             }
             case NEWEST -> {
-                return productRepo.customerFindAllByShop(
-                        shop,
-                        PageRequest.of(page, size, Sort.by("productId").descending())
-                ).map(Mapper::toProductResponse);
+                products.sort(Comparator.comparingInt(Product::getProductId).reversed());
+                return new PageImpl<>(
+                        ProductUtil.getContent(products, pageable).stream().map(Mapper::toProductResponse).toList(),
+                        pageable,
+                        products.size());
             }
             case PRICE_DESC -> {
-                return productRepo.customerFindAllByShop(
-                        shop,
-                        PageRequest.of(page, size, Sort.by("price").descending())
-                ).map(Mapper::toProductResponse);
+                products.sort(Comparator.comparingInt(Product::getPrice).reversed());
+                return new PageImpl<>(
+                        ProductUtil.getContent(products, pageable).stream().map(Mapper::toProductResponse).toList(),
+                        pageable,
+                        products.size());
             }
             case PRICE_ASC -> {
-                return productRepo.customerFindAllByShop(
-                        shop,
-                        PageRequest.of(page, size, Sort.by("price").ascending())
-                ).map(Mapper::toProductResponse);
+                products.sort(Comparator.comparingInt(Product::getPrice));
+                return new PageImpl<>(
+                        ProductUtil.getContent(products, pageable).stream().map(Mapper::toProductResponse).toList(),
+                        pageable,
+                        products.size());
             }
         }
-        return productRepo.customerFindAllByShop(shop, PageRequest.of(page, size)).map(Mapper::toProductResponse);
+        return new PageImpl<>(
+                ProductUtil.getContent(products, pageable).stream().map(Mapper::toProductResponse).toList(),
+                pageable,
+                products.size());
     }
 
     private Page<ProductIndex> getNewestProductsByCategory(Integer id, Integer startPrice, Integer endPrice,

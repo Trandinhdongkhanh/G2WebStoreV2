@@ -41,6 +41,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public Page<Notification> getPublicNotifications(int page, int size) {
+        return notificationRepo
+                .findAllByIsPublic(PageRequest.of(page, size, Sort.by("createdDate").descending()));
+    }
+
+    @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public Notification savePublicNotification(NotificationReq body) {

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 public interface NotificationService {
     Page<Notification> getCusNotifications(int page, int size);
     Page<Notification> getSellerNotifications(int page, int size);
+    Page<Notification> getPublicNotifications(int page, int size);
     Notification savePublicNotification(NotificationReq body);
     Notification savePrivateNotification(NotificationReq body);
 }

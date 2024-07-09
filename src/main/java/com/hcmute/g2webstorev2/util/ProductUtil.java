@@ -2,6 +2,7 @@ package com.hcmute.g2webstorev2.util;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.es.index.ProductIndex;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +31,13 @@ public class ProductUtil {
                                 && productIndex.getIsAvailable())
                 .collect(Collectors.toList());
     }
-
     public static List<ProductIndex> getPageContent(List<ProductIndex> products, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), products.size());
+
+        return products.subList(start, end);
+    }
+    public static List<Product> getContent(List<Product> products, Pageable pageable){
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), products.size());
 
