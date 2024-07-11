@@ -353,9 +353,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse refund(Integer orderId) {
+        LocalDateTime now = LocalDateTime.now();
         Order order = orderRepo.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
         order.setOrderStatus(REFUNDED);
+        order.setRefundedAt(now);
         Customer customer = order.getCustomer();
         customer.setPoint(customer.getPoint() + order.getGrandTotal());
         return Mapper.toOrderResponse(order);
