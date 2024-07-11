@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -25,6 +26,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Page<Notification> getCusNotifications(int page, int size) {
         Customer customer = (Customer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Notification> notifications = notificationRepo.getCusNotifications(customer.getCustomerId());
+        notifications.forEach(notification -> notification.setIsRead(true));
+        notificationRepo.saveAll(notifications);
         return notificationRepo.getCusNotifications(
                 customer.getCustomerId(),
                 PageRequest.of(page, size, Sort.by("createdDate").descending()));
@@ -33,6 +37,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Page<Notification> getSellerNotifications(int page, int size) {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Notification> notifications = notificationRepo.getSellerNotifications(seller.getSellerId());
+        notifications.forEach(notification -> notification.setIsRead(true));
+        notificationRepo.saveAll(notifications);
         return notificationRepo.getSellerNotifications(
                 seller.getSellerId(),
                 PageRequest.of(page, size, Sort.by("createdDate").descending()));

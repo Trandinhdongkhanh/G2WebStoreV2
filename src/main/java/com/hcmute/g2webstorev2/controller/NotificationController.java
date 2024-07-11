@@ -66,7 +66,7 @@ public class NotificationController {
     public void sendToSpecificCus(@Payload NotificationReq body) {
         simpMessagingTemplate.convertAndSendToUser(
                 String.valueOf(body.getCustomerId()),
-                "/specific",
+                "/specific/customer",
                 notificationService.savePrivateNotification(body));
     }
 
@@ -74,7 +74,7 @@ public class NotificationController {
     public void sendToSpecificSeller(@Payload NotificationReq body) {
         simpMessagingTemplate.convertAndSendToUser(
                 String.valueOf(body.getSellerId()),
-                "/specific",
+                "/specific/seller",
                 notificationService.savePrivateNotification(body));
     }
 }

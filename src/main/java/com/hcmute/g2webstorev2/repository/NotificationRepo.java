@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface NotificationRepo extends JpaRepository<Notification, Long> {
     @Query("select n from Notification n where n.isPublic = true or n.customerId = :customerId")
@@ -15,4 +17,8 @@ public interface NotificationRepo extends JpaRepository<Notification, Long> {
     Page<Notification> getSellerNotifications(Integer sellerId, Pageable pageable);
     @Query("select n from Notification n where n.isPublic = true")
     Page<Notification> findAllByIsPublic(Pageable pageable);
+    @Query("select n from Notification n where n.isPublic = true or n.customerId = :customerId")
+    List<Notification> getCusNotifications(Integer customerId);
+    @Query("select n from Notification n where n.isPublic = true or n.sellerId = :sellerId")
+    List<Notification> getSellerNotifications(Integer sellerId);
 }
