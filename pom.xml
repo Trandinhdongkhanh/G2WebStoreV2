@@ -139,6 +139,7 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <finalName>g2-store-demo</finalName>
                 </configuration>
             </plugin>
         </plugins>
