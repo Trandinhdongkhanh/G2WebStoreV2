@@ -172,6 +172,15 @@ public class VoucherServiceImpl implements VoucherService {
         return getVouchersAfterPaginate(vouchers, page, size);
     }
 
+    @Override
+    @Transactional
+    public VoucherResponse pauseVoucher(String voucherId, boolean isPaused) {
+        Voucher voucher = voucherRepo.findById(voucherId)
+                .orElseThrow(() -> new ResourceNotFoundException("Voucher not found"));
+        voucher.setIsPaused(isPaused);
+        return Mapper.toVoucherResponse(voucher);
+    }
+
     private List<Voucher> filterVouchers(Shop shop, String name, String voucherId) {
         if (name != null && voucherId == null) return voucherRepo.findAllByShopAndNameStartingWith(shop, name);
         if (name == null && voucherId != null) return voucherRepo.findAllByShopAndVoucherId(shop, voucherId);

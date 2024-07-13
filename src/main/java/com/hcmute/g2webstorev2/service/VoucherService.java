@@ -19,4 +19,6 @@ public interface VoucherService {
     void addVoucherToProducts(AddVoucherToProductsReq body, String voucherId);
 
     Page<VoucherResponse> getShopVouchers(String name, String voucherId, VoucherStatus status, int page, int size);
+
+    VoucherResponse pauseVoucher(String voucherId, boolean isPaused);
 }

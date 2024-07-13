@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.CollectionTypeRegistration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class VoucherController {
     }
 
     @GetMapping("/shop")
-    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_PROMOTION_ACCESS') or hasAuthority('READ_PROMOTION')")
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_PROMOTION_ACCESS', 'SELLER_READ_ONLY') or hasAuthority('READ_PROMOTION')")
     public ResponseEntity<Page<VoucherResponse>> getShopVouchers(
             @RequestParam(defaultValue = "0", name = "page") int page,
             @RequestParam(defaultValue = "5", name = "size") int size,
@@ -68,5 +69,14 @@ public class VoucherController {
             @RequestParam(required = false, name = "voucherId") String voucherId
     ) {
         return ResponseEntity.ok(voucherService.getShopVouchers(name, voucherId, voucherStatus, page, size));
+    }
+
+    @PutMapping("/{voucherId}/pause")
+    @PreAuthorize("hasAnyRole('SELLER_FULL_ACCESS', 'SELLER_PROMOTION_ACCESS', 'SELLER_READ_ONLY') or hasAuthority('READ_PROMOTION')")
+    public ResponseEntity<VoucherResponse> pauseVoucher(
+            @RequestParam("isPaused") boolean isPaused,
+            @PathVariable("voucherId") String voucherId
+    ) {
+        return ResponseEntity.ok(voucherService.pauseVoucher(voucherId, isPaused));
     }
 }
