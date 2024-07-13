@@ -270,7 +270,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse lockCustomer(Integer customerId, boolean isLocked) {
         Customer customer = customerRepo.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
-        customer.setAccountNonLocked(false);
+        customer.setAccountNonLocked(isLocked);
         return Mapper.toCustomerResponse(customer);
     }
 
