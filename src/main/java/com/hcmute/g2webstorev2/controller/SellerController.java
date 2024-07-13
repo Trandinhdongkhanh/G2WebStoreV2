@@ -111,4 +111,11 @@ public class SellerController {
     ) {
         return ResponseEntity.ok(sellerService.updateSellerRole(sellerId, roleId));
     }
+    @PutMapping("/{sellerId}/enable")
+    @PreAuthorize("hasRole('SELLER_FULL_ACCESS') or hasAuthority('UPDATE_USER')")
+    public ResponseEntity<SellerResponse> enableSeller(
+            @PathVariable("sellerId") Integer sellerId,
+            @RequestParam("isEnable") boolean isEnable){
+        return ResponseEntity.ok(sellerService.enableSeller(sellerId, isEnable));
+    }
 }

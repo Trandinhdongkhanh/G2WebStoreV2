@@ -27,4 +27,5 @@ public interface SellerService {
     void activateAccount(String verificationCode);
     void forgotPassword(String email);
     void resetPassword(ResetPasswordRequest body);
+    SellerResponse enableSeller(Integer sellerId, boolean isEnable);
 }

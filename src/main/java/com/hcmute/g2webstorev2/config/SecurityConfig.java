@@ -101,7 +101,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/*/activate-account").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/*/forgot-password").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/*/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/*/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/payments/return-url").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/vouchers/product/*").permitAll()
                         .anyRequest().authenticated())

@@ -38,4 +38,6 @@ public interface ProductService {
     void addProductsToShopCate(Integer shopCateId, AddProductsToShopCateRequest body);
     Page<ProductResponse> getProductsByShopCate(Integer id, int pageNumber, int pageSize);
     List<ProductResponse> getTopFivePopularProductByShop(Integer shopId);
+
+    ProductResponse delImage(Integer productId, Long fileId);
 }

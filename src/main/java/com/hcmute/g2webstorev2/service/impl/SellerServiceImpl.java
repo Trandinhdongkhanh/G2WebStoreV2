@@ -269,6 +269,15 @@ public class SellerServiceImpl implements SellerService {
         otpRepo.deleteAllBySellerId(seller.getSellerId());
     }
 
+    @Override
+    @Transactional
+    public SellerResponse enableSeller(Integer sellerId, boolean isEnable) {
+        Seller seller = sellerRepo.findById(sellerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Seller not found"));
+        seller.setEnabled(isEnable);
+        return Mapper.toSellerResponse(seller);
+    }
+
     private String generateAndSaveActivationToken(Seller seller) {
         String verificationCode = RandomStringUtils.random(6, "0123456789");
         OTP otp = OTP.builder()

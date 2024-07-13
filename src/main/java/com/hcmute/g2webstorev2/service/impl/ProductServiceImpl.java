@@ -426,7 +426,7 @@ public class ProductServiceImpl implements ProductService {
                     .collect(Collectors.toList());
         if (shopCateId != null)
             products = products.stream()
-                    .filter(product -> product.getShopCategory().getId().equals(shopCateId))
+                    .filter(product -> ProductUtil.isBelongToShopCate(product, shopCateId))
                     .collect(Collectors.toList());
         PageRequest pageable = PageRequest.of(page, size);
 
@@ -618,6 +618,20 @@ public class ProductServiceImpl implements ProductService {
                         5,
                         Sort.by("soldQuantity").descending()))
                 .map(Mapper::toProductResponse).getContent();
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse delImage(Integer productId, Long fileId) {
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        List<GCPFile> images = product.getImages().stream()
+                .filter(gcpFile -> !gcpFile.getId().equals(fileId))
+                .toList();
+        product.setImages(images);
+        productRepo.save(product);
+        productESRepo.save(Mapper.toProductIndex(product));
+        return Mapper.toProductResponse(product);
     }
 
     private String getPath(Integer id) {

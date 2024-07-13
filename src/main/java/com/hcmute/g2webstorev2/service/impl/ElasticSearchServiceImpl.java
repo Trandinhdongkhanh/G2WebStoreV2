@@ -43,9 +43,12 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         Query query;
         if (seed != null)
             query = Query.of(q -> q
-                    .functionScore(f -> f
+                    .functionScore(fs -> fs
                             .query(q1 -> q1.bool(boolQuery))
-                            .functions(fs -> fs.randomScore(rd -> rd.seed(String.valueOf(seed))))));
+                            .functions(f -> f.randomScore(rd -> rd
+                                    .seed(String.valueOf(seed))
+                                    .field("product_id")))
+                            .boostMode(FunctionBoostMode.Replace)));
         else query = Query.of(q -> q.bool(boolQuery));
 
         return esClient.search(s -> s

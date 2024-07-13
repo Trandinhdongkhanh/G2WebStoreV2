@@ -168,6 +168,10 @@ public class OrderServiceImpl implements OrderService {
                     .productId(shopItem.getProduct().getProductId())
                     .isReviewed(false)
                     .order(order)
+                    .height(shopItem.getProduct().getHeight())
+                    .width(shopItem.getProduct().getWidth())
+                    .weight(shopItem.getProduct().getWeight())
+                    .length(shopItem.getProduct().getLength())
                     .build();
 
             orderItems.add(orderItem);
@@ -219,9 +223,6 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order with ID = " + id + " not found"));
 
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!order.getOrderStatus().equals(ORDERED) && status.equals(CANCELED))
-            throw new AccessDeniedException("You can't cancel this order");
-
         if (!Objects.equals(seller.getShop().getShopId(), order.getShop().getShopId()))
             throw new AccessDeniedException("You don't have permission on this order, access denied");
 

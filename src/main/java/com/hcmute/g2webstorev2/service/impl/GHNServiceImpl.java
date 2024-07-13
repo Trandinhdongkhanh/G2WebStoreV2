@@ -63,20 +63,18 @@ public class GHNServiceImpl implements GHNService {
             calWeight += ((product.getLength() * product.getWidth() * product.getHeight()) / 6000) * item.getQuantity();
             realWeight += product.getWeight() * item.getQuantity();
         }
-        return Math.max(calWeight, realWeight);
+        return Math.max(calWeight, realWeight / 1000);
     }
 
     private float getChargeableWeight(Order order) {
         float calWeight = 0; //unit: kg
         float realWeight = 0;
         for (OrderItem item : order.getOrderItems()) {
-            Product product = productRepo.findById(item.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Order item not found"));
             //Recipe which calculate order weight to get the real shipping fee
-            calWeight += ((product.getLength() * product.getWidth() * product.getHeight()) / 6000) * item.getQuantity();
-            realWeight += product.getWeight() * item.getQuantity();
+            calWeight += ((item.getLength() * item.getWidth() * item.getHeight()) / 6000) * item.getQuantity();
+            realWeight += item.getWeight() * item.getQuantity();
         }
-        return Math.max(calWeight, realWeight);
+        return Math.max(calWeight, realWeight / 1000);
     }
 
     @Override

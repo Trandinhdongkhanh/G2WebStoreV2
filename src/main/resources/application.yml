@@ -1,19 +1,17 @@
 server:
-  port: 5000
+  port: 8080
 
 spring:
   application:
     name: G2WebStoreV2
 
   datasource:
-    url: jdbc:mysql://g2instancedemo.c34eyiyaco55.ap-southeast-2.rds.amazonaws.com:3306/g2dbdemo
-    username: admin
-    password: Khanh1307!
+    url: jdbc:mysql://localhost:3306/g2db_test
+    username: root
+    password: khanh1307
 
   elasticsearch:
-    uris: https://test-8d10fa.es.ap-southeast-2.aws.found.io
-    username: elastic
-    password: 1obU0tPD8PHsVcjYq3bA5a9x
+    uris: https://localhost:9200
 
   jpa:
     hibernate:

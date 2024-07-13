@@ -5,7 +5,6 @@ import com.hcmute.g2webstorev2.enums.VoucherType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

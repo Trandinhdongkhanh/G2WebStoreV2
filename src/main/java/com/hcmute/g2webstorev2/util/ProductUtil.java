@@ -31,16 +31,22 @@ public class ProductUtil {
                                 && productIndex.getIsAvailable())
                 .collect(Collectors.toList());
     }
+
     public static List<ProductIndex> getPageContent(List<ProductIndex> products, Pageable pageable) {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), products.size());
 
         return products.subList(start, end);
     }
-    public static List<Product> getContent(List<Product> products, Pageable pageable){
+
+    public static List<Product> getContent(List<Product> products, Pageable pageable) {
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), products.size());
 
         return products.subList(start, end);
+    }
+
+    public static boolean isBelongToShopCate(Product product, Integer shopCateId) {
+        return product.getShopCategory() != null && product.getShopCategory().getId().equals(shopCateId);
     }
 }

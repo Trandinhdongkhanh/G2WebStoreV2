@@ -19,22 +19,24 @@ import org.springframework.context.annotation.Configuration;
 public class ElasticSearchConfig {
     @Bean
     public RestClient getRestClient() {
-        final CredentialsProvider credentialsProvider =
-                new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials("elastic", "1obU0tPD8PHsVcjYq3bA5a9x"));
-
-        RestClientBuilder builder = RestClient.builder(
-                        new HttpHost("test-8d10fa.es.ap-southeast-2.aws.found.io", 443, "https"))
-                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-                    @Override
-                    public HttpAsyncClientBuilder customizeHttpClient(
-                            HttpAsyncClientBuilder httpClientBuilder) {
-                        return httpClientBuilder
-                                .setDefaultCredentialsProvider(credentialsProvider);
-                    }
-                });
-        return builder.build();
+//        final CredentialsProvider credentialsProvider =
+//                new BasicCredentialsProvider();
+//        credentialsProvider.setCredentials(AuthScope.ANY,
+//                new UsernamePasswordCredentials("elastic", "1obU0tPD8PHsVcjYq3bA5a9x"));
+//
+//        RestClientBuilder builder = RestClient.builder(
+//                        new HttpHost("test-8d10fa.es.ap-southeast-2.aws.found.io", 443, "https"))
+//                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+//                    @Override
+//                    public HttpAsyncClientBuilder customizeHttpClient(
+//                            HttpAsyncClientBuilder httpClientBuilder) {
+//                        return httpClientBuilder
+//                                .setDefaultCredentialsProvider(credentialsProvider);
+//                    }
+//                });
+//        return builder.build();
+        return RestClient.builder(
+                new HttpHost("localhost", 9200)).build();
     }
 
     @Bean

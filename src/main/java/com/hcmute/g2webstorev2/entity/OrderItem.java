@@ -26,4 +26,8 @@ public class OrderItem {
     private Integer subTotal;
     private Integer productId;
     private boolean isReviewed;
+    private Float weight;
+    private Float height;
+    private Float length;
+    private Float width;
 }

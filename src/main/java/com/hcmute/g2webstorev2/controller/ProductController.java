@@ -120,7 +120,7 @@ public class ProductController {
             @RequestParam(value = "shopCateId", required = false) Integer shopCateId
     ) {
         return ResponseEntity.ok(productService.customerGetAllProductsByShop(
-                shopId, sortType, page, size, startPrice ,endPrice, name, shopCateId
+                shopId, sortType, page, size, startPrice, endPrice, name, shopCateId
         ));
     }
 
@@ -162,6 +162,14 @@ public class ProductController {
             @RequestParam(value = "files", required = false) MultipartFile[] files) {
         productService.updateProduct(body, id, files);
         return ResponseEntity.ok("Product with ID = " + id + " updated successfully");
+    }
+
+    @PutMapping("/{id}/del-image")
+    @PreAuthorize("hasAnyRole('SELLER_PRODUCT_ACCESS', 'SELLER_FULL_ACCESS') or hasAuthority('UPDATE_PRODUCT')")
+    public ResponseEntity<ProductResponse> delImage(
+            @PathVariable("id") Integer productId,
+            @RequestParam("fileId") Long fileId) {
+        return ResponseEntity.ok(productService.delImage(productId, fileId));
     }
 
     @DeleteMapping("/{id}")
