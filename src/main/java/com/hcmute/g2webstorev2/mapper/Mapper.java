@@ -22,6 +22,7 @@ public class Mapper {
                 .dob(customer.getDob())
                 .isEmailVerified(customer.isEmailVerified())
                 .role(customer.getRole())
+                .isEnabled(customer.isEnabled())
                 .build();
     }
 

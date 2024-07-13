@@ -25,4 +25,6 @@ public class CustomerResponse {
     private boolean isEmailVerified;;
     private Role role;
     private String avatar;
+    @JsonProperty("is_enabled")
+    private boolean isEnabled;
 }

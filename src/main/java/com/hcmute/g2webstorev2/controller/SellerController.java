@@ -1,10 +1,8 @@
 package com.hcmute.g2webstorev2.controller;
 
-import com.hcmute.g2webstorev2.dto.request.AuthRequest;
-import com.hcmute.g2webstorev2.dto.request.RefreshTokenRequest;
-import com.hcmute.g2webstorev2.dto.request.ResetPasswordRequest;
-import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
+import com.hcmute.g2webstorev2.dto.request.*;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
+import com.hcmute.g2webstorev2.dto.response.CustomerResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
 import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
 import com.hcmute.g2webstorev2.service.SellerService;
@@ -31,6 +29,7 @@ public class SellerController {
     public ResponseEntity<SellerResponse> getInfo() {
         return ResponseEntity.ok(sellerService.getInfo());
     }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest body) {
         AuthResponse res = sellerService.authenticate(body);
@@ -111,11 +110,49 @@ public class SellerController {
     ) {
         return ResponseEntity.ok(sellerService.updateSellerRole(sellerId, roleId));
     }
+
     @PutMapping("/{sellerId}/enable")
     @PreAuthorize("hasRole('SELLER_FULL_ACCESS') or hasAuthority('UPDATE_USER')")
     public ResponseEntity<SellerResponse> enableSeller(
             @PathVariable("sellerId") Integer sellerId,
-            @RequestParam("isEnable") boolean isEnable){
+            @RequestParam("isEnable") boolean isEnable) {
         return ResponseEntity.ok(sellerService.enableSeller(sellerId, isEnable));
+    }
+
+    @PutMapping("/me/phone-no")
+    @PreAuthorize("hasAnyRole(" +
+            "'SELLER_FULL_ACCESS', " +
+            "'SELLER_READ_ONLY'," +
+            "'SELLER_ORDER_MANAGEMENT'," +
+            "'JUNIOR_CHAT_AGENT'," +
+            "'SELLER_PRODUCT_ACCESS'," +
+            "'SELLER_PROMOTION_ACCESS')")
+    public ResponseEntity<String> updatePhoneNo(@RequestBody @Valid PhoneNoUpdateRequest body) {
+        sellerService.updatePhoneNo(body);
+        return ResponseEntity.ok("Phone No updated successfully");
+    }
+    @PutMapping("/me/password")
+    @PreAuthorize("hasAnyRole(" +
+            "'SELLER_FULL_ACCESS', " +
+            "'SELLER_READ_ONLY'," +
+            "'SELLER_ORDER_MANAGEMENT'," +
+            "'JUNIOR_CHAT_AGENT'," +
+            "'SELLER_PRODUCT_ACCESS'," +
+            "'SELLER_PROMOTION_ACCESS')")
+    public ResponseEntity<String> updatePassword(@RequestBody @Valid PasswordUpdateRequest body) {
+        sellerService.updatePassword(body);
+        return ResponseEntity.ok("Password updated successfully");
+    }
+    @PutMapping("/me")
+    @PreAuthorize("hasAnyRole(" +
+            "'SELLER_FULL_ACCESS', " +
+            "'SELLER_READ_ONLY'," +
+            "'SELLER_ORDER_MANAGEMENT'," +
+            "'JUNIOR_CHAT_AGENT'," +
+            "'SELLER_PRODUCT_ACCESS'," +
+            "'SELLER_PROMOTION_ACCESS')")
+    public ResponseEntity<SellerResponse> updateProfile(
+            @RequestParam("name") String name) {
+        return ResponseEntity.ok(sellerService.updateProfile(name));
     }
 }

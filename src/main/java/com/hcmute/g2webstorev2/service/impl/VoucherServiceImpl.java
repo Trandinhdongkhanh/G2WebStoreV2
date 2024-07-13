@@ -140,29 +140,28 @@ public class VoucherServiceImpl implements VoucherService {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         List<Voucher> vouchers = filterVouchers(seller.getShop(), name, voucherId);
-        Collections.reverse(vouchers);
         LocalDateTime now = LocalDateTime.now();
         if (status != null)
             switch (status) {
                 case NOT_STARTED -> {
                     List<Voucher> notStartedVouchers = vouchers.stream()
-                            .filter(voucher -> voucher.getStartDate().isAfter(now)).toList();
+                            .filter(voucher -> voucher.getStartDate().isAfter(now)).collect(Collectors.toList());
                     return getVouchersAfterPaginate(notStartedVouchers, page, size);
                 }
                 case EXPIRED -> {
                     List<Voucher> expiredVouchers = vouchers.stream()
-                            .filter(voucher -> voucher.getEndDate().isBefore(now)).toList();
+                            .filter(voucher -> voucher.getEndDate().isBefore(now)).collect(Collectors.toList());
                     return getVouchersAfterPaginate(expiredVouchers, page, size);
                 }
                 case STARTED -> {
                     List<Voucher> startedVouchers = vouchers.stream()
                             .filter(voucher -> voucher.getStartDate().isBefore(now)
-                                    && voucher.getEndDate().isAfter(now)).toList();
+                                    && voucher.getEndDate().isAfter(now)).collect(Collectors.toList());
                     return getVouchersAfterPaginate(startedVouchers, page, size);
                 }
                 case PAUSED -> {
                     List<Voucher> pausedVouchers = vouchers.stream()
-                            .filter(Voucher::getIsPaused).toList();
+                            .filter(Voucher::getIsPaused).collect(Collectors.toList());
                     return getVouchersAfterPaginate(pausedVouchers, page, size);
                 }
                 case ALL -> {

@@ -1,8 +1,6 @@
 package com.hcmute.g2webstorev2.service;
 
-import com.hcmute.g2webstorev2.dto.request.AuthRequest;
-import com.hcmute.g2webstorev2.dto.request.ResetPasswordRequest;
-import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
+import com.hcmute.g2webstorev2.dto.request.*;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
 import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
@@ -28,4 +26,9 @@ public interface SellerService {
     void forgotPassword(String email);
     void resetPassword(ResetPasswordRequest body);
     SellerResponse enableSeller(Integer sellerId, boolean isEnable);
+    SellerResponse updateProfile(String name);
+
+    void updatePhoneNo(PhoneNoUpdateRequest body);
+
+    void updatePassword(PasswordUpdateRequest body);
 }

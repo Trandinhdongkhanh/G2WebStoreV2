@@ -122,7 +122,7 @@ public class CustomerController {
     @PutMapping("/{id}/locked")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CustomerResponse> lockedCustomer(
-            @RequestParam(defaultValue = "true", name = "isLocked") boolean isLocked,
+            @RequestParam(name = "isLocked") boolean isLocked,
             @PathVariable("id") Integer customerId) {
         return ResponseEntity.ok(customerService.lockCustomer(customerId, isLocked));
     }

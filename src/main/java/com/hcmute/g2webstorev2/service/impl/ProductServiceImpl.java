@@ -581,7 +581,6 @@ public class ProductServiceImpl implements ProductService {
     private boolean isAboveStar(ProductIndex productIndex, Integer star) {
         long totalRateCount = reviewRepo.countReviewsByProduct(productIndex.getProductId());
         Long totalRateValue = reviewRepo.sumOfRatesByProduct(productIndex.getProductId());
-        log.info("im here");
         return ReviewUtil.getAvgRate(totalRateValue, totalRateCount) >= star;
     }
 

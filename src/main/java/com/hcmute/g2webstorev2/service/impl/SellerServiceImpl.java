@@ -1,17 +1,12 @@
 package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.config.JwtService;
-import com.hcmute.g2webstorev2.dto.request.AuthRequest;
-import com.hcmute.g2webstorev2.dto.request.ResetPasswordRequest;
-import com.hcmute.g2webstorev2.dto.request.SellerAddRequest;
+import com.hcmute.g2webstorev2.dto.request.*;
 import com.hcmute.g2webstorev2.dto.response.AuthResponse;
 import com.hcmute.g2webstorev2.dto.response.SellerResponse;
 import com.hcmute.g2webstorev2.dto.response.SellersFromShopResponse;
 import com.hcmute.g2webstorev2.entity.*;
-import com.hcmute.g2webstorev2.exception.AccountNotActivatedException;
-import com.hcmute.g2webstorev2.exception.OTPExpiredException;
-import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
-import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
+import com.hcmute.g2webstorev2.exception.*;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.OTPRepo;
 import com.hcmute.g2webstorev2.repository.RoleRepo;
@@ -37,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.hcmute.g2webstorev2.enums.AppRole.SELLER_FULL_ACCESS;
@@ -276,6 +272,40 @@ public class SellerServiceImpl implements SellerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Seller not found"));
         seller.setEnabled(isEnable);
         return Mapper.toSellerResponse(seller);
+    }
+
+    @Override
+    public SellerResponse updateProfile(String name) {
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        seller.setFullName(name);
+        return Mapper.toSellerResponse(sellerRepo.save(seller));
+    }
+
+    @Override
+    public void updatePhoneNo(PhoneNoUpdateRequest body) {
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (Objects.equals(seller.getPhoneNo(), body.getNewPhoneNo()))
+            throw new PhoneNoException("New Phone No must be different from current Phone No");
+
+        if (sellerRepo.existsByPhoneNo(body.getNewPhoneNo()))
+            throw new ResourceNotUniqueException("Phone No existed");
+
+        seller.setPhoneNo(body.getNewPhoneNo());
+        sellerRepo.save(seller);
+        log.info("Phone No of seller with ID = " + seller.getSellerId() + " updated successfully");
+    }
+
+    @Override
+    public void updatePassword(PasswordUpdateRequest body) {
+        Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!passwordEncoder.matches(body.getOldPassword(), seller.getPassword()))
+            throw new PasswordNotMatchException("Incorrect old password");
+
+        seller.setPassword(passwordEncoder.encode(body.getNewPassword()));
+        sellerRepo.save(seller);
+        log.info("Updated password of seller with ID = " + seller.getSellerId() + " successfully");
     }
 
     private String generateAndSaveActivationToken(Seller seller) {
