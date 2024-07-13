@@ -6,9 +6,9 @@ spring:
     name: G2WebStoreV2
 
   datasource:
-    url: jdbc:mysql://localhost:3306/g2db_test
-    username: root
-    password: khanh1307
+    url: jdbc:mysql://g2-demo-instance.c34eyiyaco55.ap-southeast-2.rds.amazonaws.com:3306/g2db_test
+    username: admin
+    password: Khanh1307!
 
   elasticsearch:
     uris: https://localhost:9200

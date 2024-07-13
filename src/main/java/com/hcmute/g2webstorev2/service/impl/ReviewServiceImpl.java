@@ -13,6 +13,7 @@ import com.hcmute.g2webstorev2.repository.ProductRepo;
 import com.hcmute.g2webstorev2.repository.ReviewRepo;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ReviewService;
+import com.hcmute.g2webstorev2.util.ReviewUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -81,10 +82,7 @@ public class ReviewServiceImpl implements ReviewService {
         long twoStarRateCount = reviewRepo.countReviewsByRateAndProduct(2, product.getProductId());
         long oneStarRateCount = reviewRepo.countReviewsByRateAndProduct(1, product.getProductId());
         Long totalRateValue = reviewRepo.sumOfRatesByProduct(product.getProductId());
-        if (totalRateValue == null) totalRateValue = 0L;
-        double avgRate = 0.0;
-        if (totalRateCount != 0) avgRate = (double) totalRateValue / totalRateCount;
-        double roundedAvgRate = Math.round(avgRate * 10.0) / 10.0; // làm tròn đến 1 chữ số thập phân
+        double roundedAvgRate = ReviewUtil.getAvgRate(totalRateValue, totalRateCount);
 
         ProductReviewsRes resp = ProductReviewsRes.builder()
                 .avgRate(roundedAvgRate)

@@ -2,6 +2,7 @@ package com.hcmute.g2webstorev2.util;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.hcmute.g2webstorev2.entity.Category;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.es.index.ProductIndex;
 import lombok.extern.slf4j.Slf4j;
@@ -48,5 +49,14 @@ public class ProductUtil {
 
     public static boolean isBelongToShopCate(Product product, Integer shopCateId) {
         return product.getShopCategory() != null && product.getShopCategory().getId().equals(shopCateId);
+    }
+
+    public static String getPath(Category category) {
+        String path;
+
+        if (category.getChildCategories().isEmpty()) path = category.getPath();
+        else path = category.getPath() + "/";
+
+        return path;
     }
 }

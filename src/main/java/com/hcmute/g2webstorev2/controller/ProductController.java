@@ -205,9 +205,10 @@ public class ProductController {
             @RequestParam(value = "sort", required = false) SortType sortType,
             @RequestParam(value = "startPrice", required = false) Integer startPrice,
             @RequestParam(value = "endPrice", required = false) Integer endPrice,
-            @RequestParam(value = "districtId", required = false) Integer districtId) {
+            @RequestParam(value = "districtId", required = false) Integer districtId,
+            @RequestParam(value = "star", required = false) Integer star) {
         return ResponseEntity.ok(productService.getProductsByCategory(
-                id, pageNumber, pageSize, seed, sortType, startPrice, endPrice, districtId
+                id, pageNumber, pageSize, seed, sortType, startPrice, endPrice, districtId, star
         ));
     }
 
@@ -232,9 +233,10 @@ public class ProductController {
             @RequestParam(value = "sort", required = false) SortType sortType,
             @RequestParam(value = "startPrice", required = false) Integer startPrice,
             @RequestParam(value = "endPrice", required = false) Integer endPrice,
-            @RequestParam(value = "districtId", required = false) Integer districtId) throws IOException {
+            @RequestParam(value = "districtId", required = false) Integer districtId,
+            @RequestParam(value = "star", required = false) Integer star) throws IOException {
         return ResponseEntity.ok(productService.getProductsByName(
-                name, pageNumber, pageSize, seed, sortType, startPrice, endPrice, districtId
+                name, pageNumber, pageSize, seed, sortType, startPrice, endPrice, districtId, star
         ));
     }
 

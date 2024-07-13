@@ -69,6 +69,8 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     Page<Product> findAllByCategory(String path, Pageable pageable, Integer seed);
     @Query("select p from Product p where p.category.path like :path% and p.isAvailable = true")
     Page<Product> findAllByCategory(String path, Pageable pageable);
+    @Query("select p from Product p where p.category.path like :path% and p.isAvailable = true")
+    List<Product> findAllByCategory(String path);
 
     @Query("select p from Product p " +
             "where p.name like :name% " +

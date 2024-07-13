@@ -18,7 +18,8 @@ import java.util.List;
 public interface ProductService {
     void updateProducts(List<Product> products) throws IOException;
     Page<ProductIndex> getProductsByName(String name, int pageNumber, int pageSize, Integer seed,
-                                        SortType sortType, Integer startPrice, Integer endPrice, Integer districtId) throws IOException;
+                                         SortType sortType, Integer startPrice, Integer endPrice,
+                                         Integer districtId, Integer star) throws IOException;
     Page<ProductIndex> getAllProducts(int pageNumber, int pageSize, Integer seed, SortType sortType,
                                          Integer startPrice, Integer endPrice, Integer districtId);
     ProductResponse getProduct(Integer id);
@@ -34,7 +35,8 @@ public interface ProductService {
                                                        Integer shopCateId);
     Page<ProductIndex> getProductsByCategory(
             Integer id, int pageNumber, int pageSize, Integer seed,
-            SortType sortType, Integer startPrice, Integer endPrice, Integer districtId);
+            SortType sortType, Integer startPrice, Integer endPrice,
+            Integer districtId, Integer star);
     void addProductsToShopCate(Integer shopCateId, AddProductsToShopCateRequest body);
     Page<ProductResponse> getProductsByShopCate(Integer id, int pageNumber, int pageSize);
     List<ProductResponse> getTopFivePopularProductByShop(Integer shopId);
