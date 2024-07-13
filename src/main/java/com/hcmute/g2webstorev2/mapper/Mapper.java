@@ -51,6 +51,7 @@ public class Mapper {
                 .isEmailVerified(seller.isEmailVerified())
                 .role(seller.getRole())
                 .shop(Mapper.toShopResponse(seller.getShop()))
+                .isEnabled(seller.isEnabled())
                 .build();
     }
 

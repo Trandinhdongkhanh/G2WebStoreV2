@@ -25,4 +25,7 @@ public class SellerResponse {
     private ShopResponse shop;
     @JsonProperty("is_main_acc")
     private boolean isMainAcc;
+    @JsonProperty("is_enabled")
+    private boolean isEnabled;
+
 }
