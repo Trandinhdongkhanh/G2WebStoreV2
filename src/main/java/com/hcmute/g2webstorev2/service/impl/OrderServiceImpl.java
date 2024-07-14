@@ -51,6 +51,7 @@ public class OrderServiceImpl implements OrderService {
     private final CartItemV2Repo cartItemV2Repo;
     private final GHNService ghnService;
     private final FileService fileService;
+    private final CustomerRepo customerRepo;
 
     private void checkDataIntegrity(CheckShopItemReq item) {
         Product product = productRepo.findById(item.getProductId())
@@ -91,7 +92,6 @@ public class OrderServiceImpl implements OrderService {
                 .feeShipReduce(Math.toIntExact(cartItemV2.getFeeShipReduce()))
                 .shopVoucherPriceReduce(Math.toIntExact(cartItemV2.getShopReduce()))
                 .shopTotal(Math.toIntExact(cartItemV2.getShopSubTotal()))
-                .pointSpent(0)
                 .address(address)
                 .expectedDeliveryDate(expectedDeliveryDate)
                 .build();
@@ -132,15 +132,24 @@ public class OrderServiceImpl implements OrderService {
             }
             if (newOrder != null) {
                 if (body.getIsPointSpent()) {
-                    Integer pointSpent = (int) (customer.getPoint() / cartItemV2Set.size());
+                    Double pointSpent = customer.getPoint() / cartItemV2Set.size();
                     newOrder.setPointSpent(pointSpent);
                 }
                 orders.add(newOrder);
             }
-
         }
         int ordersTotalPrice = orders.stream()
                 .reduce(0, (grandTotal, order) -> grandTotal + order.getGrandTotal(), Integer::sum);
+        if (body.getIsPointSpent()) {
+            if (ordersTotalPrice <= customer.getPoint()) {
+                ordersTotalPrice = 0;
+                customer.setPoint(customer.getPoint() - ordersTotalPrice);
+            } else {
+                ordersTotalPrice -= customer.getPoint();
+                customer.setPoint(0);
+            }
+            customerRepo.save(customer);
+        }
 
         List<Order> result = orderRepo.saveAll(orders);
         cartItemV2Repo.deleteAll(cartItemV2Set);

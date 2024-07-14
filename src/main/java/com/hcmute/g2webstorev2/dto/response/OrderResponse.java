@@ -45,7 +45,7 @@ public class OrderResponse {
     @JsonProperty("fee_ship_reduce")
     private Integer feeShipReduce;
     @JsonProperty("point_spent")
-    private Integer pointSpent;
+    private Double pointSpent;
     @JsonProperty("grand_total")
     private Integer grandTotal;
     @JsonProperty("shop_total")

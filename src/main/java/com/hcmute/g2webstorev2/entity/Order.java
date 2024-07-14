@@ -39,7 +39,7 @@ public class Order {
     private Integer feeShipReduce;
     private Integer g2VoucherPriceReduce;
     private Integer shopVoucherPriceReduce;
-    private Integer pointSpent;
+    private Double pointSpent;
     private Integer grandTotal;
     private Integer shopTotal;
     @Enumerated(value = EnumType.STRING)
