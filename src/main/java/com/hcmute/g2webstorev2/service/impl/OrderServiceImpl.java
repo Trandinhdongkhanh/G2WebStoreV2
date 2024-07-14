@@ -148,8 +148,10 @@ public class OrderServiceImpl implements OrderService {
                 ordersTotalPrice -= customer.getPoint();
                 customer.setPoint(0);
             }
-            customerRepo.save(customer);
         }
+        double pointEarned = ordersTotalPrice * 0.1;
+        customer.setPoint(customer.getPoint() + pointEarned);
+        customerRepo.save(customer);
 
         List<Order> result = orderRepo.saveAll(orders);
         cartItemV2Repo.deleteAll(cartItemV2Set);
