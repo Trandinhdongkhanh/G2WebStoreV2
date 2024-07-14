@@ -52,16 +52,16 @@ public class ProductServiceImpl implements ProductService {
         productESRepo.saveAll(products.stream().map(Mapper::toProductIndex).toList());
     }
 
-    private boolean isInDistrict(ProductIndex productIndex, Integer districtId) {
+    private boolean isInProvince(ProductIndex productIndex, Integer provinceId) {
         Product product = productRepo.findById(productIndex.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
-        return product.getShop().getDistrictId().equals(districtId);
+        return product.getShop().getProvinceId().equals(provinceId);
     }
 
     @Override
     public Page<ProductIndex> getProductsByName(String name, int pageNumber, int pageSize, Integer seed,
                                                 SortType sortType, Integer startPrice, Integer endPrice,
-                                                Integer districtId, Integer star) throws IOException {
+                                                Integer provinceId, Integer star) throws IOException {
         List<ProductIndex> products;
         if (sortType.equals(SortType.MOST_RELEVANT))
             products = ProductUtil.convertToList(esService.boolSearchProducts(name, null));
@@ -72,9 +72,9 @@ public class ProductServiceImpl implements ProductService {
             products = products.stream()
                     .filter(product -> product.getPrice() >= startPrice && product.getPrice() <= endPrice)
                     .collect(Collectors.toList());
-        if (districtId != null)
+        if (provinceId != null)
             products = products.stream()
-                    .filter(product -> isInDistrict(product, districtId))
+                    .filter(product -> isInProvince(product, provinceId))
                     .collect(Collectors.toList());
         if (star != null)
             products = products.stream()
@@ -110,9 +110,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductIndex> getAllProducts(int pageNumber, int pageSize, Integer seed,
                                              SortType sortType, Integer startPrice, Integer endPrice,
-                                             Integer districtId, Integer star) {
+                                             Integer provinceId, Integer star) {
 
-        List<Product> products = filterProducts(startPrice, endPrice, districtId, star, productRepo.findAll());
+        List<Product> products = filterProducts(startPrice, endPrice, provinceId, star, productRepo.findAll());
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         if (sortType != null) {
@@ -150,14 +150,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private List<Product> filterProducts(Integer startPrice, Integer endPrice,
-                                         Integer districtId, Integer star, List<Product> products) {
+                                         Integer provinceId, Integer star, List<Product> products) {
         if (startPrice != null && endPrice != null)
             products = products.stream()
                     .filter(product -> product.getPrice() >= startPrice && product.getPrice() <= endPrice)
                     .collect(Collectors.toList());
-        if (districtId != null)
+        if (provinceId != null)
             products = products.stream()
-                    .filter(product -> product.getShop().getDistrictId().equals(districtId))
+                    .filter(product -> product.getShop().getProvinceId().equals(provinceId))
                     .collect(Collectors.toList());
         if (star != null)
             products = products.stream()
@@ -411,11 +411,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductIndex> getProductsByCategory(Integer id, int pageNumber, int pageSize, Integer seed,
                                                     SortType sortType, Integer startPrice, Integer endPrice,
-                                                    Integer districtId, Integer star) {
+                                                    Integer provinceId, Integer star) {
         Category category = categoryRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         List<Product> products = productRepo.findAllByCategory(ProductUtil.getPath(category));
-        products = filterProducts(startPrice, endPrice, districtId, star, products);
+        products = filterProducts(startPrice, endPrice, provinceId, star, products);
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         if (sortType != null) {
