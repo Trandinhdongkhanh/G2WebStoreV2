@@ -20,8 +20,9 @@ public interface ProductService {
     Page<ProductIndex> getProductsByName(String name, int pageNumber, int pageSize, Integer seed,
                                          SortType sortType, Integer startPrice, Integer endPrice,
                                          Integer districtId, Integer star) throws IOException;
-    Page<ProductIndex> getAllProducts(int pageNumber, int pageSize, Integer seed, SortType sortType,
-                                         Integer startPrice, Integer endPrice, Integer districtId);
+    Page<ProductIndex> getAllProducts(int pageNumber, int pageSize, Integer seed,
+                                      SortType sortType, Integer startPrice, Integer endPrice,
+                                      Integer districtId, Integer star);
     ProductResponse getProduct(Integer id);
     ProductResponse addProduct(ProductRequest body, MultipartFile[] files) throws IOException;
     ProductResponse enableProduct(boolean isAvailable, Integer productId);

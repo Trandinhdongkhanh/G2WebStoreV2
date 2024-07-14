@@ -77,10 +77,11 @@ public class ProductController {
             @RequestParam(value = "sort", required = false) SortType sortType,
             @RequestParam(value = "startPrice", required = false) Integer startPrice,
             @RequestParam(value = "endPrice", required = false) Integer endPrice,
-            @RequestParam(value = "districtId", required = false) Integer districtId) {
+            @RequestParam(value = "districtId", required = false) Integer districtId,
+            @RequestParam(value = "star", required = false) Integer star) {
         //Seed is used to randomize products. Each time a seed change products get randomized
         return ResponseEntity.ok(productService.getAllProducts(
-                pageNumber, pageSize, seed, sortType, startPrice, endPrice, districtId));
+                pageNumber, pageSize, seed, sortType, startPrice, endPrice, districtId, star));
     }
 
     @GetMapping("/top-five/shop/{shopId}")

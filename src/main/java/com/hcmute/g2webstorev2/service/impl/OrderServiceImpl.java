@@ -49,7 +49,6 @@ public class OrderServiceImpl implements OrderService {
     private final VNPAYService vnpayService;
     private final EmailService emailService;
     private final CartItemV2Repo cartItemV2Repo;
-    private final CustomerRepo customerRepo;
     private final GHNService ghnService;
     private final FileService fileService;
 
@@ -135,18 +134,18 @@ public class OrderServiceImpl implements OrderService {
                 if (body.getIsPointSpent()) {
                     Integer pointSpent = (int) (customer.getPoint() / cartItemV2Set.size());
                     newOrder.setPointSpent(pointSpent);
-                    customer.setPoint(0);
-                    customerRepo.save(customer);
                 }
                 orders.add(newOrder);
             }
+
         }
+        int ordersTotalPrice = orders.stream()
+                .reduce(0, (grandTotal, order) -> grandTotal + order.getGrandTotal(), Integer::sum);
+
         List<Order> result = orderRepo.saveAll(orders);
         cartItemV2Repo.deleteAll(cartItemV2Set);
 
         String paymentUrl = null;
-        int ordersTotalPrice = orders.stream()
-                .reduce(0, (grandTotal, order) -> grandTotal + order.getGrandTotal(), Integer::sum);
         if (!body.getPaymentType().equals(COD))
             paymentUrl = processOnlPayment(body.getPaymentType(), ordersTotalPrice, req, orders);
         else orders.forEach(emailService::sendOrderConfirmation);
