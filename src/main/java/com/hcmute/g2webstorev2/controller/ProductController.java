@@ -4,6 +4,7 @@ import com.hcmute.g2webstorev2.dto.request.AddProductsToExportExcelReq;
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
+import com.hcmute.g2webstorev2.dto.response.ProductStatisticalRes;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
@@ -258,5 +259,17 @@ public class ProductController {
             @RequestParam("page") int pageNumber,
             @RequestParam("size") int pageSize) {
         return ResponseEntity.ok(productService.getProductsByShopCate(id, pageNumber, pageSize));
+    }
+
+    @GetMapping("/{id}/statistical")
+    @PreAuthorize("hasAnyRole(" +
+            "'SELLER_FULL_ACCESS'," +
+            "'SELLER_PROMOTION_ACCESS'," +
+            "'SELLER_PRODUCT_ACCESS'," +
+            "'JUNIOR_CHAT_AGENT'," +
+            "'SELLER_ORDER_MANAGEMENT'," +
+            "'SELLER_READ_ONLY')")
+    public ResponseEntity<ProductStatisticalRes> getProductStatistical(@PathVariable("id") Integer productId) {
+        return ResponseEntity.ok(productService.getProductStatistical(productId));
     }
 }

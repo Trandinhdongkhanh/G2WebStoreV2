@@ -59,7 +59,10 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:8001",
                 "http://localhost:8002",
-                "http://localhost:8003"));
+                "http://localhost:8003",
+                "https://g2store-956cf.web.app",
+                "https://g2storeadmin.web.app",
+                "https://g2storeseller.web.app"));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

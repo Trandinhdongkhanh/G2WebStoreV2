@@ -2,7 +2,10 @@ package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
+import com.hcmute.g2webstorev2.dto.response.DayStatisticalRes;
+import com.hcmute.g2webstorev2.dto.response.MonthStatisticalRes;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
+import com.hcmute.g2webstorev2.dto.response.ProductStatisticalRes;
 import com.hcmute.g2webstorev2.entity.*;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
@@ -17,6 +20,7 @@ import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ProductService;
 import com.hcmute.g2webstorev2.util.ProductUtil;
 import com.hcmute.g2webstorev2.util.ReviewUtil;
+import com.hcmute.g2webstorev2.util.StatisticalUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -27,6 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +52,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductESRepo productESRepo;
     private final ReviewRepo reviewRepo;
     private final GCPFileRepo gcpFileRepo;
+    private final OrderRepo orderRepo;
+    private final StatisticalUtil statisticalUtil;
 
     @Override
     @Transactional
@@ -530,5 +540,45 @@ public class ProductServiceImpl implements ProductService {
         Product result = productRepo.save(product);
         productESRepo.save(Mapper.toProductIndex(result));
         return Mapper.toProductResponse(result);
+    }
+
+    @Override
+    public ProductStatisticalRes getProductStatistical(Integer productId) {
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        LocalDate today = LocalDate.now();
+        Map<DayOfWeek, Long> dayIncome = statisticalUtil.getDayIncome(product, today);
+        Map<Month, Long> monthIncome = statisticalUtil.getMonthIncome(product);
+
+        DayStatisticalRes day = DayStatisticalRes.builder()
+                .mondayIncome(dayIncome.get(DayOfWeek.MONDAY))
+                .tuesdayIncome(dayIncome.get(DayOfWeek.TUESDAY))
+                .wednesdayIncome(dayIncome.get(DayOfWeek.WEDNESDAY))
+                .thursdayIncome(dayIncome.get(DayOfWeek.THURSDAY))
+                .fridayIncome(dayIncome.get(DayOfWeek.FRIDAY))
+                .saturdayIncome(dayIncome.get(DayOfWeek.SATURDAY))
+                .sundayIncome(dayIncome.get(DayOfWeek.SUNDAY))
+                .build();
+
+        MonthStatisticalRes month = MonthStatisticalRes.builder()
+                .januaryIncome(monthIncome.get(Month.JANUARY))
+                .februaryIncome(monthIncome.get(Month.FEBRUARY))
+                .marchIncome(monthIncome.get(Month.MARCH))
+                .aprilIncome(monthIncome.get(Month.APRIL))
+                .mayIncome(monthIncome.get(Month.MAY))
+                .juneIncome(monthIncome.get(Month.JUNE))
+                .julyIncome(monthIncome.get(Month.JULY))
+                .augustIncome(monthIncome.get(Month.AUGUST))
+                .septemberIncome(monthIncome.get(Month.SEPTEMBER))
+                .octoberIncome(monthIncome.get(Month.OCTOBER))
+                .novemberIncome(monthIncome.get(Month.NOVEMBER))
+                .decemberIncome(monthIncome.get(Month.DECEMBER))
+                .build();
+
+        return ProductStatisticalRes.builder()
+                .dayStatistical(day)
+                .monthStatisticalRes(month)
+                .build();
     }
 }

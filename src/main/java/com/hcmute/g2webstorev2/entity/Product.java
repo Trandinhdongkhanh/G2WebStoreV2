@@ -40,7 +40,7 @@ public class Product {
     private ShopCategory shopCategory;
     private Boolean isAvailable;
     private Boolean isBanned;
-    @ManyToMany(mappedBy = "products")
+    @ManyToMany(mappedBy = "products", cascade = CascadeType.ALL)
     private List<Voucher> vouchers;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
     private Set<ShopItem> shopItems;

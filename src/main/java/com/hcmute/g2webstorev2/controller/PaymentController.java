@@ -19,7 +19,6 @@ import java.io.IOException;
 public class PaymentController {
     private final VNPAYService vnpayService;
     private final OrderService orderService;
-
     @GetMapping("/create-payment")
     @PreAuthorize("hasAnyRole('CUSTOMER')")
     public ResponseEntity<PaymentResponse> createPayment(
@@ -97,7 +96,7 @@ public class PaymentController {
         if (vnpayService.isValidSignValue(vnp_SecureHash, req)) {
             if ("00".equals(vnp_TransactionStatus)) {
                 orderService.updateUnPaidOrder(vnp_TxnRef, PaymentType.VNPAY);
-                res.sendRedirect("http://localhost:8002/thanks");
+                res.sendRedirect("https://g2store-956cf.web.app/thanks");
                 return ResponseEntity.ok(ReturnURLResponse.builder()
                         .vnp_Rsp(vnp_ResponseCode)
                         .message("Success")
@@ -105,7 +104,7 @@ public class PaymentController {
                         .build());
             }
         }
-        res.sendRedirect("http://localhost:8002");
+        res.sendRedirect("https://g2store-956cf.web.app/thanks");
         return ResponseEntity.badRequest().body(ReturnURLResponse.builder()
                 .message("Failed")
                 .vnp_Rsp(vnp_ResponseCode)

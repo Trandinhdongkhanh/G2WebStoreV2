@@ -4,6 +4,7 @@ package com.hcmute.g2webstorev2.service;
 import com.hcmute.g2webstorev2.dto.request.AddProductsToShopCateRequest;
 import com.hcmute.g2webstorev2.dto.request.ProductRequest;
 import com.hcmute.g2webstorev2.dto.response.ProductResponse;
+import com.hcmute.g2webstorev2.dto.response.ProductStatisticalRes;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.enums.ShopProductsSortType;
 import com.hcmute.g2webstorev2.enums.SortType;
@@ -41,6 +42,6 @@ public interface ProductService {
     void addProductsToShopCate(Integer shopCateId, AddProductsToShopCateRequest body);
     Page<ProductResponse> getProductsByShopCate(Integer id, int pageNumber, int pageSize);
     List<ProductResponse> getTopFivePopularProductByShop(Integer shopId);
-
     ProductResponse delImage(Integer productId, Long fileId);
+    ProductStatisticalRes getProductStatistical(Integer productId);
 }
