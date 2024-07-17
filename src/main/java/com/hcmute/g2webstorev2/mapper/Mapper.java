@@ -121,6 +121,9 @@ public class Mapper {
                 .balance(shop.getBalance())
                 .isAllowedToSell(shop.getIsAllowedToSell())
                 .violationPoint(shop.getViolationPoint())
+                .bankName(shop.getBankName())
+                .bankAccHolderName(shop.getBankAccHolderName())
+                .bankAccSeriesNum(shop.getBankAccSeriesNum())
                 .build();
     }
 

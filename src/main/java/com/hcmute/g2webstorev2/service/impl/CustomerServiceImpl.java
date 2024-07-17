@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -59,12 +60,14 @@ public class CustomerServiceImpl implements CustomerService {
         Role role = roleRepo.findByAppRole(CUSTOMER);
         if (role == null)
             throw new ResourceNotFoundException("Role " + CUSTOMER.name() + " not existed in database");
+        LocalDate now = LocalDate.now();
 
         Customer customer = new Customer();
         customer.setEmail(body.getEmail());
         customer.setPassword(passwordEncoder.encode(body.getPassword()));
         customer.setEmailVerified(false);
         customer.setRole(role);
+        customer.setCreatedDate(now);
 
         Customer res = customerRepo.save(customer);
         log.info("Customer with ID = " + res.getCustomerId() + " has been registered successfully");

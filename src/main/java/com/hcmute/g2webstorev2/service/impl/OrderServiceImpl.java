@@ -119,27 +119,25 @@ public class OrderServiceImpl implements OrderService {
         Address address = addressRepo.findById(body.getAddressId())
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
 
-        List<CartItemV2> cartItemV2Set = cartItemV2Repo.findAllByCustomer(customer);
+        List<CartItemV2> cartItemV2List = cartItemV2Repo.findAllByCustomer(customer);
         List<Order> orders = new ArrayList<>();
 
-        for (OrderCreationRequest order : body.getOrders()) {
+        for (int i = 0; i < body.getOrders().size(); i++) {
+            OrderCreationRequest order = body.getOrders().get(i);
             order.getItems().forEach(this::checkDataIntegrity);
-            Order newOrder = null;
-            for (CartItemV2 cartItemV2 : cartItemV2Set) {
-                newOrder = setUpOrder(body.getPaymentType(), customer, cartItemV2, address, order.getFeeShip());
-                List<OrderItem> orderItems = handleOrderItemCreationProcess(cartItemV2, newOrder);
-                newOrder.setOrderItems(orderItems);
+            CartItemV2 cartItemV2 = cartItemV2List.get(i);
+            Order newOrder = setUpOrder(body.getPaymentType(), customer, cartItemV2, address, order.getFeeShip());
+            List<OrderItem> orderItems = handleOrderItemCreationProcess(cartItemV2, newOrder);
+            newOrder.setOrderItems(orderItems);
+            if (body.getIsPointSpent()) {
+                Double pointSpent = customer.getPoint() / cartItemV2List.size();
+                newOrder.setPointSpent(pointSpent);
             }
-            if (newOrder != null) {
-                if (body.getIsPointSpent()) {
-                    Double pointSpent = customer.getPoint() / cartItemV2Set.size();
-                    newOrder.setPointSpent(pointSpent);
-                }
-                orders.add(newOrder);
-            }
+            orders.add(newOrder);
         }
-        int ordersTotalPrice = orders.stream()
-                .reduce(0, (grandTotal, order) -> grandTotal + order.getGrandTotal(), Integer::sum);
+
+        int ordersTotalPrice = 0;
+        for (Order order : orders) ordersTotalPrice += order.getGrandTotal();
         if (body.getIsPointSpent()) {
             if (ordersTotalPrice <= customer.getPoint()) {
                 ordersTotalPrice = 0;
@@ -154,7 +152,7 @@ public class OrderServiceImpl implements OrderService {
         customerRepo.save(customer);
 
         List<Order> result = orderRepo.saveAll(orders);
-        cartItemV2Repo.deleteAll(cartItemV2Set);
+        cartItemV2Repo.deleteAll(cartItemV2List);
 
         String paymentUrl = null;
         if (!body.getPaymentType().equals(COD))

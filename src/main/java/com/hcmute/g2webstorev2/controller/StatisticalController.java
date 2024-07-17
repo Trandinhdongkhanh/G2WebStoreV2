@@ -1,5 +1,6 @@
 package com.hcmute.g2webstorev2.controller;
 
+import com.hcmute.g2webstorev2.dto.response.AdminStatisticalRes;
 import com.hcmute.g2webstorev2.dto.response.StatisticalRes;
 import com.hcmute.g2webstorev2.service.StatisticalService;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,11 @@ public class StatisticalController {
             "'SELLER_READ_ONLY')")
     public ResponseEntity<StatisticalRes> getStatistical(@RequestParam(value = "year", required = false) Integer year) {
         return ResponseEntity.ok(statisticalService.getStatistical(year));
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdminStatisticalRes> getAdminStatistical() {
+        return ResponseEntity.ok(statisticalService.getAdminStatistical());
     }
 }

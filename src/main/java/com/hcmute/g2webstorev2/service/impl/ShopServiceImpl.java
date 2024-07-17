@@ -55,19 +55,13 @@ public class ShopServiceImpl implements ShopService {
         shop.setProvinceName(body.getProvinceName());
         shop.setStreet(body.getStreet());
         shop.setDistrictId(body.getDistrictId());
+        shop.setBankAccHolderName(body.getBankAccHolderName());
+        shop.setBankName(body.getBankName());
+        shop.setBankAccSeriesNum(body.getBankAccSeriesNum());
 
         shopRepo.save(shop);
         log.info("Shop with ID = " + shop.getShopId() + " updated successfully");
         return Mapper.toShopResponse(shop);
-    }
-
-    @Override
-    public void delShop(Integer id) {
-        Shop shop = shopRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Shop with ID = " + id + " not found"));
-
-        shopRepo.delete(shop);
-        log.info("Shop with ID = " + id + " deleted successfully");
     }
 
     @Override

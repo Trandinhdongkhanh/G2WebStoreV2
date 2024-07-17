@@ -3,6 +3,8 @@ package com.hcmute.g2webstorev2.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 
 @Getter
 @Setter
@@ -29,4 +31,8 @@ public class Shop {
     private Long balance;
     private Integer violationPoint;
     private Boolean isAllowedToSell;
+    private String bankAccSeriesNum;
+    private String bankName;
+    private String bankAccHolderName;
+    private LocalDate createdDate;
 }

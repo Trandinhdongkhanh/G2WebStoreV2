@@ -6,7 +6,7 @@ import com.hcmute.g2webstorev2.service.ShopService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,9 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/shops")
+@RequiredArgsConstructor
 public class ShopController {
-    @Autowired
-    private ShopService shopService;
+    private final ShopService shopService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ShopResponse> getShop(

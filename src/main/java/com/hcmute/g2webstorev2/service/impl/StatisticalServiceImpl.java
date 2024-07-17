@@ -1,12 +1,10 @@
 package com.hcmute.g2webstorev2.service.impl;
 
-import com.hcmute.g2webstorev2.dto.response.DayStatisticalRes;
-import com.hcmute.g2webstorev2.dto.response.MonthStatisticalRes;
-import com.hcmute.g2webstorev2.dto.response.StatisticalRes;
+import com.hcmute.g2webstorev2.dto.response.*;
+import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Seller;
-import com.hcmute.g2webstorev2.repository.OrderItemRepo;
-import com.hcmute.g2webstorev2.repository.OrderRepo;
-import com.hcmute.g2webstorev2.repository.ProductRepo;
+import com.hcmute.g2webstorev2.entity.Shop;
+import com.hcmute.g2webstorev2.repository.*;
 import com.hcmute.g2webstorev2.service.StatisticalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 
 
 @Service
@@ -24,6 +23,8 @@ public class StatisticalServiceImpl implements StatisticalService {
     private final OrderRepo orderRepo;
     private final OrderItemRepo orderItemRepo;
     private final ProductRepo productRepo;
+    private final CustomerRepo customerRepo;
+    private final ShopRepo shopRepo;
 
     @Override
     public StatisticalRes getStatistical(Integer year) {
@@ -48,6 +49,71 @@ public class StatisticalServiceImpl implements StatisticalService {
                 .canceledOrderCount(canceledOrderCount)
                 .onSaleProductCount(onSaleProductCount)
                 .outOfStockProductCount(outOfStockProductCount)
+                .build();
+    }
+
+    private Long getShopMonthCount(List<Shop> shops, int month) {
+        return (long) shops.stream()
+                .filter(shop -> shop.getCreatedDate().getMonthValue() == month)
+                .toList().size();
+    }
+    private Long getCusMonthCount(List<Customer> customers, int month) {
+        return (long) customers.stream()
+                .filter(customer -> customer.getCreatedDate().getMonthValue() == month)
+                .toList().size();
+    }
+
+    @Override
+    public AdminStatisticalRes getAdminStatistical() {
+        LocalDate today = LocalDate.now();
+        Double income = shopRepo.getTotalShopsBalance() * 0.1;
+        Long todayCustomers = customerRepo.countTodayCustomers(today);
+        Long todayShops = shopRepo.countTodayShops(today);
+
+        List<Shop> shops = shopRepo.findAll();
+        List<Customer> customers = customerRepo.findAll();
+
+        CustomerMonthRes cusMonthRes = CustomerMonthRes.builder()
+                .januaryCount(getCusMonthCount(customers, 1))
+                .februaryCount(getCusMonthCount(customers, 2))
+                .marchCount(getCusMonthCount(customers, 3))
+                .aprilCount(getCusMonthCount(customers, 4))
+                .mayCount(getCusMonthCount(customers, 5))
+                .juneCount(getCusMonthCount(customers, 6))
+                .julyCount(getCusMonthCount(customers, 7))
+                .augustCount(getCusMonthCount(customers, 8))
+                .septemberCount(getCusMonthCount(customers, 9))
+                .octoberCount(getCusMonthCount(customers, 10))
+                .novemberCount(getCusMonthCount(customers, 11))
+                .decemberCount(getCusMonthCount(customers, 12))
+                .build();
+
+        ShopMonthRes shopMonthRes = ShopMonthRes.builder()
+                .januaryCount(getShopMonthCount(shops, 1))
+                .februaryCount(getShopMonthCount(shops, 2))
+                .marchCount(getShopMonthCount(shops, 3))
+                .aprilCount(getShopMonthCount(shops, 4))
+                .mayCount(getShopMonthCount(shops, 5))
+                .juneCount(getShopMonthCount(shops, 6))
+                .julyCount(getShopMonthCount(shops, 7))
+                .augustCount(getShopMonthCount(shops, 8))
+                .septemberCount(getShopMonthCount(shops, 9))
+                .octoberCount(getShopMonthCount(shops, 10))
+                .novemberCount(getShopMonthCount(shops, 11))
+                .decemberCount(getShopMonthCount(shops, 12))
+                .build();
+
+        if (todayCustomers == null) todayCustomers = 0L;
+        if (todayShops == null) todayShops = 0L;
+
+        return AdminStatisticalRes.builder()
+                .customerCount((long) customers.size())
+                .shopCount((long) shops.size())
+                .income(income)
+                .todayCusCount(todayCustomers)
+                .todayShopCount(todayShops)
+                .cusMonthRes(cusMonthRes)
+                .shopMonthRes(shopMonthRes)
                 .build();
     }
 

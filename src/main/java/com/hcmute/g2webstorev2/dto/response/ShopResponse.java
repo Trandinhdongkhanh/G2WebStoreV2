@@ -31,4 +31,10 @@ public class ShopResponse {
     private Boolean isAllowedToSell;
     @JsonProperty("violation_point")
     private Integer violationPoint;
+    @JsonProperty("bank_acc_holder_name")
+    private String bankAccHolderName;
+    @JsonProperty("bank_acc_series_num")
+    private String bankAccSeriesNum;
+    @JsonProperty("bank_name")
+    private String bankName;
 }

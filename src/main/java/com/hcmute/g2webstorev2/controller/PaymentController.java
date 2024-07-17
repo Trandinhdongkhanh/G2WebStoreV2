@@ -96,7 +96,7 @@ public class PaymentController {
         if (vnpayService.isValidSignValue(vnp_SecureHash, req)) {
             if ("00".equals(vnp_TransactionStatus)) {
                 orderService.updateUnPaidOrder(vnp_TxnRef, PaymentType.VNPAY);
-                res.sendRedirect("https://g2store-956cf.web.app/thanks");
+                res.sendRedirect("http://localhost:8002/thanks");
                 return ResponseEntity.ok(ReturnURLResponse.builder()
                         .vnp_Rsp(vnp_ResponseCode)
                         .message("Success")
@@ -104,7 +104,7 @@ public class PaymentController {
                         .build());
             }
         }
-        res.sendRedirect("https://g2store-956cf.web.app/thanks");
+        res.sendRedirect("http://localhost:8002");
         return ResponseEntity.badRequest().body(ReturnURLResponse.builder()
                 .message("Failed")
                 .vnp_Rsp(vnp_ResponseCode)

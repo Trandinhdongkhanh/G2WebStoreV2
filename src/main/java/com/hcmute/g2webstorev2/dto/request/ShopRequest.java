@@ -36,4 +36,10 @@ public class ShopRequest {
     private String wardName;
     @NotBlank(message = "Street cannot be blank")
     private String street;
+    @JsonProperty("bank_acc_holder_name")
+    private String bankAccHolderName;
+    @JsonProperty("bank_name")
+    private String bankName;
+    @JsonProperty("bank_acc_series_num")
+    private String bankAccSeriesNum;
 }

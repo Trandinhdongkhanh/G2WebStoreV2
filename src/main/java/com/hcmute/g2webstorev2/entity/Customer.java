@@ -44,6 +44,7 @@ public class Customer implements UserDetails {
     private Role role;
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CartItemV2> items;
+    private LocalDate createdDate;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();

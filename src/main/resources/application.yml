@@ -1,17 +1,24 @@
 server:
   port: 8080
+#  port: 5000
 
 spring:
   application:
     name: G2WebStoreV2
 
   datasource:
+#    url: jdbc:mysql://g2-db-demo.c34eyiyaco55.ap-southeast-2.rds.amazonaws.com:3306/g2dbdemo
+#    username: admin
+#    password: Khanh1307!
     url: jdbc:mysql://localhost:3306/g2db_test
     username: root
     password: khanh1307
 
   elasticsearch:
     uris: http://localhost:9200
+  #    uris: https://test-8d10fa.es.ap-southeast-2.aws.found.io
+  #    username: elastic
+  #    password: 1obU0tPD8PHsVcjYq3bA5a9x
 
   jpa:
     hibernate:
@@ -59,14 +66,15 @@ firebase:
 
 vnp:
   pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  return-url: http://g2-store-demo.ap-southeast-2.elasticbeanstalk.com/api/v1/payments/return-url
+#  return-url: https//g2-web-store.ap-southeast-2.elasticbeanstalk.com/api/v1/payments/return-url
+  return-url: http://localhost:8080/api/v1/payments/return-url
   api-url: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
   tmn-code: 9279QT0C
   secret-key: RIPBIASTCZTZNUAOQYTKVZDTBLAKOMOR
   version: 2.1.0
 
 captcha:
-  secret: 6LenDxAqAAAAAMwv3IdNcEXokC1a0MneI7C7gRad
+  secret: 6LdcbhIqAAAAAO9zAnMCXRSjux6LtQwwolh2aZqy
   url: https://www.google.com/recaptcha/api/siteverify
 
 ghn:

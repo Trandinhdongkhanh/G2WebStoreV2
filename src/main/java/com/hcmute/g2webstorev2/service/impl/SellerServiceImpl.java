@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +62,7 @@ public class SellerServiceImpl implements SellerService {
             throw new ResourceNotFoundException("Role SELLER_FULL_ACCESS not found");
         if (sellerRepo.existsByEmail(body.getEmail()))
             throw new ResourceNotUniqueException("Email existed");
+        LocalDate now = LocalDate.now();
 
         Shop shop = shopRepo.save(Shop.builder()
                 .image(null)
@@ -68,6 +70,7 @@ public class SellerServiceImpl implements SellerService {
                 .balance(0L)
                 .isAllowedToSell(true)
                 .violationPoint(0)
+                .createdDate(now)
                 .build());
 
         log.info("Shop with ID = " + shop.getShopId() + " created successfully");
