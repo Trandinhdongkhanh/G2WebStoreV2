@@ -16,6 +16,7 @@ import com.hcmute.g2webstorev2.exception.SellFunctionLockedException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.*;
 import com.hcmute.g2webstorev2.service.ElasticSearchService;
+import com.hcmute.g2webstorev2.service.EmailService;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ProductService;
 import com.hcmute.g2webstorev2.util.ProductUtil;
@@ -33,7 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -52,8 +52,9 @@ public class ProductServiceImpl implements ProductService {
     private final ProductESRepo productESRepo;
     private final ReviewRepo reviewRepo;
     private final GCPFileRepo gcpFileRepo;
-    private final OrderRepo orderRepo;
     private final StatisticalUtil statisticalUtil;
+    private final EmailService emailService;
+    private final SellerRepo sellerRepo;
 
     @Override
     @Transactional
@@ -243,14 +244,22 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse bannedProduct(boolean isBanned, Integer productId) {
+    public ProductResponse bannedProduct(boolean isBanned, Integer productId, String reason) {
         Product product = productRepo.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         Shop shop = product.getShop();
         if (isBanned) {
+            Seller seller = sellerRepo.findByShopAndIsMainAcc(shop)
+                    .orElseThrow(() -> new ResourceNotFoundException("Seller not found"));
             shopItemRepo.deleteAllByProduct(product);
             product.setIsAvailable(false);
             shop.setViolationPoint(shop.getViolationPoint() + 1);
+            emailService.sendLockedProductNotification(
+                    "Thông báo khóa sản phẩm",
+                    seller.getEmail(),
+                    product,
+                    reason
+            );
         }
         shopRepo.save(shop);
         product.setIsBanned(isBanned);

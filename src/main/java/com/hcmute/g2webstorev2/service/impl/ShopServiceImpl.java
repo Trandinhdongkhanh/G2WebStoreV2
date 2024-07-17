@@ -10,7 +10,9 @@ import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.CartItemV2Repo;
 import com.hcmute.g2webstorev2.repository.ProductRepo;
+import com.hcmute.g2webstorev2.repository.SellerRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
+import com.hcmute.g2webstorev2.service.EmailService;
 import com.hcmute.g2webstorev2.service.FileService;
 import com.hcmute.g2webstorev2.service.ShopService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,8 @@ public class ShopServiceImpl implements ShopService {
     private final FileService fileService;
     private final CartItemV2Repo cartItemV2Repo;
     private final ProductRepo productRepo;
+    private final EmailService emailService;
+    private final SellerRepo sellerRepo;
 
     @Override
     public ShopResponse getShopInfo(Integer id) {
@@ -102,6 +106,9 @@ public class ShopServiceImpl implements ShopService {
             product.setIsAvailable(false);
         });
         productRepo.saveAll(products);
+        Seller seller = sellerRepo.findByShopAndIsMainAcc(shop)
+                        .orElseThrow(() -> new ResourceNotFoundException("Seller not found"));
+        emailService.sendLockShopNotification("Thông báo khóa vĩnh viễn tài khoản shop", seller.getEmail());
         return Mapper.toShopResponse(shop);
     }
 }

@@ -138,9 +138,10 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductResponse> banProduct(
             @PathVariable("id") Integer productId,
-            @RequestParam(defaultValue = "true", name = "isBanned") boolean isBanned
+            @RequestParam(defaultValue = "true", name = "isBanned") boolean isBanned,
+            @RequestParam("reason") String reason
     ) {
-        return ResponseEntity.ok(productService.bannedProduct(isBanned, productId));
+        return ResponseEntity.ok(productService.bannedProduct(isBanned, productId, reason));
     }
 
 

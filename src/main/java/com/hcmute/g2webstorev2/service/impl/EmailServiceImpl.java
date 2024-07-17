@@ -1,6 +1,7 @@
 package com.hcmute.g2webstorev2.service.impl;
 
 import com.hcmute.g2webstorev2.entity.Order;
+import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.exception.EmailException;
 import com.hcmute.g2webstorev2.service.EmailService;
 import jakarta.mail.MessagingException;
@@ -92,6 +93,60 @@ public class EmailServiceImpl implements EmailService {
             context.setVariables(properties);
 
             String template = templateEngine.process("order_confirmation", context);
+
+            helper.setText(template, true);
+            mailSender.send(mimeMessage);
+
+        } catch (MessagingException e) {
+            throw new EmailException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendLockShopNotification(String subject, String toEmail) {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
+
+        try {
+            helper.setFrom(fromEmail);
+            helper.setSubject(subject);
+            helper.setTo(toEmail);
+
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("email", toEmail);
+
+            Context context = new Context();
+            context.setVariables(properties);
+
+            String template = templateEngine.process("lock_shop_notification", context);
+
+            helper.setText(template, true);
+            mailSender.send(mimeMessage);
+
+        } catch (MessagingException e) {
+            throw new EmailException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendLockedProductNotification(String subject, String toEmail, Product product, String reason) {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
+
+        try {
+            helper.setFrom(fromEmail);
+            helper.setSubject(subject);
+            helper.setTo(toEmail);
+
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("email", toEmail);
+            properties.put("reason", reason);
+            properties.put("id", product.getProductId().toString());
+
+            Context context = new Context();
+            context.setVariables(properties);
+
+            String template = templateEngine.process("lock_product_notification", context);
 
             helper.setText(template, true);
             mailSender.send(mimeMessage);

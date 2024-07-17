@@ -27,7 +27,7 @@ public interface ProductService {
     ProductResponse getProduct(Integer id);
     ProductResponse addProduct(ProductRequest body, MultipartFile[] files) throws IOException;
     ProductResponse enableProduct(boolean isAvailable, Integer productId);
-    ProductResponse bannedProduct(boolean isBanned, Integer productId);
+    ProductResponse bannedProduct(boolean isBanned, Integer productId, String reason);
     void updateProduct(ProductRequest body, Integer id, MultipartFile[] files);
     void delProduct(Integer id);
     Page<ProductResponse> sellerGetAllProductsByShop(Integer pageNumber, Integer pageSize,
