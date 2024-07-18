@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.hcmute.g2webstorev2.entity.Category;
 import com.hcmute.g2webstorev2.entity.Product;
+import com.hcmute.g2webstorev2.entity.ShopCategory;
 import com.hcmute.g2webstorev2.es.index.ProductIndex;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +57,14 @@ public class ProductUtil {
 
         if (category.getChildCategories().isEmpty()) path = category.getPath();
         else path = category.getPath() + "/";
+
+        return path;
+    }
+    public static String getPath(ShopCategory shopCategory){
+        String path;
+
+        if (shopCategory.getChildCategories().isEmpty()) path = shopCategory.getPath();
+        else path = shopCategory.getPath() + "/";
 
         return path;
     }

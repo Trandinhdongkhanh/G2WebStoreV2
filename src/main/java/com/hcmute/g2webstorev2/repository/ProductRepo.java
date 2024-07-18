@@ -77,6 +77,8 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
     Page<Product> findAllByCategory(String path, Pageable pageable);
     @Query("select p from Product p where p.category.path like :path% and p.isAvailable = true")
     List<Product> findAllByCategory(String path);
+    @Query("select p from Product p where p.shopCategory.path like :path% and p.isAvailable = true")
+    Page<Product> findAllByShopCategory(String path, Pageable pageable);
 
     @Query("select p from Product p " +
             "where p.name like :name% " +
@@ -101,10 +103,6 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "order by rand(:seed)")
     Page<Product> findAllByNameAndPriceBetween(String name, Integer startPrice, Integer endPrice, Pageable pageable, Integer seed);
 
-    @Query("select p from Product p " +
-            "where p.shopCategory = :shopCategory " +
-            "and p.isAvailable = true")
-    Page<Product> findAllByShopCategory(ShopCategory shopCategory, Pageable pageable);
     @Query("select count(*) from Product p " +
             "where p.shop.shopId = :shopId")
     long countOnSaleProduct(Integer shopId);

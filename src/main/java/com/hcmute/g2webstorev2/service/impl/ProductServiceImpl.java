@@ -549,7 +549,7 @@ public class ProductServiceImpl implements ProductService {
         ShopCategory shopCategory = shopCateRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop category with ID = " + id + " not found"));
 
-        return productRepo.findAllByShopCategory(shopCategory, PageRequest.of(pageNumber, pageSize))
+        return productRepo.findAllByShopCategory(ProductUtil.getPath(shopCategory), PageRequest.of(pageNumber, pageSize))
                 .map(Mapper::toProductResponse);
     }
 
