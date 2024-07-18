@@ -1,5 +1,7 @@
 package com.hcmute.g2webstorev2.util;
 
+import com.hcmute.g2webstorev2.entity.Order;
+import com.hcmute.g2webstorev2.entity.OrderItem;
 import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.repository.OrderRepo;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -15,12 +18,32 @@ import java.util.Map;
 public class StatisticalUtil {
     private final OrderRepo orderRepo;
 
-    private Long getProductIncome(Product product, LocalDate date) {
-        return orderRepo.getProductIncome(product, date.atStartOfDay(), date.atTime(LocalTime.MAX));
+    private Long getProductIncomeByDay(Product product, LocalDate date) {
+        List<Order> orders = orderRepo.getOrdersByShop(product.getShop(), date.atStartOfDay(), date.atTime(LocalTime.MAX));
+        long income = 0;
+        for (Order order : orders) {
+            for (OrderItem orderItem : order.getOrderItems()) {
+                if (orderItem.getProductId().equals(product.getProductId())) {
+                    income += (long) orderItem.getPrice() * orderItem.getQuantity();
+                }
+            }
+        }
+        return income;
     }
-    private Long getProductIncome(Product product, LocalDate start, LocalDate end) {
-        return orderRepo.getProductIncome(product, start.atStartOfDay(), end.atTime(LocalTime.MAX));
+
+    private Long getProductIncomeByMonth(Product product, LocalDate start, LocalDate end) {
+        List<Order> orders = orderRepo.getOrdersByShop(product.getShop(), start.atStartOfDay(), end.atTime(LocalTime.MAX));
+        long income = 0;
+        for (Order order : orders) {
+            for (OrderItem orderItem : order.getOrderItems()) {
+                if (orderItem.getProductId().equals(product.getProductId())) {
+                    income += (long) orderItem.getPrice() * orderItem.getQuantity();
+                }
+            }
+        }
+        return income;
     }
+
     private LocalDate getEndOfMonth(LocalDate date) {
         return date.with(TemporalAdjusters.lastDayOfMonth());
     }
@@ -41,18 +64,18 @@ public class StatisticalUtil {
         LocalDate startNovember = LocalDate.of(year, Month.NOVEMBER, 1);
         LocalDate startDecember = LocalDate.of(year, Month.DECEMBER, 1);
 
-        Long januaryIncome = getProductIncome(product, startJanuary, getEndOfMonth(startJanuary));
-        Long februaryIncome = getProductIncome(product, startFebruary, getEndOfMonth(startFebruary));
-        Long marchIncome = getProductIncome(product, startMarch, getEndOfMonth(startMarch));
-        Long aprilIncome = getProductIncome(product, startApril, getEndOfMonth(startApril));
-        Long mayIncome = getProductIncome(product, startMay, getEndOfMonth(startMay));
-        Long juneIncome = getProductIncome(product, startJune, getEndOfMonth(startJune));
-        Long julyIncome = getProductIncome(product, startJuly, getEndOfMonth(startJuly));
-        Long augustIncome = getProductIncome(product, startAugust, getEndOfMonth(startAugust));
-        Long septemberIncome = getProductIncome(product, startSeptember, getEndOfMonth(startSeptember));
-        Long octoberIncome = getProductIncome(product, startOctober, getEndOfMonth(startOctober));
-        Long novemberIncome = getProductIncome(product, startNovember, getEndOfMonth(startNovember));
-        Long decemberIncome = getProductIncome(product, startDecember, getEndOfMonth(startDecember));
+        Long januaryIncome = getProductIncomeByMonth(product, startJanuary, getEndOfMonth(startJanuary));
+        Long februaryIncome = getProductIncomeByMonth(product, startFebruary, getEndOfMonth(startFebruary));
+        Long marchIncome = getProductIncomeByMonth(product, startMarch, getEndOfMonth(startMarch));
+        Long aprilIncome = getProductIncomeByMonth(product, startApril, getEndOfMonth(startApril));
+        Long mayIncome = getProductIncomeByMonth(product, startMay, getEndOfMonth(startMay));
+        Long juneIncome = getProductIncomeByMonth(product, startJune, getEndOfMonth(startJune));
+        Long julyIncome = getProductIncomeByMonth(product, startJuly, getEndOfMonth(startJuly));
+        Long augustIncome = getProductIncomeByMonth(product, startAugust, getEndOfMonth(startAugust));
+        Long septemberIncome = getProductIncomeByMonth(product, startSeptember, getEndOfMonth(startSeptember));
+        Long octoberIncome = getProductIncomeByMonth(product, startOctober, getEndOfMonth(startOctober));
+        Long novemberIncome = getProductIncomeByMonth(product, startNovember, getEndOfMonth(startNovember));
+        Long decemberIncome = getProductIncomeByMonth(product, startDecember, getEndOfMonth(startDecember));
 
         if (januaryIncome == null) januaryIncome = 0L;
         if (februaryIncome == null) februaryIncome = 0L;
@@ -92,13 +115,13 @@ public class StatisticalUtil {
         LocalDate saturday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.SATURDAY));
         LocalDate sunday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 
-        Long mondayIncome = getProductIncome(product, monday);
-        Long tuesdayIncome = getProductIncome(product, tuesday);
-        Long wednesdayIncome = getProductIncome(product, wednesday);
-        Long thursdayIncome = getProductIncome(product, thursday);
-        Long fridayIncome = getProductIncome(product, friday);
-        Long saturdayIncome = getProductIncome(product, saturday);
-        Long sundayIncome = getProductIncome(product, sunday);
+        Long mondayIncome = getProductIncomeByDay(product, monday);
+        Long tuesdayIncome = getProductIncomeByDay(product, tuesday);
+        Long wednesdayIncome = getProductIncomeByDay(product, wednesday);
+        Long thursdayIncome = getProductIncomeByDay(product, thursday);
+        Long fridayIncome = getProductIncomeByDay(product, friday);
+        Long saturdayIncome = getProductIncomeByDay(product, saturday);
+        Long sundayIncome = getProductIncomeByDay(product, sunday);
 
 
         if (mondayIncome == null) mondayIncome = 0L;

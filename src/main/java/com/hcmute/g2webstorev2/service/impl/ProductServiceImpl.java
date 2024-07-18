@@ -321,9 +321,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Long getProductIncome(Product product) {
-        Long productIncome = orderRepo.getProductIncome(product);
-        if (productIncome == null) return 0L;
-        return productIncome;
+        List<Order> orders = orderRepo.getOrdersByShop(product.getShop());
+        long income = 0;
+        for (Order order : orders) {
+            for (OrderItem orderItem : order.getOrderItems()) {
+                if (orderItem.getProductId().equals(product.getProductId())) {
+                    income += (long) orderItem.getPrice() * orderItem.getQuantity();
+                }
+            }
+        }
+        return income;
     }
 
     @Override

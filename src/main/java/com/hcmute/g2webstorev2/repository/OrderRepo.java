@@ -2,7 +2,6 @@ package com.hcmute.g2webstorev2.repository;
 
 import com.hcmute.g2webstorev2.entity.Customer;
 import com.hcmute.g2webstorev2.entity.Order;
-import com.hcmute.g2webstorev2.entity.Product;
 import com.hcmute.g2webstorev2.entity.Shop;
 import com.hcmute.g2webstorev2.enums.OrderStatus;
 import org.springframework.data.domain.Page;
@@ -26,17 +25,15 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
             "and o.deliveredDate between :startTime and :endTime and " +
             "o.orderStatus = 'RECEIVED'")
     Long getShopIncome(Integer shopId, LocalDateTime startTime, LocalDateTime endTime);
-    @Query("select sum(o.grandTotal) from Order o " +
-            "inner join Product p on o.shop = p.shop " +
-            "where p = :product and " +
-            "o.deliveredDate between :start and :end and " +
+    @Query("select o from Order o " +
+            "where o.shop = :shop and " +
+            "o.deliveredDate between :start and :end " +
+            "and o.orderStatus ='RECEIVED'")
+    List<Order> getOrdersByShop(Shop shop, LocalDateTime start, LocalDateTime end);
+    @Query("select o from Order o " +
+            "where o.shop = :shop and " +
             "o.orderStatus = 'RECEIVED'")
-    Long getProductIncome(Product product, LocalDateTime start, LocalDateTime end);
-    @Query("select sum(o.grandTotal) from Order o " +
-            "inner join Product p on o.shop = p.shop " +
-            "where p = :product and " +
-            "o.orderStatus = 'RECEIVED'")
-    Long getProductIncome(Product product);
+    List<Order> getOrdersByShop(Shop shop);
     @Query("select count(*) from Order o where o.shop.shopId = :shopId " +
             "and o.orderStatus = 'RECEIVED'")
     long countSuccessOrder(Integer shopId);

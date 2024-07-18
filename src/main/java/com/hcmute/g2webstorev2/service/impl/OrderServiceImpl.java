@@ -129,23 +129,30 @@ public class OrderServiceImpl implements OrderService {
             Order newOrder = setUpOrder(body.getPaymentType(), customer, cartItemV2, address, order.getFeeShip());
             List<OrderItem> orderItems = handleOrderItemCreationProcess(cartItemV2, newOrder);
             newOrder.setOrderItems(orderItems);
-            if (body.getIsPointSpent()) {
-                Double pointSpent = customer.getPoint() / cartItemV2List.size();
-                newOrder.setPointSpent(pointSpent);
-                newOrder.setGrandTotal((int) (newOrder.getGrandTotal() - pointSpent));
-            }
             orders.add(newOrder);
         }
 
         int ordersTotalPrice = 0;
         for (Order order : orders) ordersTotalPrice += order.getGrandTotal();
         if (body.getIsPointSpent()) {
-            if (ordersTotalPrice <= customer.getPoint()) {
+            if (customer.getPoint() > ordersTotalPrice) {
+                double pointSpentPerOrder = (double) ordersTotalPrice / orders.size();
+                orders.forEach(order -> {
+                    order.setPointSpent(pointSpentPerOrder);
+                    order.setGrandTotal((int) (order.getGrandTotal() - pointSpentPerOrder));
+                    if (order.getGrandTotal() <= 0)
+                        order.setGrandTotal(0);
+                });
                 ordersTotalPrice = 0;
-                customer.setPoint(customer.getPoint() - ordersTotalPrice);
             } else {
+                double pointSpentPerOrder = (double) customer.getPoint() / orders.size();
+                orders.forEach(order -> {
+                    order.setPointSpent(pointSpentPerOrder);
+                    order.setGrandTotal((int) (order.getGrandTotal() - pointSpentPerOrder));
+                    if (order.getGrandTotal() <= 0)
+                        order.setGrandTotal(0);
+                });
                 ordersTotalPrice -= customer.getPoint();
-                customer.setPoint(0);
             }
         }
         double pointEarned = ordersTotalPrice * 0.1;
