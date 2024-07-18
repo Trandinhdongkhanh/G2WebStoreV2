@@ -48,8 +48,8 @@ public class ProductUtil {
         return products.subList(start, end);
     }
 
-    public static boolean isBelongToShopCate(Product product, Integer shopCateId) {
-        return product.getShopCategory() != null && product.getShopCategory().getId().equals(shopCateId);
+    public static boolean isBelongToShopCate(Product product, ShopCategory shopCategory) {
+        return product.getShopCategory().getPath().startsWith(getPath(shopCategory));
     }
 
     public static String getPath(Category category) {

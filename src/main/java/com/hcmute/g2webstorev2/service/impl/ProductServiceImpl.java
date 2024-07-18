@@ -406,10 +406,13 @@ public class ProductServiceImpl implements ProductService {
             products = products.stream()
                     .filter(product -> product.getPrice() >= startPrice && product.getPrice() <= endPrice)
                     .collect(Collectors.toList());
-        if (shopCateId != null)
+        if (shopCateId != null) {
+            ShopCategory shopCategory = shopCateRepo.findById(shopCateId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Shop Category not found"));
             products = products.stream()
-                    .filter(product -> ProductUtil.isBelongToShopCate(product, shopCateId))
+                    .filter(product -> ProductUtil.isBelongToShopCate(product, shopCategory))
                     .collect(Collectors.toList());
+        }
         PageRequest pageable = PageRequest.of(page, size);
 
         switch (sortType) {
@@ -549,7 +552,7 @@ public class ProductServiceImpl implements ProductService {
         ShopCategory shopCategory = shopCateRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shop category with ID = " + id + " not found"));
 
-        return productRepo.findAllByShopCategory(ProductUtil.getPath(shopCategory), PageRequest.of(pageNumber, pageSize))
+        return productRepo.findAllByShopCategory(shopCategory, PageRequest.of(pageNumber, pageSize))
                 .map(Mapper::toProductResponse);
     }
 
