@@ -22,6 +22,5 @@ public class G2WebStoreV2Application {
 
     public static void main(String[] args) {
         SpringApplication.run(G2WebStoreV2Application.class, args);
-        System.setProperty("user.timezone", "Asia/Ho_Chi_Minh");
     }
 }

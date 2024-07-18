@@ -21,6 +21,7 @@ public class Product {
     private String name;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<GCPFile> images;
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
     private Integer price;
     private Integer stockQuantity;
