@@ -132,6 +132,7 @@ public class OrderServiceImpl implements OrderService {
             if (body.getIsPointSpent()) {
                 Double pointSpent = customer.getPoint() / cartItemV2List.size();
                 newOrder.setPointSpent(pointSpent);
+                newOrder.setGrandTotal((int) (newOrder.getGrandTotal() - pointSpent));
             }
             orders.add(newOrder);
         }

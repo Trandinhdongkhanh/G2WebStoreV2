@@ -16,9 +16,9 @@ spring:
 
   elasticsearch:
     uris: http://localhost:9200
-  #    uris: https://test-8d10fa.es.ap-southeast-2.aws.found.io
-  #    username: elastic
-  #    password: 1obU0tPD8PHsVcjYq3bA5a9x
+#      uris: https://test-8d10fa.es.ap-southeast-2.aws.found.io
+#      username: elastic
+#      password: 1obU0tPD8PHsVcjYq3bA5a9x
 
   jpa:
     hibernate:
