@@ -3,11 +3,9 @@ package com.hcmute.g2webstorev2.service.impl;
 import com.hcmute.g2webstorev2.dto.request.ShopCateRequest;
 import com.hcmute.g2webstorev2.dto.response.ShopCateResponse;
 import com.hcmute.g2webstorev2.entity.Seller;
-import com.hcmute.g2webstorev2.entity.Shop;
 import com.hcmute.g2webstorev2.entity.ShopCategory;
 import com.hcmute.g2webstorev2.exception.ResourceNotFoundException;
 import com.hcmute.g2webstorev2.exception.ResourceNotUniqueException;
-import com.hcmute.g2webstorev2.exception.ShopCategoryException;
 import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.ShopCateRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
@@ -99,11 +97,11 @@ public class ShopCateServiceImpl implements ShopCateService {
                     .orElseThrow(() ->
                             new ResourceNotFoundException("Parent category with ID = " + body.getParentId() + " not found"));
         }
-        ShopCategory shopCategory = ShopCategory.builder()
+        ShopCategory shopCategory = shopCateRepo.save(ShopCategory.builder()
                 .name(body.getName())
                 .parentCategory(parentCategory)
                 .shop(seller.getShop())
-                .build();
+                .build());
 
         if (parentCategory == null) shopCategory.setPath(shopCategory.getId().toString());
         else shopCategory.setPath(parentCategory.getPath() + "/" + shopCategory.getId().toString());
