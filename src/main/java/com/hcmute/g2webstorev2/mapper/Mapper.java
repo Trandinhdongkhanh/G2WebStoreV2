@@ -140,6 +140,7 @@ public class Mapper {
                 .shopId(shopCategory.getShop().getShopId())
                 .childCategories(childCategories)
                 .name(shopCategory.getName())
+                .path(shopCategory.getPath())
                 .build();
     }
 

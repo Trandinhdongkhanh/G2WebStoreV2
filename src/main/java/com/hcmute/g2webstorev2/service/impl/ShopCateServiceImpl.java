@@ -12,8 +12,8 @@ import com.hcmute.g2webstorev2.mapper.Mapper;
 import com.hcmute.g2webstorev2.repository.ShopCateRepo;
 import com.hcmute.g2webstorev2.repository.ShopRepo;
 import com.hcmute.g2webstorev2.service.ShopCateService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,11 +25,10 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ShopCateServiceImpl implements ShopCateService {
-    @Autowired
-    private ShopCateRepo shopCateRepo;
-    @Autowired
-    private ShopRepo shopRepo;
+    private final ShopCateRepo shopCateRepo;
+    private final ShopRepo shopRepo;
     @Override
     public ShopCateResponse getShopCategory(Integer id) {
         return Mapper.toShopCateResponse(shopCateRepo.findById(id)
@@ -59,6 +58,10 @@ public class ShopCateServiceImpl implements ShopCateService {
 
         category.setParentCategory(parentCategory);
         category.setName(body.getName());
+
+        if (parentCategory == null) category.setPath(category.getId().toString());
+        else category.setPath(parentCategory.getPath() + "/" + category.getId().toString());
+
         log.info("Update category with ID = " + id + " successfully");
     }
 
@@ -86,9 +89,6 @@ public class ShopCateServiceImpl implements ShopCateService {
     @Transactional
     public ShopCateResponse addShopCategory(ShopCateRequest body) {
         Seller seller = (Seller) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Shop shop = shopRepo.findById(seller.getShop().getShopId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Shop with ID = " + seller.getShop().getShopId() + " not found"));
 
         if (shopCateRepo.existsByNameAndShop_ShopId(body.getName(), seller.getShop().getShopId()))
             throw new ResourceNotUniqueException("Duplicate category name");
@@ -99,17 +99,16 @@ public class ShopCateServiceImpl implements ShopCateService {
                     .orElseThrow(() ->
                             new ResourceNotFoundException("Parent category with ID = " + body.getParentId() + " not found"));
         }
+        ShopCategory shopCategory = ShopCategory.builder()
+                .name(body.getName())
+                .parentCategory(parentCategory)
+                .shop(seller.getShop())
+                .build();
 
-        if (parentCategory != null && parentCategory.getParentCategory() != null)
-            throw new ShopCategoryException("Category range exceeded limitation (maximum 2 level)");
+        if (parentCategory == null) shopCategory.setPath(shopCategory.getId().toString());
+        else shopCategory.setPath(parentCategory.getPath() + "/" + shopCategory.getId().toString());
 
-
-        ShopCateResponse res = Mapper.toShopCateResponse(shopCateRepo.save(
-                ShopCategory.builder()
-                        .name(body.getName())
-                        .parentCategory(parentCategory)
-                        .shop(shop)
-                        .build()));
+        ShopCateResponse res = Mapper.toShopCateResponse(shopCategory);
         log.info("Category created successfully");
         return res;
     }

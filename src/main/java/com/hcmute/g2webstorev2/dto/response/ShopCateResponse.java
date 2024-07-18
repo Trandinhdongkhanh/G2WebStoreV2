@@ -1,7 +1,6 @@
 package com.hcmute.g2webstorev2.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hcmute.g2webstorev2.entity.ShopCategory;
 import lombok.*;
 
 import java.util.List;
@@ -19,4 +18,5 @@ public class ShopCateResponse {
     private Integer shopId;
     @JsonProperty("child_categories")
     private List<ShopCateResponse> childCategories;
+    private String path;
 }
