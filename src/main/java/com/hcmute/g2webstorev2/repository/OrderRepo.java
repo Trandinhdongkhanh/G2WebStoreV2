@@ -32,6 +32,11 @@ public interface OrderRepo extends JpaRepository<Order, Integer> {
             "o.deliveredDate between :start and :end and " +
             "o.orderStatus = 'RECEIVED'")
     Long getProductIncome(Product product, LocalDateTime start, LocalDateTime end);
+    @Query("select sum(o.grandTotal) from Order o " +
+            "inner join Product p on o.shop = p.shop " +
+            "where p = :product and " +
+            "o.orderStatus = 'RECEIVED'")
+    Long getProductIncome(Product product);
     @Query("select count(*) from Order o where o.shop.shopId = :shopId " +
             "and o.orderStatus = 'RECEIVED'")
     long countSuccessOrder(Integer shopId);

@@ -27,6 +27,12 @@ public interface ProductRepo extends JpaRepository<Product, Integer> {
             "where p.shop = :shop")
     Page<Product> sellerFindAllByShop(Shop shop, Pageable pageable);
     @Query("select p from Product p " +
+            "where p.shop = :shop")
+    Page<Product> sellerFindAllByShopProductIncomeDesc(Shop shop, Pageable pageable);
+    @Query("select p from Product p " +
+            "where p.shop = :shop")
+    List<Product> sellerGetAllProductsByShop(Shop shop);
+    @Query("select p from Product p " +
             "where p.shop = :shop and p.isAvailable = true")
     Page<Product> customerFindAllByShop(Shop shop, Pageable pageable);
     @Query("select p from Product p " +

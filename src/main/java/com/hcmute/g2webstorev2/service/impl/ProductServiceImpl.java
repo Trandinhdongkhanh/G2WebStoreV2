@@ -55,6 +55,7 @@ public class ProductServiceImpl implements ProductService {
     private final StatisticalUtil statisticalUtil;
     private final EmailService emailService;
     private final SellerRepo sellerRepo;
+    private final OrderRepo orderRepo;
 
     @Override
     @Transactional
@@ -319,6 +320,12 @@ public class ProductServiceImpl implements ProductService {
         log.info("Product with ID = " + id + " deleted successfully");
     }
 
+    private Long getProductIncome(Product product) {
+        Long productIncome = orderRepo.getProductIncome(product);
+        if (productIncome == null) return 0L;
+        return productIncome;
+    }
+
     @Override
     public Page<ProductResponse> sellerGetAllProductsByShop(Integer pageNumber, Integer pageSize,
                                                             ShopProductsSortType sortType) {
@@ -356,6 +363,20 @@ public class ProductServiceImpl implements ProductService {
                             shop,
                             PageRequest.of(pageNumber, pageSize, Sort.by("soldQuantity").descending())
                     ).map(Mapper::toProductResponse);
+                }
+                case TOP_INCOME -> {
+                    PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+                    List<Product> products = productRepo.sellerGetAllProductsByShop(shop);
+                    products.sort(Comparator.comparingLong(this::getProductIncome).reversed());
+                    return new PageImpl<>(ProductUtil.getContent(products, pageable), pageable, products.size())
+                            .map(Mapper::toProductResponse);
+                }
+                case LOW_INCOME -> {
+                    PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+                    List<Product> products = productRepo.sellerGetAllProductsByShop(shop);
+                    products.sort(Comparator.comparingLong(this::getProductIncome));
+                    return new PageImpl<>(ProductUtil.getContent(products, pageable), pageable, products.size())
+                            .map(Mapper::toProductResponse);
                 }
             }
         }

@@ -5,5 +5,7 @@ public enum ShopProductsSortType {
     STOCK_QUANTITY_ASC,
     SOLD_QUANTITY_DESC,
     SOLD_QUANTITY_ASC,
-    DEFAULT
+    DEFAULT,
+    TOP_INCOME,
+    LOW_INCOME
 }
