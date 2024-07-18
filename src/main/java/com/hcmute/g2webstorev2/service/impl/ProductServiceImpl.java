@@ -407,10 +407,8 @@ public class ProductServiceImpl implements ProductService {
                     .filter(product -> product.getPrice() >= startPrice && product.getPrice() <= endPrice)
                     .collect(Collectors.toList());
         if (shopCateId != null) {
-            ShopCategory shopCategory = shopCateRepo.findById(shopCateId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Shop Category not found"));
             products = products.stream()
-                    .filter(product -> ProductUtil.isBelongToShopCate(product, shopCategory))
+                    .filter(product -> ProductUtil.isBelongToShopCate(product, shopCateId))
                     .collect(Collectors.toList());
         }
         PageRequest pageable = PageRequest.of(page, size);
