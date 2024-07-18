@@ -143,6 +143,7 @@ public class OrderServiceImpl implements OrderService {
                     if (order.getGrandTotal() <= 0)
                         order.setGrandTotal(0);
                 });
+                customer.setPoint(customer.getPoint() - ordersTotalPrice);
                 ordersTotalPrice = 0;
             } else {
                 double pointSpentPerOrder = (double) customer.getPoint() / orders.size();
@@ -153,6 +154,7 @@ public class OrderServiceImpl implements OrderService {
                         order.setGrandTotal(0);
                 });
                 ordersTotalPrice -= customer.getPoint();
+                customer.setPoint(0);
             }
         }
         double pointEarned = ordersTotalPrice * 0.1;
