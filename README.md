@@ -6,14 +6,14 @@ about their order. In summary, it has all the basic functions of an e-commerce w
 **Link to FE github**: https://github.com/Daongocthach/G2Store_FE
 
 **Technologies used (Back End)**: 
-* GG Cloud Storage, Firebase Storage
+* Elasticsearch
+* Websocket
 * ORM (Spring Data JPA)
+* GG Cloud Storage, Firebase Storage
 * Springboot
 * Java 17
 * MySQL
 * Spring Security
 * JWT
 * Open AI (Swagger)
-* Elasticsearch
 * 3rd party APIs (VNPAY, GHN)
-* Websocket
