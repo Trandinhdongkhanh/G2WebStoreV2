@@ -17,3 +17,4 @@ about their order. In summary, it has all the basic functions of an e-commerce w
 * JWT
 * Open AI (Swagger)
 * 3rd party APIs (VNPAY, GHN)
+* AWS (Elastic Beanstalk, RDS, EC2)
